@@ -1,0 +1,500 @@
+export type Category =
+  | "all"
+  | "finance"
+  | "education"
+  | "realestate"
+  | "automotive"
+  | "legal"
+  | "health"
+  | "daily"
+  | "labor"
+  | "nutrition"
+  | "religion"
+  | "metals";
+
+export interface Calculator {
+  id: string;
+  name: string;
+  description: string;
+  category: Category;
+  icon: string;
+  path: string;
+  popular?: boolean;
+}
+
+export const categories: { id: Category; name: string; icon: string }[] = [
+  { id: "all", name: "Hamısı", icon: "📋" },
+  { id: "finance", name: "Maliyyə", icon: "💰" },
+  { id: "education", name: "Təhsil", icon: "🎓" },
+  { id: "realestate", name: "Daşınmaz Əmlak", icon: "🏠" },
+  { id: "automotive", name: "Avtomobil", icon: "🚗" },
+  { id: "legal", name: "Hüquq və Dövlət", icon: "⚖️" },
+  { id: "health", name: "Sağlamlıq", icon: "❤️" },
+  { id: "daily", name: "Gündəlik", icon: "📅" },
+  { id: "labor", name: "Əmək Hüququ", icon: "📋" },
+  { id: "nutrition", name: "Qidalanma", icon: "🍎" },
+  { id: "religion", name: "Din", icon: "🕌" },
+  { id: "metals", name: "Qiymətli Metallar", icon: "💎" },
+];
+
+export const calculators: Calculator[] = [
+  // 💰 Finance
+  {
+    id: "salary",
+    name: "Əmək haqqı hesablayıcısı",
+    description: "Gross-dan net-ə hesablama, gəlir vergisi, DSMF, işsizlik sığortası",
+    category: "finance",
+    icon: "💵",
+    path: "/hesablayici/emek-haqqi",
+    popular: true,
+  },
+  {
+    id: "loan",
+    name: "Kredit hesablayıcısı",
+    description: "Aylıq ödəniş, amortizasiya cədvəli hesablama",
+    category: "finance",
+    icon: "🏦",
+    path: "/hesablayici/kredit",
+    popular: true,
+  },
+  {
+    id: "mortgage",
+    name: "İpoteka hesablayıcısı",
+    description: "İpoteka kreditinin aylıq ödənişi və ümumi məbləği",
+    category: "finance",
+    icon: "🏡",
+    path: "/hesablayici/ipoteka",
+  },
+  {
+    id: "deposit",
+    name: "Depozit hesablayıcısı",
+    description: "Sadə və mürəkkəb faiz hesablaması",
+    category: "finance",
+    icon: "🏧",
+    path: "/hesablayici/depozit",
+  },
+  {
+    id: "vat",
+    name: "ƏDV hesablayıcısı",
+    description: "ƏDV hesablaması (18%, 10%, 5%)",
+    category: "finance",
+    icon: "🧾",
+    path: "/hesablayici/edv",
+    popular: true,
+  },
+  {
+    id: "currency",
+    name: "Valyuta çevirici",
+    description: "USD, EUR, RUB, TRY, GBP → AZN çevirmə",
+    category: "finance",
+    icon: "💱",
+    path: "/hesablayici/valyuta",
+    popular: true,
+  },
+  {
+    id: "dividend-tax",
+    name: "Dividend vergisi hesablayıcısı",
+    description: "Dividend gəlirinə 5% vergi hesablaması",
+    category: "finance",
+    icon: "📊",
+    path: "/hesablayici/dividend-vergisi",
+  },
+  {
+    id: "freelancer-tax",
+    name: "Frilansçı vergi hesablayıcısı",
+    description: "Fərdi sahibkar və frilansçı üçün vergi hesablaması",
+    category: "finance",
+    icon: "💻",
+    path: "/hesablayici/frilansci-vergi",
+  },
+  {
+    id: "rental-income-tax",
+    name: "Kirayə gəlir vergisi",
+    description: "Kirayə gəlirindən vergi hesablaması",
+    category: "finance",
+    icon: "🔑",
+    path: "/hesablayici/kiraye-gelir-vergisi",
+  },
+  {
+    id: "overtime",
+    name: "Əlavə iş saatı hesablayıcısı",
+    description: "Əlavə iş saatı üçün əmək haqqı hesablaması",
+    category: "finance",
+    icon: "⏰",
+    path: "/hesablayici/elave-is-saati",
+  },
+  {
+    id: "teacher-salary",
+    name: "Müəllim maaşı hesablayıcısı",
+    description: "Dərs saatı, kateqoriya, staj və əlavələrə görə müəllim maaşı",
+    category: "finance",
+    icon: "👨‍🏫",
+    path: "/hesablayici/muellim-maasi",
+    popular: true,
+  },
+
+  // 🎓 Education
+  {
+    id: "ielts",
+    name: "IELTS bal hesablayıcısı",
+    description: "Listening, Reading, Writing, Speaking → Overall band score",
+    category: "education",
+    icon: "📝",
+    path: "/hesablayici/ielts",
+    popular: true,
+  },
+  {
+    id: "toefl",
+    name: "TOEFL bal hesablayıcısı",
+    description: "TOEFL imtahan balının hesablanması",
+    category: "education",
+    icon: "📖",
+    path: "/hesablayici/toefl",
+  },
+  {
+    id: "sat",
+    name: "SAT bal hesablayıcısı",
+    description: "SAT imtahan balının hesablanması",
+    category: "education",
+    icon: "✏️",
+    path: "/hesablayici/sat",
+  },
+  {
+    id: "university-admission",
+    name: "Universitet qəbul balı",
+    description: "Fakültə seçin → minimum keçid balı",
+    category: "education",
+    icon: "🎓",
+    path: "/hesablayici/universitet-qebul",
+  },
+  {
+    id: "gpa",
+    name: "GPA çevirici",
+    description: "100 ballıq sistemdən 4.0 şkalasına çevirmə",
+    category: "education",
+    icon: "📐",
+    path: "/hesablayici/gpa",
+  },
+  {
+    id: "school-grade",
+    name: "Məktəb qiymət ortalaması",
+    description: "Azərbaycan 2-5 qiymətləndirmə sistemi üzrə ortalama",
+    category: "education",
+    icon: "📚",
+    path: "/hesablayici/mekteb-qiymet",
+  },
+  {
+    id: "state-grant",
+    name: "Dövlət qrantı balı",
+    description: "Qrant almaq üçün neçə bal lazımdır?",
+    category: "education",
+    icon: "🏆",
+    path: "/hesablayici/dovlet-qranti",
+  },
+  {
+    id: "foreign-university",
+    name: "Xaricdə təhsil şansı",
+    description: "GPA + IELTS + ölkə → qəbul şansı %",
+    category: "education",
+    icon: "🌍",
+    path: "/hesablayici/xaricde-tehsil",
+  },
+
+  // 🏠 Real Estate
+  {
+    id: "property-tax",
+    name: "Əmlak alqı-satqı vergisi",
+    description: "Azərbaycanda əmlak alışında vergi hesablaması",
+    category: "realestate",
+    icon: "🏢",
+    path: "/hesablayici/emlak-vergisi",
+  },
+  {
+    id: "rental-tax",
+    name: "Kirayə vergisi hesablayıcısı",
+    description: "Kirayə gəlirindən vergi hesablaması",
+    category: "realestate",
+    icon: "🏘️",
+    path: "/hesablayici/kiraye-vergisi",
+  },
+  {
+    id: "price-per-sqm",
+    name: "Kvadratmetr qiyməti",
+    description: "1 m² üçün qiymət hesablaması",
+    category: "realestate",
+    icon: "📏",
+    path: "/hesablayici/kvadratmetr",
+  },
+  {
+    id: "utility-bills",
+    name: "Kommunal xərclər hesablayıcısı",
+    description: "Elektrik, qaz, su — Azərbaycan tarifləri ilə",
+    category: "realestate",
+    icon: "💡",
+    path: "/hesablayici/kommunal",
+    popular: true,
+  },
+  {
+    id: "notary-fee",
+    name: "Notarius xərcləri",
+    description: "Notarius rüsumu hesablaması",
+    category: "realestate",
+    icon: "📜",
+    path: "/hesablayici/notarius",
+  },
+
+  // 🚗 Automotive
+  {
+    id: "car-customs",
+    name: "Avtomobil gömrük hesablayıcısı",
+    description: "Xaricdən avtomobil idxalında gömrük vergisi",
+    category: "automotive",
+    icon: "🚗",
+    path: "/hesablayici/avtomobil-gomruk",
+    popular: true,
+  },
+  {
+    id: "road-tax",
+    name: "Yol vergisi hesablayıcısı",
+    description: "İllik yol vergisi hesablaması",
+    category: "automotive",
+    icon: "🛣️",
+    path: "/hesablayici/yol-vergisi",
+  },
+  {
+    id: "osago",
+    name: "OSAGO sığorta hesablayıcısı",
+    description: "İcbari avtomobil sığortası qiyməti",
+    category: "automotive",
+    icon: "🛡️",
+    path: "/hesablayici/osago",
+  },
+  {
+    id: "fuel-cost",
+    name: "Yanacaq xərci hesablayıcısı",
+    description: "Məsafə + sərfiyyat → yanacaq xərci",
+    category: "automotive",
+    icon: "⛽",
+    path: "/hesablayici/yanacaq",
+  },
+  {
+    id: "car-loan",
+    name: "Avtomobil krediti hesablayıcısı",
+    description: "Avtomobil krediti aylıq ödənişi",
+    category: "automotive",
+    icon: "🚙",
+    path: "/hesablayici/avtomobil-kredit",
+  },
+
+  // ⚖️ Legal & Government
+  {
+    id: "court-fee",
+    name: "Məhkəmə rüsumu hesablayıcısı",
+    description: "Məhkəmə rüsumu hesablaması",
+    category: "legal",
+    icon: "⚖️",
+    path: "/hesablayici/mehkeme-rusumu",
+  },
+  {
+    id: "maternity-leave",
+    name: "Analıq məzuniyyəti hesablayıcısı",
+    description: "Analıq məzuniyyəti ödənişi hesablaması",
+    category: "legal",
+    icon: "👶",
+    path: "/hesablayici/analiq-mezuniyyeti",
+  },
+  {
+    id: "unemployment-benefit",
+    name: "İşsizlik müavinəti hesablayıcısı",
+    description: "İşsizlik müavinəti məbləğinin hesablanması",
+    category: "legal",
+    icon: "📋",
+    path: "/hesablayici/issizlik-muavineti",
+  },
+  {
+    id: "disability-benefit",
+    name: "Əlillik müavinəti hesablayıcısı",
+    description: "Əlillik müavinəti məbləğinin hesablanması",
+    category: "legal",
+    icon: "♿",
+    path: "/hesablayici/elillik-muavineti",
+  },
+  {
+    id: "customs-duty",
+    name: "Gömrük rüsumu hesablayıcısı",
+    description: "Xaricdən gətirilən mallara gömrük rüsumu",
+    category: "legal",
+    icon: "📦",
+    path: "/hesablayici/gomruk-rusumu",
+  },
+
+  // ❤️ Health
+  {
+    id: "bmi",
+    name: "BMI hesablayıcısı",
+    description: "Bədən kütlə indeksinin hesablanması və təfsiri",
+    category: "health",
+    icon: "⚖️",
+    path: "/hesablayici/bmi",
+    popular: true,
+  },
+  {
+    id: "bmr",
+    name: "Kalori hesablayıcısı",
+    description: "Gündəlik kalori ehtiyacı (BMR) hesablaması",
+    category: "health",
+    icon: "🔥",
+    path: "/hesablayici/kalori",
+  },
+  {
+    id: "water-intake",
+    name: "Su norması hesablayıcısı",
+    description: "Gündəlik su qəbulu norması",
+    category: "health",
+    icon: "💧",
+    path: "/hesablayici/su-normasi",
+  },
+  {
+    id: "pregnancy",
+    name: "Hamiləlik həftə hesablayıcısı",
+    description: "Hamiləlik həftəsinin hesablanması",
+    category: "health",
+    icon: "🤰",
+    path: "/hesablayici/hamilelik",
+  },
+  {
+    id: "ideal-weight",
+    name: "İdeal çəki hesablayıcısı",
+    description: "Boy və yaşa görə ideal çəki hesablaması",
+    category: "health",
+    icon: "🏃",
+    path: "/hesablayici/ideal-ceki",
+  },
+
+  // 📅 Daily
+  {
+    id: "discount",
+    name: "Endirim hesablayıcısı",
+    description: "Endirimli qiymətin hesablanması",
+    category: "daily",
+    icon: "🏷️",
+    path: "/hesablayici/endirim",
+  },
+  {
+    id: "age",
+    name: "Yaş hesablayıcısı",
+    description: "Dəqiq yaş: il, ay, gün",
+    category: "daily",
+    icon: "🎂",
+    path: "/hesablayici/yas",
+  },
+  {
+    id: "tip",
+    name: "Bahşiş hesablayıcısı",
+    description: "Bahşiş məbləğinin hesablanması",
+    category: "daily",
+    icon: "🍽️",
+    path: "/hesablayici/bahsis",
+  },
+  {
+    id: "timezone",
+    name: "Saat qurşağı çevirici",
+    description: "Bakı və əsas şəhərlər arasında vaxt fərqi",
+    category: "daily",
+    icon: "🕐",
+    path: "/hesablayici/saat-qursagi",
+  },
+  {
+    id: "date-difference",
+    name: "Tarix fərqi hesablayıcısı",
+    description: "İki tarix arasında fərq: gün, həftə, ay",
+    category: "daily",
+    icon: "📆",
+    path: "/hesablayici/tarix-ferqi",
+  },
+  {
+    id: "percentage",
+    name: "Faiz hesablayıcısı",
+    description: "Faiz hesablamaları: artım, azalma, nisbət",
+    category: "daily",
+    icon: "➗",
+    path: "/hesablayici/faiz",
+  },
+  {
+    id: "azn-words",
+    name: "AZN sözlə yazılış",
+    description: "Məbləği sözlə yazın — müqavilələr və bank sənədləri üçün",
+    category: "daily",
+    icon: "🔤",
+    path: "/hesablayici/azn-sozle",
+    popular: true,
+  },
+
+  // 📋 Əmək Hüququ
+  {
+    id: "vacation-pay",
+    name: "Məzuniyyət pulu hesablayıcısı",
+    description: "Məzuniyyət ödənişi, gündəlik dərəcə hesablaması",
+    category: "labor",
+    icon: "🏖️",
+    path: "/hesablayici/mezuniyyet-pulu",
+    popular: true,
+  },
+  {
+    id: "severance-pay",
+    name: "İşdən çıxma kompensasiyası",
+    description: "İşdən çıxarkən ödəniləcək kompensasiya məbləği",
+    category: "labor",
+    icon: "📤",
+    path: "/hesablayici/isden-cixma",
+  },
+  {
+    id: "business-trip",
+    name: "Ezamiyyə xərci hesablayıcısı",
+    description: "Ezamiyyət gündəlik norması, nəqliyyat və yaşayış xərcləri",
+    category: "labor",
+    icon: "✈️",
+    path: "/hesablayici/ezamiyye",
+  },
+
+  // 🍎 Qidalanma
+  {
+    id: "food-calorie",
+    name: "Qida kalori hesablayıcısı",
+    description: "Yediklərinizin kalori, protein, karbohidrat və yağ miqdarı",
+    category: "nutrition",
+    icon: "🍽️",
+    path: "/hesablayici/qida-kalori",
+    popular: true,
+  },
+
+  // 🕌 Din
+  {
+    id: "ramadan",
+    name: "Ramazan İmsakiyyəsi",
+    description: "İmsak, iftar və namaz vaxtları — Azərbaycan şəhərləri üzrə",
+    category: "religion",
+    icon: "🌙",
+    path: "/hesablayici/ramazan",
+    popular: true,
+  },
+  {
+    id: "zakat",
+    name: "Fitrə zəkatı hesablayıcısı",
+    description: "Ailə üzvü sayına görə fitrə zəkatı məbləği",
+    category: "religion",
+    icon: "🤲",
+    path: "/hesablayici/zekat",
+  },
+
+  // 💎 Qiymətli Metallar
+  {
+    id: "gold-silver",
+    name: "Qiymətli metallar hesablayıcısı",
+    description: "Qızıl, gümüş, platin, palladium — əyara görə alış-satış qiymətləri",
+    category: "metals",
+    icon: "🥇",
+    path: "/hesablayici/qizil-gumus",
+    popular: true,
+  },
+];
