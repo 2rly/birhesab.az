@@ -10,8 +10,8 @@ type LandlordType = "individual" | "legal";
 type PropertyUsage = "residential" | "commercial";
 
 // Fiziki şəxs — sadələşdirilmiş vergi dərəcəsi
-// Kirayə gəlirindən vergi: 14% (ümumi qayda)
-const INDIVIDUAL_TAX_RATE = 0.14;
+// Kirayə gəlirindən vergi: 10% (ümumi qayda)
+const INDIVIDUAL_TAX_RATE = 0.10;
 
 // Hüquqi şəxs — mənfəət vergisi
 const LEGAL_TAX_RATE = 0.20;
@@ -69,7 +69,7 @@ export default function RentalTaxCalculator() {
         simplifiedTax = SIMPLIFIED_TIER1_LIMIT * SIMPLIFIED_TIER1_RATE + (rent - SIMPLIFIED_TIER1_LIMIT) * SIMPLIFIED_TIER2_RATE;
       }
 
-      // Standart vergi (14% gəlir vergisi)
+      // Standart vergi (10% gəlir vergisi)
       standardTax = Math.max(0, annualNet) * INDIVIDUAL_TAX_RATE / 12;
 
       if (useSimplified) {
@@ -78,7 +78,7 @@ export default function RentalTaxCalculator() {
         taxRate = rent <= SIMPLIFIED_TIER1_LIMIT ? SIMPLIFIED_TIER1_RATE : SIMPLIFIED_TIER2_RATE;
       } else {
         incomeTax = standardTax;
-        taxMethod = "Gəlir vergisi (14%)";
+        taxMethod = "Gəlir vergisi (10%)";
         taxRate = INDIVIDUAL_TAX_RATE;
       }
     } else {
@@ -134,7 +134,7 @@ export default function RentalTaxCalculator() {
 Xərclər çıxılmır, verginin ödənişi sadədir.
 
 Fiziki şəxs — Standart gəlir vergisi:
-• Xalis gəlirdən (gəlir − xərclər) 14%
+• Xalis gəlirdən (gəlir − xərclər) 10%
 • Xərclərə daxildir: təmir, kommunal, amortizasiya, sığorta
 
 Hüquqi şəxs:
@@ -146,7 +146,7 @@ Hüquqi şəxs:
 
 Hansı üsul sərfəlidir?
 • Xərcləriniz azdırsa → sadələşdirilmiş (4–8%)
-• Xərcləriniz çoxdursa (təmir, kommunal) → standart (14%, amma xərclər çıxılır)`}
+• Xərcləriniz çoxdursa (təmir, kommunal) → standart (10%, amma xərclər çıxılır)`}
       relatedIds={["rental-income-tax", "property-tax", "deposit", "mortgage"]}
     >
       {/* Landlord Type */}
@@ -234,7 +234,7 @@ Hansı üsul sərfəlidir?
               }`}
             >
               <p className="text-sm font-medium text-foreground">Standart</p>
-              <p className="text-xs text-muted mt-1">14% (xərclər çıxılır)</p>
+              <p className="text-xs text-muted mt-1">10% (xərclər çıxılır)</p>
             </button>
           </div>
         </div>
@@ -361,7 +361,7 @@ Hansı üsul sərfəlidir?
                 <div className={`flex items-center justify-between px-5 py-4 ${!useSimplified ? "bg-green-50" : ""}`}>
                   <div>
                     <p className="text-sm font-medium text-foreground">Standart gəlir vergisi</p>
-                    <p className="text-xs text-muted mt-0.5">14% — xərclər çıxılır</p>
+                    <p className="text-xs text-muted mt-0.5">10% — xərclər çıxılır</p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-bold text-foreground">{fmt(result.standardTax)} AZN/ay</p>
