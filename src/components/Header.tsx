@@ -3,8 +3,15 @@
 import Link from "next/link";
 import { useState } from "react";
 
+const LANGUAGES = [
+  { code: "az", label: "AZ" },
+  { code: "en", label: "EN" },
+  { code: "ru", label: "RU" },
+];
+
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [currentLang, setCurrentLang] = useState("az");
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-border">
@@ -27,11 +34,28 @@ export default function Header() {
             </Link>
           </nav>
 
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            aria-label="Menyu"
-          >
+          <div className="flex items-center gap-3">
+            <div className="flex items-center rounded-lg border border-border overflow-hidden">
+              {LANGUAGES.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => setCurrentLang(lang.code)}
+                  className={`px-2.5 py-1.5 text-xs font-semibold transition-colors ${
+                    currentLang === lang.code
+                      ? "bg-primary text-white"
+                      : "bg-white text-muted hover:text-foreground"
+                  }`}
+                >
+                  {lang.label}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              aria-label="Menyu"
+            >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {menuOpen ? (
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -40,6 +64,7 @@ export default function Header() {
               )}
             </svg>
           </button>
+          </div>
         </div>
 
         {menuOpen && (

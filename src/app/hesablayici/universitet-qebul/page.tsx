@@ -267,11 +267,11 @@ export default function UniversitetQebulCalculator() {
 
   return (
     <CalculatorLayout
-      title="Universitet qəbul balı hesablayıcısı"
-      description="DIM imtahan nəticələrinizi daxil edin — birinci və ikinci mərhələ üzrə qəbul balınızı hesablayın."
+      title="DİM Bal Hesablanması"
+      description="DİM imtahan nəticələrinizi daxil edin — birinci və ikinci mərhələ üzrə qəbul balınızı hesablayın."
       breadcrumbs={[
         { label: "Təhsil", href: "/?category=education" },
-        { label: "Universitet qəbul balı" },
+        { label: "DİM bal hesablanması" },
       ]}
       formulaTitle="DIM bal hesablama qaydaları"
       formulaContent={`Birinci mərhələ (max 300 bal):
@@ -298,7 +298,7 @@ III qrup (TC): Azərbaycan dili ×1.5, Tarix ×1.5, Coğrafiya ×1
 IV qrup: Biologiya ×1.5, Kimya ×1.5, Fizika ×1
 
 Ümumi bal = Birinci mərhələ + İkinci mərhələ (max 700)`}
-      relatedIds={["gpa", "state-grant", "ielts", "sat"]}
+      relatedIds={["gpa", "ielts", "sat"]}
     >
       {/* ── Step 1: Group Selection ── */}
       <div className="mb-8">

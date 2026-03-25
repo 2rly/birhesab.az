@@ -90,7 +90,7 @@ Səviyyələr:
 • 3.5–4.4 — Yaxşı
 • 2.5–3.4 — Kafi
 • 2.0–2.4 — Qeyri-kafi`}
-      relatedIds={["gpa", "university-admission", "state-grant", "school-grade"]}
+      relatedIds={["gpa", "university-admission", "ielts"]}
     >
       {/* Subjects */}
       <div className="space-y-3 mb-4">

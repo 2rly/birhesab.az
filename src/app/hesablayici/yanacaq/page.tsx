@@ -6,11 +6,11 @@ import CalculatorLayout from "@/components/CalculatorLayout";
 type FuelType = "ai92" | "ai95" | "ai98" | "diesel" | "lpg";
 
 const fuelTypes: { value: FuelType; label: string; icon: string; price: number }[] = [
-  { value: "ai92", label: "Aİ-92", icon: "⛽", price: 1.0 },
-  { value: "ai95", label: "Aİ-95", icon: "⛽", price: 1.2 },
-  { value: "ai98", label: "Aİ-98", icon: "⛽", price: 1.5 },
-  { value: "diesel", label: "Dizel", icon: "🛢️", price: 0.9 },
-  { value: "lpg", label: "Qaz (LPG)", icon: "🔵", price: 0.6 },
+  { value: "ai92", label: "Aİ-92", icon: "⛽", price: 1.1 },
+  { value: "ai95", label: "Aİ-95", icon: "⛽", price: 1.6 },
+  { value: "ai98", label: "Aİ-98", icon: "⛽", price: 2.3 },
+  { value: "diesel", label: "Dizel", icon: "🛢️", price: 1.0 },
+  { value: "lpg", label: "Qaz (LPG)", icon: "🔵", price: 0.45 },
 ];
 
 function fmt(n: number): string {
@@ -61,16 +61,16 @@ export default function FuelCostCalculator() {
       formulaContent={`Yanacaq miqdarı = (Məsafə / 100) × Sərfiyyat (L/100km)
 Ümumi xərc = Yanacaq miqdarı × Yanacağın qiyməti
 
-Məsələn: 200 km, 8 L/100km, Aİ-92 (1.00 AZN/L)
+Məsələn: 200 km, 8 L/100km, Aİ-92 (1.10 AZN/L)
 Yanacaq = (200/100) × 8 = 16 litr
-Xərc = 16 × 1.00 = 16.00 AZN
+Xərc = 16 × 1.10 = 17.60 AZN
 
-Azərbaycanda cari yanacaq qiymətləri (2024):
-• Aİ-92: 1.00 AZN/L
-• Aİ-95: 1.20 AZN/L
-• Aİ-98: 1.50 AZN/L
-• Dizel: 0.90 AZN/L
-• Qaz (LPG): 0.60 AZN/L`}
+Azərbaycanda cari yanacaq qiymətləri:
+• Aİ-92: 1.10 AZN/L
+• Aİ-95: 1.60 AZN/L
+• Aİ-98: 2.30 AZN/L
+• Dizel: 1.00 AZN/L
+• Qaz (LPG): 0.45 AZN/L`}
       relatedIds={["road-tax", "osago", "car-customs", "car-loan"]}
     >
       {/* Fuel Type */}
@@ -248,7 +248,7 @@ Azərbaycanda cari yanacaq qiymətləri (2024):
             <div className="divide-y divide-border">
               {fuelTypes.map((ft) => {
                 const cost = (result.actualDistance / 100) * result.consumption * ft.price;
-                const maxCost = (result.actualDistance / 100) * result.consumption * 1.5;
+                const maxCost = (result.actualDistance / 100) * result.consumption * 2.3;
                 const isActive = ft.value === fuelType;
                 return (
                   <div

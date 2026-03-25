@@ -169,8 +169,8 @@ export const calculators: Calculator[] = [
   },
   {
     id: "university-admission",
-    name: "Universitet qəbul balı",
-    description: "Fakültə seçin → minimum keçid balı",
+    name: "DİM bal hesablanması",
+    description: "DİM imtahan nəticələrinə əsasən qəbul balı hesablayın",
     category: "education",
     icon: "🎓",
     path: "/hesablayici/universitet-qebul",
@@ -190,14 +190,6 @@ export const calculators: Calculator[] = [
     category: "education",
     icon: "📚",
     path: "/hesablayici/mekteb-qiymet",
-  },
-  {
-    id: "state-grant",
-    name: "Dövlət qrantı balı",
-    description: "Qrant almaq üçün neçə bal lazımdır?",
-    category: "education",
-    icon: "🏆",
-    path: "/hesablayici/dovlet-qranti",
   },
   {
     id: "foreign-university",
@@ -296,6 +288,15 @@ export const calculators: Calculator[] = [
 
   // ⚖️ Legal & Government
   {
+    id: "civil-servant-salary",
+    name: "Dövlət qulluqçusu maaş hesablayıcısı",
+    description: "Qurum, vəzifə və pilləyə görə dövlət qulluqçusunun maaşı (gross və net)",
+    category: "legal",
+    icon: "🏛️",
+    path: "/hesablayici/dovlet-qullugcusu",
+    popular: true,
+  },
+  {
     id: "court-fee",
     name: "Məhkəmə rüsumu hesablayıcısı",
     description: "Məhkəmə rüsumu hesablaması",
@@ -321,8 +322,8 @@ export const calculators: Calculator[] = [
   },
   {
     id: "disability-benefit",
-    name: "Əlillik müavinəti hesablayıcısı",
-    description: "Əlillik müavinəti məbləğinin hesablanması",
+    name: "Əlillik pensiyası və müavinət kalkulyatoru",
+    description: "Əlillik qrupuna görə pensiya, müavinət və prezident təqaüdlərinin hesablanması (2025)",
     category: "legal",
     icon: "♿",
     path: "/hesablayici/elillik-muavineti",
