@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     "ƏDV",
   ],
   icons: {
-    icon: "/favicon.ico",
+    icon: "/icon.svg",
   },
 };
 
