@@ -2,11 +2,161 @@
 
 import { useState, useMemo } from "react";
 import CalculatorLayout from "@/components/CalculatorLayout";
+import { useLanguage } from "@/i18n";
+import type { Lang } from "@/i18n";
 
-const MONTH_NAMES = [
-  "Yanvar", "Fevral", "Mart", "Aprel", "May", "İyun",
-  "İyul", "Avqust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr",
-];
+const MONTH_NAMES: Record<Lang, string[]> = {
+  az: ["Yanvar", "Fevral", "Mart", "Aprel", "May", "İyun", "İyul", "Avqust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"],
+  en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  ru: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+};
+
+const pageTranslations = {
+  az: {
+    title: "Məzuniyyət pulu hesablayıcısı",
+    description: "Əmək haqqına əsasən məzuniyyət pulunu hesablayın — Azərbaycan Əmək Məcəlləsinə uyğun.",
+    breadcrumbCategory: "Əmək Hüququ",
+    breadcrumbLabel: "Məzuniyyət pulu hesablayıcısı",
+    formulaTitle: "Məzuniyyət pulu necə hesablanır?",
+    formulaContent: `Hesablama alqoritmi:
+
+1. Orta aylıq əmək haqqı = Son 12 ayın əmək haqqı cəmi ÷ 12
+2. Bir günlük əmək haqqı = Orta aylıq əmək haqqı ÷ 30,4
+3. Məzuniyyət haqqı = Bir günlük əmək haqqı × Məzuniyyət günləri
+
+Əmək Məcəlləsi üzrə minimum məzuniyyət:
+• Standart: 21 iş günü
+• 5–10 il staj: +2 gün
+• 10–15 il staj: +4 gün
+• 15+ il staj: +6 gün
+• Ağır əmək şəraiti: +6 gün`,
+    sameSalary: "Eyni maaş (12 ay)",
+    eachMonth: "Hər ay ayrıca",
+    monthlySalary: "Aylıq əmək haqqı (AZN)",
+    last12Months: "Son 12 ayın əmək haqqı (AZN)",
+    fillAll: (amount: string) => `Hamısını ${amount}₼ ilə doldur`,
+    vacationDays: "Məzuniyyət günləri",
+    day: "gün",
+    workExperience: "İş stajı (il)",
+    extraDaysNote: (days: number) => `Staja görə əlavə +${days} gün məzuniyyət hüququ var`,
+    avgMonthlySalary: "Orta aylıq əmək haqqı",
+    perMonth: "AZN / ay",
+    dailyRate: "Bir günlük əmək haqqı",
+    perDay: "AZN / gün",
+    vacationPay: "Məzuniyyət haqqı",
+    calcSteps: "Hesablama addımları",
+    step1: "1. Son 12 ayın əmək haqqı cəmi",
+    step1Single: (monthly: string, total: string) => `${monthly} × 12 ay = ${total} AZN`,
+    step1Monthly: (total: string) => `12 ayın cəmi = ${total} AZN`,
+    step2: "2. Orta aylıq əmək haqqı",
+    step3: "3. Bir günlük əmək haqqı",
+    step4: "4. Məzuniyyət haqqı",
+    laborCodeTitle: "Əmək Məcəlləsi üzrə məzuniyyət minimumları",
+    standard: "Standart",
+    workDays: "iş günü",
+    experience5_10: "5–10 il staj",
+    experience10_15: "10–15 il staj",
+    experience15plus: "15+ il staj",
+    hardLabor: "Ağır əmək şəraiti",
+    emptyState: "Nəticəni görmək üçün əmək haqqını daxil edin.",
+  },
+  en: {
+    title: "Vacation Pay Calculator",
+    description: "Calculate vacation pay based on salary — according to the Labor Code of Azerbaijan.",
+    breadcrumbCategory: "Labor Law",
+    breadcrumbLabel: "Vacation pay calculator",
+    formulaTitle: "How is vacation pay calculated?",
+    formulaContent: `Calculation algorithm:
+
+1. Average monthly salary = Sum of last 12 months' salary ÷ 12
+2. Daily rate = Average monthly salary ÷ 30.4
+3. Vacation pay = Daily rate × Vacation days
+
+Minimum vacation under the Labor Code:
+• Standard: 21 working days
+• 5–10 years of experience: +2 days
+• 10–15 years of experience: +4 days
+• 15+ years of experience: +6 days
+• Hard labor conditions: +6 days`,
+    sameSalary: "Same salary (12 months)",
+    eachMonth: "Each month separately",
+    monthlySalary: "Monthly salary (AZN)",
+    last12Months: "Last 12 months' salary (AZN)",
+    fillAll: (amount: string) => `Fill all with ${amount}₼`,
+    vacationDays: "Vacation days",
+    day: "days",
+    workExperience: "Work experience (years)",
+    extraDaysNote: (days: number) => `Extra +${days} vacation days based on experience`,
+    avgMonthlySalary: "Average monthly salary",
+    perMonth: "AZN / month",
+    dailyRate: "Daily rate",
+    perDay: "AZN / day",
+    vacationPay: "Vacation pay",
+    calcSteps: "Calculation steps",
+    step1: "1. Total salary for last 12 months",
+    step1Single: (monthly: string, total: string) => `${monthly} × 12 months = ${total} AZN`,
+    step1Monthly: (total: string) => `Sum of 12 months = ${total} AZN`,
+    step2: "2. Average monthly salary",
+    step3: "3. Daily rate",
+    step4: "4. Vacation pay",
+    laborCodeTitle: "Minimum vacation under the Labor Code",
+    standard: "Standard",
+    workDays: "working days",
+    experience5_10: "5–10 years experience",
+    experience10_15: "10–15 years experience",
+    experience15plus: "15+ years experience",
+    hardLabor: "Hard labor conditions",
+    emptyState: "Enter salary to see the result.",
+  },
+  ru: {
+    title: "Калькулятор отпускных",
+    description: "Рассчитайте отпускные на основе зарплаты — согласно Трудовому кодексу Азербайджана.",
+    breadcrumbCategory: "Трудовое право",
+    breadcrumbLabel: "Калькулятор отпускных",
+    formulaTitle: "Как рассчитываются отпускные?",
+    formulaContent: `Алгоритм расчёта:
+
+1. Средняя месячная зарплата = Сумма зарплат за последние 12 месяцев ÷ 12
+2. Дневная ставка = Средняя месячная зарплата ÷ 30,4
+3. Отпускные = Дневная ставка × Дни отпуска
+
+Минимальный отпуск по Трудовому кодексу:
+• Стандарт: 21 рабочий день
+• 5–10 лет стажа: +2 дня
+• 10–15 лет стажа: +4 дня
+• 15+ лет стажа: +6 дней
+• Тяжёлые условия труда: +6 дней`,
+    sameSalary: "Одинаковая зарплата (12 мес.)",
+    eachMonth: "Каждый месяц отдельно",
+    monthlySalary: "Ежемесячная зарплата (AZN)",
+    last12Months: "Зарплата за последние 12 месяцев (AZN)",
+    fillAll: (amount: string) => `Заполнить все ${amount}₼`,
+    vacationDays: "Дни отпуска",
+    day: "дней",
+    workExperience: "Стаж работы (лет)",
+    extraDaysNote: (days: number) => `Дополнительно +${days} дней отпуска по стажу`,
+    avgMonthlySalary: "Средняя месячная зарплата",
+    perMonth: "AZN / мес.",
+    dailyRate: "Дневная ставка",
+    perDay: "AZN / день",
+    vacationPay: "Отпускные",
+    calcSteps: "Этапы расчёта",
+    step1: "1. Общая зарплата за 12 месяцев",
+    step1Single: (monthly: string, total: string) => `${monthly} × 12 мес. = ${total} AZN`,
+    step1Monthly: (total: string) => `Сумма за 12 месяцев = ${total} AZN`,
+    step2: "2. Средняя месячная зарплата",
+    step3: "3. Дневная ставка",
+    step4: "4. Отпускные",
+    laborCodeTitle: "Минимальный отпуск по Трудовому кодексу",
+    standard: "Стандарт",
+    workDays: "рабочих дней",
+    experience5_10: "5–10 лет стажа",
+    experience10_15: "10–15 лет стажа",
+    experience15plus: "15+ лет стажа",
+    hardLabor: "Тяжёлые условия труда",
+    emptyState: "Введите зарплату, чтобы увидеть результат.",
+  },
+};
 
 function formatMoney(n: number): string {
   return n.toLocaleString("az-AZ", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -15,6 +165,10 @@ function formatMoney(n: number): string {
 type InputMode = "single" | "monthly";
 
 export default function VacationPayCalculator() {
+  const { lang } = useLanguage();
+  const pt = pageTranslations[lang];
+  const monthNames = MONTH_NAMES[lang];
+
   const [inputMode, setInputMode] = useState<InputMode>("single");
   const [singleSalary, setSingleSalary] = useState("");
   const [monthlySalaries, setMonthlySalaries] = useState<string[]>(Array(12).fill(""));
@@ -63,25 +217,14 @@ export default function VacationPayCalculator() {
 
   return (
     <CalculatorLayout
-      title="Məzuniyyət pulu hesablayıcısı"
-      description="Əmək haqqına əsasən məzuniyyət pulunu hesablayın — Azərbaycan Əmək Məcəlləsinə uyğun."
+      title={pt.title}
+      description={pt.description}
       breadcrumbs={[
-        { label: "Əmək Hüququ", href: "/?category=labor" },
-        { label: "Məzuniyyət pulu hesablayıcısı" },
+        { label: pt.breadcrumbCategory, href: "/?category=labor" },
+        { label: pt.breadcrumbLabel },
       ]}
-      formulaTitle="Məzuniyyət pulu necə hesablanır?"
-      formulaContent={`Hesablama alqoritmi:
-
-1. Orta aylıq əmək haqqı = Son 12 ayın əmək haqqı cəmi ÷ 12
-2. Bir günlük əmək haqqı = Orta aylıq əmək haqqı ÷ 30,4
-3. Məzuniyyət haqqı = Bir günlük əmək haqqı × Məzuniyyət günləri
-
-Əmək Məcəlləsi üzrə minimum məzuniyyət:
-• Standart: 21 iş günü
-• 5–10 il staj: +2 gün
-• 10–15 il staj: +4 gün
-• 15+ il staj: +6 gün
-• Ağır əmək şəraiti: +6 gün`}
+      formulaTitle={pt.formulaTitle}
+      formulaContent={pt.formulaContent}
       relatedIds={["salary", "paternity-leave", "severance-pay", "overtime"]}
     >
       {/* Daxiletmə rejimi */}
@@ -94,7 +237,7 @@ export default function VacationPayCalculator() {
               : "bg-white text-muted hover:bg-gray-50"
           }`}
         >
-          Eyni maaş (12 ay)
+          {pt.sameSalary}
         </button>
         <button
           onClick={() => setInputMode("monthly")}
@@ -104,7 +247,7 @@ export default function VacationPayCalculator() {
               : "bg-white text-muted hover:bg-gray-50"
           }`}
         >
-          Hər ay ayrıca
+          {pt.eachMonth}
         </button>
       </div>
 
@@ -112,7 +255,7 @@ export default function VacationPayCalculator() {
         {inputMode === "single" ? (
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Aylıq əmək haqqı (AZN)
+              {pt.monthlySalary}
             </label>
             <input
               type="number"
@@ -138,19 +281,19 @@ export default function VacationPayCalculator() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="block text-sm font-medium text-foreground">
-                Son 12 ayın əmək haqqı (AZN)
+                {pt.last12Months}
               </label>
               {singleSalary && (
                 <button
                   onClick={fillAllMonths}
                   className="text-xs text-primary hover:underline"
                 >
-                  Hamısını {singleSalary}₼ ilə doldur
+                  {pt.fillAll(singleSalary)}
                 </button>
               )}
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {MONTH_NAMES.map((name, i) => (
+              {monthNames.map((name, i) => (
                 <div key={i}>
                   <label className="block text-xs text-muted mb-1">{name}</label>
                   <input
@@ -170,7 +313,7 @@ export default function VacationPayCalculator() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Məzuniyyət günləri
+              {pt.vacationDays}
             </label>
             <input
               type="number"
@@ -191,14 +334,14 @@ export default function VacationPayCalculator() {
                       : "border-border bg-white text-muted hover:border-primary/30"
                   }`}
                 >
-                  {d} gün
+                  {d} {pt.day}
                 </button>
               ))}
             </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              İş stajı (il)
+              {pt.workExperience}
             </label>
             <input
               type="number"
@@ -210,7 +353,7 @@ export default function VacationPayCalculator() {
             />
             {extraDays > 0 && (
               <p className="text-xs text-green-600 mt-1">
-                Staja görə əlavə +{extraDays} gün məzuniyyət hüququ var
+                {pt.extraDaysNote(extraDays)}
               </p>
             )}
           </div>
@@ -222,19 +365,19 @@ export default function VacationPayCalculator() {
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-gray-50 rounded-2xl border border-border p-6 text-center">
-              <p className="text-sm text-muted mb-1">Orta aylıq əmək haqqı</p>
+              <p className="text-sm text-muted mb-1">{pt.avgMonthlySalary}</p>
               <p className="text-2xl font-bold text-foreground">{formatMoney(result.avgMonthlySalary)}</p>
-              <p className="text-xs text-muted mt-1">AZN / ay</p>
+              <p className="text-xs text-muted mt-1">{pt.perMonth}</p>
             </div>
             <div className="bg-gray-50 rounded-2xl border border-border p-6 text-center">
-              <p className="text-sm text-muted mb-1">Bir günlük əmək haqqı</p>
+              <p className="text-sm text-muted mb-1">{pt.dailyRate}</p>
               <p className="text-2xl font-bold text-foreground">{formatMoney(result.dailyRate)}</p>
-              <p className="text-xs text-muted mt-1">AZN / gün</p>
+              <p className="text-xs text-muted mt-1">{pt.perDay}</p>
             </div>
             <div className="bg-gradient-to-br from-primary to-primary-dark rounded-2xl p-6 text-center text-white">
-              <p className="text-sm text-blue-200 mb-1">Məzuniyyət haqqı</p>
+              <p className="text-sm text-blue-200 mb-1">{pt.vacationPay}</p>
               <p className="text-2xl font-bold">{formatMoney(result.vacationPay)}</p>
-              <p className="text-xs text-blue-200 mt-1">AZN ({result.days} gün)</p>
+              <p className="text-xs text-blue-200 mt-1">AZN ({result.days} {pt.day})</p>
             </div>
           </div>
 
@@ -243,26 +386,26 @@ export default function VacationPayCalculator() {
             <div className="bg-gray-50 px-5 py-3 border-b border-border">
               <h3 className="font-semibold text-foreground flex items-center gap-2">
                 <span>📊</span>
-                Hesablama addımları
+                {pt.calcSteps}
               </h3>
             </div>
             <div className="divide-y divide-border">
               <div className="px-5 py-3">
                 <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium text-foreground">1. Son 12 ayın əmək haqqı cəmi</span>
+                  <span className="text-sm font-medium text-foreground">{pt.step1}</span>
                   <span className="text-sm font-bold text-foreground">{formatMoney(result.totalYearlySalary)} AZN</span>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-2.5">
                   <p className="text-xs text-muted">
                     {inputMode === "single"
-                      ? `${formatMoney(result.avgMonthlySalary)} × 12 ay = ${formatMoney(result.totalYearlySalary)} AZN`
-                      : `12 ayın cəmi = ${formatMoney(result.totalYearlySalary)} AZN`}
+                      ? pt.step1Single(formatMoney(result.avgMonthlySalary), formatMoney(result.totalYearlySalary))
+                      : pt.step1Monthly(formatMoney(result.totalYearlySalary))}
                   </p>
                 </div>
               </div>
               <div className="px-5 py-3">
                 <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium text-foreground">2. Orta aylıq əmək haqqı</span>
+                  <span className="text-sm font-medium text-foreground">{pt.step2}</span>
                   <span className="text-sm font-bold text-foreground">{formatMoney(result.avgMonthlySalary)} AZN</span>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-2.5">
@@ -273,7 +416,7 @@ export default function VacationPayCalculator() {
               </div>
               <div className="px-5 py-3">
                 <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium text-foreground">3. Bir günlük əmək haqqı</span>
+                  <span className="text-sm font-medium text-foreground">{pt.step3}</span>
                   <span className="text-sm font-bold text-foreground">{formatMoney(result.dailyRate)} AZN</span>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-2.5">
@@ -284,12 +427,12 @@ export default function VacationPayCalculator() {
               </div>
               <div className="px-5 py-3 bg-blue-50">
                 <div className="flex justify-between mb-1">
-                  <span className="text-sm font-semibold text-primary">4. Məzuniyyət haqqı</span>
+                  <span className="text-sm font-semibold text-primary">{pt.step4}</span>
                   <span className="text-sm font-bold text-primary">{formatMoney(result.vacationPay)} AZN</span>
                 </div>
                 <div className="bg-white rounded-lg p-2.5">
                   <p className="text-xs text-muted">
-                    {formatMoney(result.dailyRate)} × {result.days} gün = {formatMoney(result.vacationPay)} AZN
+                    {formatMoney(result.dailyRate)} × {result.days} {pt.day} = {formatMoney(result.vacationPay)} AZN
                   </p>
                 </div>
               </div>
@@ -300,28 +443,28 @@ export default function VacationPayCalculator() {
           <div className="bg-blue-50 rounded-xl border border-blue-200 p-5">
             <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <span>📋</span>
-              Əmək Məcəlləsi üzrə məzuniyyət minimumları
+              {pt.laborCodeTitle}
             </h4>
             <div className="space-y-2 text-sm text-muted">
               <div className="flex justify-between">
-                <span>Standart</span>
-                <span className="font-medium text-foreground">21 iş günü</span>
+                <span>{pt.standard}</span>
+                <span className="font-medium text-foreground">21 {pt.workDays}</span>
               </div>
               <div className="flex justify-between">
-                <span>5–10 il staj</span>
-                <span className="font-medium text-foreground">+2 gün</span>
+                <span>{pt.experience5_10}</span>
+                <span className="font-medium text-foreground">+2 {pt.day}</span>
               </div>
               <div className="flex justify-between">
-                <span>10–15 il staj</span>
-                <span className="font-medium text-foreground">+4 gün</span>
+                <span>{pt.experience10_15}</span>
+                <span className="font-medium text-foreground">+4 {pt.day}</span>
               </div>
               <div className="flex justify-between">
-                <span>15+ il staj</span>
-                <span className="font-medium text-foreground">+6 gün</span>
+                <span>{pt.experience15plus}</span>
+                <span className="font-medium text-foreground">+6 {pt.day}</span>
               </div>
               <div className="flex justify-between">
-                <span>Ağır əmək şəraiti</span>
-                <span className="font-medium text-foreground">+6 gün</span>
+                <span>{pt.hardLabor}</span>
+                <span className="font-medium text-foreground">+6 {pt.day}</span>
               </div>
             </div>
           </div>
@@ -329,7 +472,7 @@ export default function VacationPayCalculator() {
       ) : (
         <div className="text-center py-8 text-muted">
           <span className="text-4xl block mb-3">🏖️</span>
-          <p>Nəticəni görmək üçün əmək haqqını daxil edin.</p>
+          <p>{pt.emptyState}</p>
         </div>
       )}
     </CalculatorLayout>

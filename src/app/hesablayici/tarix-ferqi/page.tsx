@@ -2,21 +2,179 @@
 
 import { useState, useMemo } from "react";
 import CalculatorLayout from "@/components/CalculatorLayout";
+import { useLanguage } from "@/i18n";
+import type { Lang } from "@/i18n";
 
 type Mode = "difference" | "add-subtract";
 
-const AZ_WEEKDAYS = ["Bazar", "Bazar ertesi", "Cersenbe axi", "Cersenbe", "Cursembe axi", "Cume", "Senbe"];
-const AZ_MONTHS = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", "Avqust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"];
+const AZ_WEEKDAYS_MAP: Record<Lang, string[]> = {
+  az: ["Bazar", "Bazar ertəsi", "Çərşənbə axşamı", "Çərşənbə", "Cümə axşamı", "Cümə", "Şənbə"],
+  en: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+  ru: ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"],
+};
+
+const AZ_MONTHS_MAP: Record<Lang, string[]> = {
+  az: ["Yanvar", "Fevral", "Mart", "Aprel", "May", "İyun", "İyul", "Avqust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"],
+  en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  ru: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+};
+
+const pageTranslations = {
+  az: {
+    title: "Tarix fərqi hesablayıcısı",
+    description: "İki tarix arasında fərqi hesablayın və ya tarixə gün əlavə edin / çıxın.",
+    breadcrumbCategory: "Gündəlik",
+    breadcrumbLabel: "Tarix fərqi hesablayıcısı",
+    formulaTitle: "Tarix fərqi necə hesablanır?",
+    formulaContent: `İki tarix arasında fərq millisaniyələr hesablanır və sonra günlərə, həftələrə, aylara çevrilir.
+
+Fərq = Son tarix - Başlanğıc tarix
+
+Nəticələr:
+- Dəqiq yaş formatı: X il, Y ay, Z gün
+- Ümumi günlər, həftələr, saatlar
+- Aylıq fərq
+
+Gün əlavə etmək / çıxmaq:
+Tarixə müəyyən sayılı gün əlavə edilə və ya çıxıla bilər.
+Məsələn: 1 Yanvar 2024 + 90 gün = 31 Mart 2024`,
+    modeDifference: "Tarix fərqi",
+    modeAddSubtract: "Gün əlavə et / çıx",
+    startDate: "Başlanğıc tarixi",
+    endDate: "Son tarix",
+    operation: "Əməliyyat",
+    addDays: "+ Əlavə et",
+    subtractDays: "- Çıx",
+    dayCount: "Gün sayı",
+    differenceBetween: "Tarixlər arasındakı fərq",
+    year: "il",
+    month: "ay",
+    day: "gün",
+    totalDays: "Ümumi gün",
+    totalWeeks: "Ümumi həftə",
+    totalMonths: "Ümumi ay",
+    totalHours: "Ümumi saat",
+    detailedInfo: "Ətraflı məlumat",
+    start: "Başlanğıc",
+    end: "Son",
+    exactDifference: "Dəqiq fərq",
+    inDays: "Günlərlə",
+    inHours: "Saatlarla",
+    inMinutes: "Dəqiqələrlə",
+    minuteAbbr: "dəq.",
+    daysAfter: "gün sonra",
+    daysBefore: "gün əvvəl",
+    emptyState: "Nəticəni görmək üçün tarixləri daxil edin.",
+  },
+  en: {
+    title: "Date Difference Calculator",
+    description: "Calculate the difference between two dates or add/subtract days from a date.",
+    breadcrumbCategory: "Daily",
+    breadcrumbLabel: "Date difference calculator",
+    formulaTitle: "How is date difference calculated?",
+    formulaContent: `The difference between two dates is calculated in milliseconds, then converted to days, weeks, and months.
+
+Difference = End date - Start date
+
+Results:
+- Exact format: X years, Y months, Z days
+- Total days, weeks, hours
+- Monthly difference
+
+Adding / subtracting days:
+A specific number of days can be added to or subtracted from a date.
+Example: January 1, 2024 + 90 days = March 31, 2024`,
+    modeDifference: "Date difference",
+    modeAddSubtract: "Add / subtract days",
+    startDate: "Start date",
+    endDate: "End date",
+    operation: "Operation",
+    addDays: "+ Add",
+    subtractDays: "- Subtract",
+    dayCount: "Number of days",
+    differenceBetween: "Difference between dates",
+    year: "year",
+    month: "month",
+    day: "day",
+    totalDays: "Total days",
+    totalWeeks: "Total weeks",
+    totalMonths: "Total months",
+    totalHours: "Total hours",
+    detailedInfo: "Detailed information",
+    start: "Start",
+    end: "End",
+    exactDifference: "Exact difference",
+    inDays: "In days",
+    inHours: "In hours",
+    inMinutes: "In minutes",
+    minuteAbbr: "min.",
+    daysAfter: "days later",
+    daysBefore: "days earlier",
+    emptyState: "Enter dates to see the result.",
+  },
+  ru: {
+    title: "Калькулятор разницы дат",
+    description: "Рассчитайте разницу между двумя датами или добавьте/вычтите дни из даты.",
+    breadcrumbCategory: "Повседневное",
+    breadcrumbLabel: "Калькулятор разницы дат",
+    formulaTitle: "Как рассчитывается разница дат?",
+    formulaContent: `Разница между двумя датами вычисляется в миллисекундах, затем переводится в дни, недели и месяцы.
+
+Разница = Конечная дата - Начальная дата
+
+Результаты:
+- Точный формат: X лет, Y месяцев, Z дней
+- Общее количество дней, недель, часов
+- Разница в месяцах
+
+Добавление / вычитание дней:
+К дате можно добавить или вычесть определённое количество дней.
+Пример: 1 января 2024 + 90 дней = 31 марта 2024`,
+    modeDifference: "Разница дат",
+    modeAddSubtract: "Добавить / вычесть дни",
+    startDate: "Начальная дата",
+    endDate: "Конечная дата",
+    operation: "Операция",
+    addDays: "+ Добавить",
+    subtractDays: "- Вычесть",
+    dayCount: "Количество дней",
+    differenceBetween: "Разница между датами",
+    year: "г.",
+    month: "мес.",
+    day: "дн.",
+    totalDays: "Всего дней",
+    totalWeeks: "Всего недель",
+    totalMonths: "Всего месяцев",
+    totalHours: "Всего часов",
+    detailedInfo: "Подробная информация",
+    start: "Начало",
+    end: "Конец",
+    exactDifference: "Точная разница",
+    inDays: "В днях",
+    inHours: "В часах",
+    inMinutes: "В минутах",
+    minuteAbbr: "мин.",
+    daysAfter: "дней позже",
+    daysBefore: "дней раньше",
+    emptyState: "Введите даты, чтобы увидеть результат.",
+  },
+};
 
 function fmt(n: number): string {
   return n.toLocaleString("az-AZ");
 }
 
-function formatDateAz(date: Date): string {
-  return `${date.getDate()} ${AZ_MONTHS[date.getMonth()]} ${date.getFullYear()}, ${AZ_WEEKDAYS[date.getDay()]}`;
-}
-
 export default function DateDifferenceCalculator() {
+  const { lang } = useLanguage();
+  const pt = pageTranslations[lang];
+
+  const weekdays = AZ_WEEKDAYS_MAP[lang];
+  const months = AZ_MONTHS_MAP[lang];
+
+  function formatDateLang(date: Date): string {
+    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}, ${weekdays[date.getDay()]}`;
+  }
+
   const [mode, setMode] = useState<Mode>("difference");
   const [date1, setDate1] = useState("");
   const [date2, setDate2] = useState("");
@@ -42,27 +200,26 @@ export default function DateDifferenceCalculator() {
       const totalMinutes = Math.floor(diffMs / (1000 * 60));
       const totalMonths = (end.getFullYear() - start.getFullYear()) * 12 + end.getMonth() - start.getMonth();
 
-      // Exact years, months, days
       let years = end.getFullYear() - start.getFullYear();
-      let months = end.getMonth() - start.getMonth();
+      let mos = end.getMonth() - start.getMonth();
       let days = end.getDate() - start.getDate();
 
       if (days < 0) {
-        months--;
+        mos--;
         const prevMonth = new Date(end.getFullYear(), end.getMonth(), 0);
         days += prevMonth.getDate();
       }
-      if (months < 0) {
+      if (mos < 0) {
         years--;
-        months += 12;
+        mos += 12;
       }
 
       return {
         type: "difference" as const,
-        startDate: formatDateAz(start),
-        endDate: formatDateAz(end),
+        startDate: formatDateLang(start),
+        endDate: formatDateLang(end),
         years,
-        months,
+        months: mos,
         days,
         totalDays,
         totalWeeks,
@@ -88,8 +245,8 @@ export default function DateDifferenceCalculator() {
 
       return {
         type: "add-subtract" as const,
-        baseDate: formatDateAz(base),
-        resultDate: formatDateAz(resultDate),
+        baseDate: formatDateLang(base),
+        resultDate: formatDateLang(resultDate),
         numDays,
         operation,
         resultDateObj: resultDate,
@@ -97,29 +254,19 @@ export default function DateDifferenceCalculator() {
     }
 
     return null;
-  }, [mode, date1, date2, baseDate, daysToAdd, operation]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, date1, date2, baseDate, daysToAdd, operation, lang]);
 
   return (
     <CalculatorLayout
-      title="Tarix ferqi hesablayıcısı"
-      description="Iki tarix arasinda ferqi hesablayin ve ya tarixe gun elave edin / cixin."
+      title={pt.title}
+      description={pt.description}
       breadcrumbs={[
-        { label: "Gundelik", href: "/?category=daily" },
-        { label: "Tarix ferqi hesablayıcısı" },
+        { label: pt.breadcrumbCategory, href: "/?category=daily" },
+        { label: pt.breadcrumbLabel },
       ]}
-      formulaTitle="Tarix ferqi nece hesablanir?"
-      formulaContent={`Iki tarix arasinda ferq millisaniyeler hesablanir ve sonra gunlere, heftelere, aylara cevrilir.
-
-Ferq = Son tarix - Baslangic tarix
-
-Neticeler:
-- Deqiq yas formati: X il, Y ay, Z gun
-- Umumi gunler, hefteler, saatlar
-- Ayliq ferq
-
-Gun elave etmek / cixmaq:
-Tarixe mueyyen sayli gun elave edile ve ya cixila biler.
-Meseleln: 1 Yanvar 2024 + 90 gun = 31 Mart 2024`}
+      formulaTitle={pt.formulaTitle}
+      formulaContent={pt.formulaContent}
       relatedIds={["age", "timezone", "pregnancy", "date-difference"]}
     >
       {/* Mode Toggle */}
@@ -130,7 +277,7 @@ Meseleln: 1 Yanvar 2024 + 90 gun = 31 Mart 2024`}
             mode === "difference" ? "bg-primary text-white" : "bg-white text-muted hover:bg-gray-50"
           }`}
         >
-          Tarix ferqi
+          {pt.modeDifference}
         </button>
         <button
           onClick={() => setMode("add-subtract")}
@@ -138,7 +285,7 @@ Meseleln: 1 Yanvar 2024 + 90 gun = 31 Mart 2024`}
             mode === "add-subtract" ? "bg-primary text-white" : "bg-white text-muted hover:bg-gray-50"
           }`}
         >
-          Gun elave et / cix
+          {pt.modeAddSubtract}
         </button>
       </div>
 
@@ -147,7 +294,7 @@ Meseleln: 1 Yanvar 2024 + 90 gun = 31 Mart 2024`}
         {mode === "difference" ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Baslangic tarixi</label>
+              <label className="block text-sm font-medium text-foreground mb-2">{pt.startDate}</label>
               <input
                 type="date"
                 value={date1}
@@ -156,7 +303,7 @@ Meseleln: 1 Yanvar 2024 + 90 gun = 31 Mart 2024`}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Son tarix</label>
+              <label className="block text-sm font-medium text-foreground mb-2">{pt.endDate}</label>
               <input
                 type="date"
                 value={date2}
@@ -168,7 +315,7 @@ Meseleln: 1 Yanvar 2024 + 90 gun = 31 Mart 2024`}
         ) : (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Baslangic tarixi</label>
+              <label className="block text-sm font-medium text-foreground mb-2">{pt.startDate}</label>
               <input
                 type="date"
                 value={baseDate}
@@ -178,7 +325,7 @@ Meseleln: 1 Yanvar 2024 + 90 gun = 31 Mart 2024`}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Emeliyyat</label>
+                <label className="block text-sm font-medium text-foreground mb-2">{pt.operation}</label>
                 <div className="flex rounded-xl border border-border overflow-hidden">
                   <button
                     onClick={() => setOperation("add")}
@@ -186,7 +333,7 @@ Meseleln: 1 Yanvar 2024 + 90 gun = 31 Mart 2024`}
                       operation === "add" ? "bg-primary text-white" : "bg-white text-muted hover:bg-gray-50"
                     }`}
                   >
-                    + Elave et
+                    {pt.addDays}
                   </button>
                   <button
                     onClick={() => setOperation("subtract")}
@@ -194,12 +341,12 @@ Meseleln: 1 Yanvar 2024 + 90 gun = 31 Mart 2024`}
                       operation === "subtract" ? "bg-primary text-white" : "bg-white text-muted hover:bg-gray-50"
                     }`}
                   >
-                    - Cix
+                    {pt.subtractDays}
                   </button>
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Gun sayi</label>
+                <label className="block text-sm font-medium text-foreground mb-2">{pt.dayCount}</label>
                 <input
                   type="number"
                   value={daysToAdd}
@@ -221,9 +368,9 @@ Meseleln: 1 Yanvar 2024 + 90 gun = 31 Mart 2024`}
             <>
               {/* Main Result */}
               <div className="bg-gradient-to-br from-primary to-primary-dark rounded-2xl p-6 text-center text-white">
-                <p className="text-sm text-blue-200 mb-2">Tarixler arasindaki ferq</p>
+                <p className="text-sm text-blue-200 mb-2">{pt.differenceBetween}</p>
                 <p className="text-3xl font-bold">
-                  {result.years > 0 && `${result.years} il, `}{result.months > 0 && `${result.months} ay, `}{result.days} gun
+                  {result.years > 0 && `${result.years} ${pt.year}, `}{result.months > 0 && `${result.months} ${pt.month}, `}{result.days} {pt.day}
                 </p>
                 <p className="text-sm text-blue-200 mt-2">{result.startDate} — {result.endDate}</p>
               </div>
@@ -231,20 +378,20 @@ Meseleln: 1 Yanvar 2024 + 90 gun = 31 Mart 2024`}
               {/* Stats Cards */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="bg-gray-50 rounded-xl border border-border p-4 text-center">
-                  <p className="text-xs text-muted mb-1">Umumi gun</p>
+                  <p className="text-xs text-muted mb-1">{pt.totalDays}</p>
                   <p className="text-lg font-bold text-foreground">{fmt(result.totalDays)}</p>
                 </div>
                 <div className="bg-gray-50 rounded-xl border border-border p-4 text-center">
-                  <p className="text-xs text-muted mb-1">Umumi hefte</p>
+                  <p className="text-xs text-muted mb-1">{pt.totalWeeks}</p>
                   <p className="text-lg font-bold text-foreground">{fmt(result.totalWeeks)}</p>
-                  {result.remainingDays > 0 && <p className="text-xs text-muted">+ {result.remainingDays} gun</p>}
+                  {result.remainingDays > 0 && <p className="text-xs text-muted">+ {result.remainingDays} {pt.day}</p>}
                 </div>
                 <div className="bg-gray-50 rounded-xl border border-border p-4 text-center">
-                  <p className="text-xs text-muted mb-1">Umumi ay</p>
+                  <p className="text-xs text-muted mb-1">{pt.totalMonths}</p>
                   <p className="text-lg font-bold text-foreground">{fmt(result.totalMonths)}</p>
                 </div>
                 <div className="bg-gray-50 rounded-xl border border-border p-4 text-center">
-                  <p className="text-xs text-muted mb-1">Umumi saat</p>
+                  <p className="text-xs text-muted mb-1">{pt.totalHours}</p>
                   <p className="text-lg font-bold text-foreground">{fmt(result.totalHours)}</p>
                 </div>
               </div>
@@ -252,32 +399,32 @@ Meseleln: 1 Yanvar 2024 + 90 gun = 31 Mart 2024`}
               {/* Details Table */}
               <div className="bg-white rounded-xl border border-border overflow-hidden">
                 <div className="bg-gray-50 px-5 py-3 border-b border-border">
-                  <h3 className="font-semibold text-foreground">Etrafli melumat</h3>
+                  <h3 className="font-semibold text-foreground">{pt.detailedInfo}</h3>
                 </div>
                 <div className="divide-y divide-border">
                   <div className="flex justify-between px-5 py-3">
-                    <span className="text-sm text-muted">Baslangic</span>
+                    <span className="text-sm text-muted">{pt.start}</span>
                     <span className="text-sm font-medium text-foreground">{result.startDate}</span>
                   </div>
                   <div className="flex justify-between px-5 py-3">
-                    <span className="text-sm text-muted">Son</span>
+                    <span className="text-sm text-muted">{pt.end}</span>
                     <span className="text-sm font-medium text-foreground">{result.endDate}</span>
                   </div>
                   <div className="flex justify-between px-5 py-3">
-                    <span className="text-sm text-muted">Deqiq ferq</span>
-                    <span className="text-sm font-medium text-foreground">{result.years} il, {result.months} ay, {result.days} gun</span>
+                    <span className="text-sm text-muted">{pt.exactDifference}</span>
+                    <span className="text-sm font-medium text-foreground">{result.years} {pt.year}, {result.months} {pt.month}, {result.days} {pt.day}</span>
                   </div>
                   <div className="flex justify-between px-5 py-3">
-                    <span className="text-sm text-muted">Gunlerle</span>
-                    <span className="text-sm font-medium text-foreground">{fmt(result.totalDays)} gun</span>
+                    <span className="text-sm text-muted">{pt.inDays}</span>
+                    <span className="text-sm font-medium text-foreground">{fmt(result.totalDays)} {pt.day}</span>
                   </div>
                   <div className="flex justify-between px-5 py-3">
-                    <span className="text-sm text-muted">Saatlarla</span>
-                    <span className="text-sm font-medium text-foreground">{fmt(result.totalHours)} saat</span>
+                    <span className="text-sm text-muted">{pt.inHours}</span>
+                    <span className="text-sm font-medium text-foreground">{fmt(result.totalHours)} {lang === "az" ? "saat" : lang === "en" ? "hours" : "часов"}</span>
                   </div>
                   <div className="flex justify-between px-5 py-3">
-                    <span className="text-sm text-muted">Deqiqelerle</span>
-                    <span className="text-sm font-medium text-foreground">{fmt(result.totalMinutes)} deq.</span>
+                    <span className="text-sm text-muted">{pt.inMinutes}</span>
+                    <span className="text-sm font-medium text-foreground">{fmt(result.totalMinutes)} {pt.minuteAbbr}</span>
                   </div>
                 </div>
               </div>
@@ -288,12 +435,12 @@ Meseleln: 1 Yanvar 2024 + 90 gun = 31 Mart 2024`}
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="bg-gray-50 rounded-2xl border border-border p-6 text-center">
-                  <p className="text-sm text-muted mb-1">Baslangic tarixi</p>
+                  <p className="text-sm text-muted mb-1">{pt.startDate}</p>
                   <p className="text-lg font-bold text-foreground">{result.baseDate}</p>
                 </div>
                 <div className="bg-gradient-to-br from-primary to-primary-dark rounded-2xl p-6 text-center text-white">
                   <p className="text-sm text-blue-200 mb-1">
-                    {result.operation === "add" ? `+${result.numDays} gun sonra` : `-${result.numDays} gun evvel`}
+                    {result.operation === "add" ? `+${result.numDays} ${pt.daysAfter}` : `-${result.numDays} ${pt.daysBefore}`}
                   </p>
                   <p className="text-lg font-bold">{result.resultDate}</p>
                 </div>
@@ -304,7 +451,7 @@ Meseleln: 1 Yanvar 2024 + 90 gun = 31 Mart 2024`}
       ) : (
         <div className="text-center py-8 text-muted">
           <span className="text-4xl block mb-3">📆</span>
-          <p>Neticeni gormek ucun tarixleri daxil edin.</p>
+          <p>{pt.emptyState}</p>
         </div>
       )}
     </CalculatorLayout>

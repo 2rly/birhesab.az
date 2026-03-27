@@ -2,6 +2,8 @@
 
 import { useState, useMemo } from "react";
 import CalculatorLayout from "@/components/CalculatorLayout";
+import { useLanguage } from "@/i18n";
+import type { Lang } from "@/i18n";
 
 interface FoodItem {
   name: string;
@@ -64,7 +66,6 @@ const foodDatabase: FoodItem[] = [
   { name: "Ovdux", category: "Azərbaycan mətbəxi", calories: 55, protein: 1, carbs: 12, fat: 0.5 },
   { name: "Ayran", category: "Azərbaycan mətbəxi", calories: 40, protein: 2, carbs: 3, fat: 2 },
   { name: "Şərbət (limon)", category: "Azərbaycan mətbəxi", calories: 60, protein: 0, carbs: 15, fat: 0 },
-
   // Ət və quş
   { name: "Toyuq sinəsi (bişmiş)", category: "Ət və quş", calories: 165, protein: 31, carbs: 0, fat: 4 },
   { name: "Toyuq budu (bişmiş)", category: "Ət və quş", calories: 209, protein: 26, carbs: 0, fat: 11 },
@@ -86,7 +87,6 @@ const foodDatabase: FoodItem[] = [
   { name: "Yumurta (bişmiş)", category: "Ət və quş", calories: 155, protein: 13, carbs: 1, fat: 11 },
   { name: "Yumurta (qayğanaq)", category: "Ət və quş", calories: 196, protein: 14, carbs: 2, fat: 15 },
   { name: "Ciyər (mal)", category: "Ət və quş", calories: 135, protein: 20, carbs: 4, fat: 4 },
-
   // Süd məhsulları
   { name: "Süd (2.5%)", category: "Süd məhsulları", calories: 52, protein: 3, carbs: 5, fat: 2.5 },
   { name: "Süd (yağsız)", category: "Süd məhsulları", calories: 34, protein: 3, carbs: 5, fat: 0.1 },
@@ -99,7 +99,6 @@ const foodDatabase: FoodItem[] = [
   { name: "Qaymaq", category: "Süd məhsulları", calories: 340, protein: 2, carbs: 3, fat: 35 },
   { name: "Şor", category: "Süd məhsulları", calories: 160, protein: 11, carbs: 3, fat: 12 },
   { name: "Dondurma", category: "Süd məhsulları", calories: 207, protein: 4, carbs: 24, fat: 11 },
-
   // Meyvələr
   { name: "Alma", category: "Meyvələr", calories: 52, protein: 0.3, carbs: 14, fat: 0.2 },
   { name: "Armud", category: "Meyvələr", calories: 57, protein: 0.4, carbs: 15, fat: 0.1 },
@@ -121,7 +120,6 @@ const foodDatabase: FoodItem[] = [
   { name: "Ananas", category: "Meyvələr", calories: 50, protein: 0.5, carbs: 13, fat: 0.1 },
   { name: "Avokado", category: "Meyvələr", calories: 160, protein: 2, carbs: 9, fat: 15 },
   { name: "Xurma", category: "Meyvələr", calories: 282, protein: 2, carbs: 75, fat: 0.4 },
-
   // Tərəvəzlər
   { name: "Pomidor", category: "Tərəvəzlər", calories: 18, protein: 1, carbs: 4, fat: 0.2 },
   { name: "Xiyar", category: "Tərəvəzlər", calories: 15, protein: 1, carbs: 4, fat: 0.1 },
@@ -147,7 +145,6 @@ const foodDatabase: FoodItem[] = [
   { name: "Göbələk", category: "Tərəvəzlər", calories: 22, protein: 3, carbs: 3, fat: 0.3 },
   { name: "Qarğıdalı (bişmiş)", category: "Tərəvəzlər", calories: 96, protein: 3, carbs: 21, fat: 1 },
   { name: "Balqabaq", category: "Tərəvəzlər", calories: 26, protein: 1, carbs: 7, fat: 0.1 },
-
   // Taxıl və çörək
   { name: "Düyü (bişmiş)", category: "Taxıl və çörək", calories: 130, protein: 3, carbs: 28, fat: 0.3 },
   { name: "Makaron (bişmiş)", category: "Taxıl və çörək", calories: 157, protein: 6, carbs: 31, fat: 1 },
@@ -161,7 +158,6 @@ const foodDatabase: FoodItem[] = [
   { name: "Yulaf (bişmiş)", category: "Taxıl və çörək", calories: 68, protein: 2, carbs: 12, fat: 1 },
   { name: "Bulgur (bişmiş)", category: "Taxıl və çörək", calories: 83, protein: 3, carbs: 18, fat: 0.2 },
   { name: "Un (buğda)", category: "Taxıl və çörək", calories: 364, protein: 10, carbs: 76, fat: 1 },
-
   // Quru meyvə və qərzəklilər
   { name: "Badam", category: "Quru meyvə və qərzəklilər", calories: 579, protein: 21, carbs: 22, fat: 50 },
   { name: "Qoz", category: "Quru meyvə və qərzəklilər", calories: 654, protein: 15, carbs: 14, fat: 65 },
@@ -172,7 +168,6 @@ const foodDatabase: FoodItem[] = [
   { name: "Quru ərik", category: "Quru meyvə və qərzəklilər", calories: 241, protein: 3, carbs: 63, fat: 0.5 },
   { name: "Quru əncir", category: "Quru meyvə və qərzəklilər", calories: 249, protein: 3, carbs: 64, fat: 1 },
   { name: "Günəbaxan toxumu", category: "Quru meyvə və qərzəklilər", calories: 584, protein: 21, carbs: 20, fat: 51 },
-
   // İçkilər
   { name: "Çay (şəkərsiz)", category: "İçkilər", calories: 1, protein: 0, carbs: 0, fat: 0 },
   { name: "Çay (1 şəkərlə)", category: "İçkilər", calories: 20, protein: 0, carbs: 5, fat: 0 },
@@ -184,7 +179,6 @@ const foodDatabase: FoodItem[] = [
   { name: "Kompot", category: "İçkilər", calories: 60, protein: 0.2, carbs: 15, fat: 0 },
   { name: "Su", category: "İçkilər", calories: 0, protein: 0, carbs: 0, fat: 0 },
   { name: "Mineral su", category: "İçkilər", calories: 0, protein: 0, carbs: 0, fat: 0 },
-
   // Şirniyyat
   { name: "Şəkərbura", category: "Şirniyyat", calories: 350, protein: 6, carbs: 40, fat: 18 },
   { name: "Pakhlava (Bakı)", category: "Şirniyyat", calories: 400, protein: 7, carbs: 42, fat: 23 },
@@ -200,7 +194,6 @@ const foodDatabase: FoodItem[] = [
   { name: "Mutəkkə", category: "Şirniyyat", calories: 360, protein: 5, carbs: 44, fat: 19 },
   { name: "Mürəbbə", category: "Şirniyyat", calories: 250, protein: 0.3, carbs: 65, fat: 0.1 },
   { name: "Küləçə", category: "Şirniyyat", calories: 380, protein: 6, carbs: 50, fat: 17 },
-
   // Yağlar
   { name: "Kərə yağı", category: "Yağlar", calories: 717, protein: 1, carbs: 0, fat: 81 },
   { name: "Zeytun yağı", category: "Yağlar", calories: 884, protein: 0, carbs: 0, fat: 100 },
@@ -210,7 +203,130 @@ const foodDatabase: FoodItem[] = [
   { name: "Xama (20%)", category: "Yağlar", calories: 206, protein: 3, carbs: 4, fat: 20 },
 ];
 
+const pageTranslations = {
+  az: {
+    title: "Qida Kalori Hesablayıcısı",
+    description: "Yediyiniz qidaların kalori və makro qida dəyərlərini hesablayın. 50-dən çox Azərbaycan və beynəlxalq qida məlumatı daxildir.",
+    breadcrumbCategory: "Qidalanma",
+    breadcrumbLabel: "Qida kalori hesablayıcısı",
+    formulaTitle: "Kalori hesablama haqqında",
+    formulaContent: `Kalori — qidanın enerji dəyərini ölçən vahiddir. Hər bir qida maddəsi 3 əsas makro qida qrupundan ibarətdir:
+
+• Protein (zülal): 1 qram = 4 kkal
+• Karbohidrat: 1 qram = 4 kkal
+• Yağ: 1 qram = 9 kkal
+
+Gündəlik kalori ehtiyacı insanın yaşı, cinsi, çəkisi, boyu və fiziki aktivliyindən asılıdır. Orta hesabla:
+• Qadınlar: 1800-2200 kkal/gün
+• Kişilər: 2200-2800 kkal/gün
+
+Çəki itkisi üçün gündəlik normanızdan 500 kkal az, çəki artımı üçün isə 500 kkal çox qəbul etmək tövsiyə olunur.`,
+    category: "Kateqoriya",
+    searchFood: "Qida axtar",
+    searchPlaceholder: "Qida adını yazın...",
+    gram: "Qram",
+    add: "Əlavə et",
+    foodNotFound: "Qida tapılmadı",
+    addedFoods: "Əlavə edilmiş qidalar",
+    food: "Qida",
+    kcal: "Kkal",
+    protein: "Protein",
+    carb: "Karb",
+    fat: "Yağ",
+    delete: "Sil",
+    calories: "Kalori (kkal)",
+    carbohydrate: "Karbohidrat",
+    macroDistribution: "Makro qida paylanması",
+    dailyCalorieGoal: "Gündəlik kalori hədəfi",
+    goalReached: "Hədəfə çatdınız!",
+    remaining: "Qalır: {val} kkal",
+    emptyState: "Yuxarıdan qida seçib əlavə edin",
+    emptyStateDetail: "Kalori və makro qida dəyərləri avtomatik hesablanacaq",
+  },
+  en: {
+    title: "Food Calorie Calculator",
+    description: "Calculate the calorie and macro nutritional values of the foods you eat. Includes 50+ Azerbaijani and international food data.",
+    breadcrumbCategory: "Nutrition",
+    breadcrumbLabel: "Food calorie calculator",
+    formulaTitle: "About calorie calculation",
+    formulaContent: `A calorie is a unit that measures the energy value of food. Each food item consists of 3 main macronutrient groups:
+
+• Protein: 1 gram = 4 kcal
+• Carbohydrate: 1 gram = 4 kcal
+• Fat: 1 gram = 9 kcal
+
+Daily calorie needs depend on age, sex, weight, height and physical activity. On average:
+• Women: 1800-2200 kcal/day
+• Men: 2200-2800 kcal/day
+
+For weight loss, consume 500 kcal less than your daily norm; for weight gain, consume 500 kcal more.`,
+    category: "Category",
+    searchFood: "Search food",
+    searchPlaceholder: "Type food name...",
+    gram: "Grams",
+    add: "Add",
+    foodNotFound: "Food not found",
+    addedFoods: "Added foods",
+    food: "Food",
+    kcal: "Kcal",
+    protein: "Protein",
+    carb: "Carb",
+    fat: "Fat",
+    delete: "Delete",
+    calories: "Calories (kcal)",
+    carbohydrate: "Carbohydrate",
+    macroDistribution: "Macronutrient distribution",
+    dailyCalorieGoal: "Daily calorie goal",
+    goalReached: "Goal reached!",
+    remaining: "Remaining: {val} kcal",
+    emptyState: "Select and add food from above",
+    emptyStateDetail: "Calorie and macro values will be calculated automatically",
+  },
+  ru: {
+    title: "Калькулятор калорий продуктов",
+    description: "Рассчитайте калорийность и макронутриенты продуктов, которые вы едите. Включает 50+ азербайджанских и международных продуктов.",
+    breadcrumbCategory: "Питание",
+    breadcrumbLabel: "Калькулятор калорий",
+    formulaTitle: "О расчёте калорий",
+    formulaContent: `Калория — единица измерения энергетической ценности пищи. Каждый продукт состоит из 3 основных групп макронутриентов:
+
+• Белок: 1 грамм = 4 ккал
+• Углеводы: 1 грамм = 4 ккал
+• Жиры: 1 грамм = 9 ккал
+
+Суточная потребность в калориях зависит от возраста, пола, веса, роста и физической активности. В среднем:
+• Женщины: 1800-2200 ккал/день
+• Мужчины: 2200-2800 ккал/день
+
+Для похудения потребляйте на 500 ккал меньше нормы, для набора веса — на 500 ккал больше.`,
+    category: "Категория",
+    searchFood: "Поиск продукта",
+    searchPlaceholder: "Введите название продукта...",
+    gram: "Граммы",
+    add: "Добавить",
+    foodNotFound: "Продукт не найден",
+    addedFoods: "Добавленные продукты",
+    food: "Продукт",
+    kcal: "Ккал",
+    protein: "Белок",
+    carb: "Углев.",
+    fat: "Жиры",
+    delete: "Удалить",
+    calories: "Калории (ккал)",
+    carbohydrate: "Углеводы",
+    macroDistribution: "Распределение макронутриентов",
+    dailyCalorieGoal: "Суточная цель калорий",
+    goalReached: "Цель достигнута!",
+    remaining: "Осталось: {val} ккал",
+    emptyState: "Выберите и добавьте продукт выше",
+    emptyStateDetail: "Калории и макронутриенты будут рассчитаны автоматически",
+  },
+};
+
 export default function QidaKaloriHesablayicisi() {
+  const { lang } = useLanguage();
+  const pt = pageTranslations[lang];
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Hamısı");
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
@@ -276,31 +392,21 @@ export default function QidaKaloriHesablayicisi() {
 
   return (
     <CalculatorLayout
-      title="Qida Kalori Hesablayıcısı"
-      description="Yediyiniz qidaların kalori və makro qida dəyərlərini hesablayın. 50-dən çox Azərbaycan və beynəlxalq qida məlumatı daxildir."
+      title={pt.title}
+      description={pt.description}
       breadcrumbs={[
-        { label: "Qidalanma", href: "/?category=nutrition" },
-        { label: "Qida kalori hesablayıcısı" },
+        { label: pt.breadcrumbCategory, href: "/?category=nutrition" },
+        { label: pt.breadcrumbLabel },
       ]}
-      formulaTitle="Kalori hesablama haqqında"
-      formulaContent={`Kalori — qidanın enerji dəyərini ölçən vahiddir. Hər bir qida maddəsi 3 əsas makro qida qrupundan ibarətdir:
-
-• Protein (zülal): 1 qram = 4 kkal
-• Karbohidrat: 1 qram = 4 kkal
-• Yağ: 1 qram = 9 kkal
-
-Gündəlik kalori ehtiyacı insanın yaşı, cinsi, çəkisi, boyu və fiziki aktivliyindən asılıdır. Orta hesabla:
-• Qadınlar: 1800-2200 kkal/gün
-• Kişilər: 2200-2800 kkal/gün
-
-Çəki itkisi üçün gündəlik normanızdan 500 kkal az, çəki artımı üçün isə 500 kkal çox qəbul etmək tövsiyə olunur.`}
+      formulaTitle={pt.formulaTitle}
+      formulaContent={pt.formulaContent}
       relatedIds={["bmr", "bmi", "water-intake", "ideal-weight"]}
     >
       <div className="space-y-6">
         {/* Category Tabs */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            Kateqoriya
+            {pt.category}
           </label>
           <div className="flex flex-wrap gap-2">
             {categories.map((cat) => (
@@ -326,10 +432,9 @@ Gündəlik kalori ehtiyacı insanın yaşı, cinsi, çəkisi, boyu və fiziki ak
 
         {/* Search + Grams + Add */}
         <div className="grid grid-cols-1 sm:grid-cols-[1fr_120px_auto] gap-3 items-end">
-          {/* Search input with dropdown */}
           <div className="relative">
             <label className="block text-sm font-medium text-foreground mb-1">
-              Qida axtar
+              {pt.searchFood}
             </label>
             <input
               type="text"
@@ -340,7 +445,7 @@ Gündəlik kalori ehtiyacı insanın yaşı, cinsi, çəkisi, boyu və fiziki ak
                 setShowDropdown(true);
               }}
               onFocus={() => setShowDropdown(true)}
-              placeholder="Qida adını yazın..."
+              placeholder={pt.searchPlaceholder}
               className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
             />
             {showDropdown && filteredFoods.length > 0 && (
@@ -356,7 +461,7 @@ Gündəlik kalori ehtiyacı insanın yaşı, cinsi, çəkisi, boyu və fiziki ak
                       <span className="text-xs text-muted ml-2">({food.category})</span>
                     </div>
                     <span className="text-xs text-muted whitespace-nowrap">
-                      {food.calories} kkal/100q
+                      {food.calories} kkal/100{lang === "ru" ? "г" : "q"}
                     </span>
                   </button>
                 ))}
@@ -364,15 +469,14 @@ Gündəlik kalori ehtiyacı insanın yaşı, cinsi, çəkisi, boyu və fiziki ak
             )}
             {showDropdown && filteredFoods.length === 0 && searchQuery && (
               <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white border border-border rounded-xl shadow-lg p-4 text-sm text-muted text-center">
-                Qida tapılmadı
+                {pt.foodNotFound}
               </div>
             )}
           </div>
 
-          {/* Grams */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">
-              Qram
+              {pt.gram}
             </label>
             <input
               type="number"
@@ -384,13 +488,12 @@ Gündəlik kalori ehtiyacı insanın yaşı, cinsi, çəkisi, boyu və fiziki ak
             />
           </div>
 
-          {/* Add button */}
           <button
             onClick={handleAddFood}
             disabled={!selectedFood || !grams || parseFloat(grams) <= 0}
             className="px-6 py-2.5 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Əlavə et
+            {pt.add}
           </button>
         </div>
 
@@ -401,9 +504,9 @@ Gündəlik kalori ehtiyacı insanın yaşı, cinsi, çəkisi, boyu və fiziki ak
             <span className="text-muted">
               {grams ? Math.round(selectedFood.calories * (parseFloat(grams) / 100)) : selectedFood.calories} kkal
             </span>
-            <span className="text-red-600">P: {grams ? ((selectedFood.protein * (parseFloat(grams) / 100)).toFixed(1)) : selectedFood.protein}q</span>
-            <span className="text-amber-600">K: {grams ? ((selectedFood.carbs * (parseFloat(grams) / 100)).toFixed(1)) : selectedFood.carbs}q</span>
-            <span className="text-blue-600">Y: {grams ? ((selectedFood.fat * (parseFloat(grams) / 100)).toFixed(1)) : selectedFood.fat}q</span>
+            <span className="text-red-600">P: {grams ? ((selectedFood.protein * (parseFloat(grams) / 100)).toFixed(1)) : selectedFood.protein}{lang === "ru" ? "г" : "q"}</span>
+            <span className="text-amber-600">K: {grams ? ((selectedFood.carbs * (parseFloat(grams) / 100)).toFixed(1)) : selectedFood.carbs}{lang === "ru" ? "г" : "q"}</span>
+            <span className="text-blue-600">Y: {grams ? ((selectedFood.fat * (parseFloat(grams) / 100)).toFixed(1)) : selectedFood.fat}{lang === "ru" ? "г" : "q"}</span>
           </div>
         )}
 
@@ -411,17 +514,16 @@ Gündəlik kalori ehtiyacı insanın yaşı, cinsi, çəkisi, boyu və fiziki ak
         {addedFoods.length > 0 && (
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-3">
-              Əlavə edilmiş qidalar ({addedFoods.length})
+              {pt.addedFoods} ({addedFoods.length})
             </h3>
             <div className="border border-border rounded-xl overflow-hidden">
-              {/* Table header */}
               <div className="hidden sm:grid grid-cols-[1fr_80px_80px_80px_80px_80px_40px] gap-2 px-4 py-2 bg-gray-50 text-xs font-semibold text-muted border-b border-border">
-                <span>Qida</span>
-                <span className="text-right">Qram</span>
-                <span className="text-right">Kkal</span>
-                <span className="text-right text-red-600">Protein</span>
-                <span className="text-right text-amber-600">Karb</span>
-                <span className="text-right text-blue-600">Yağ</span>
+                <span>{pt.food}</span>
+                <span className="text-right">{pt.gram}</span>
+                <span className="text-right">{pt.kcal}</span>
+                <span className="text-right text-red-600">{pt.protein}</span>
+                <span className="text-right text-amber-600">{pt.carb}</span>
+                <span className="text-right text-blue-600">{pt.fat}</span>
                 <span></span>
               </div>
               {addedFoods.map((item) => {
@@ -433,29 +535,29 @@ Gündəlik kalori ehtiyacı insanın yaşı, cinsi, çəkisi, boyu və fiziki ak
                   >
                     <span className="font-medium text-foreground col-span-2 sm:col-span-1">{item.food.name}</span>
                     <span className="text-right text-muted">
-                      <span className="sm:hidden text-xs text-muted mr-1">Qram:</span>
-                      {item.grams}q
+                      <span className="sm:hidden text-xs text-muted mr-1">{pt.gram}:</span>
+                      {item.grams}{lang === "ru" ? "г" : "q"}
                     </span>
                     <span className="text-right font-semibold text-foreground">
-                      <span className="sm:hidden text-xs text-muted mr-1">Kkal:</span>
+                      <span className="sm:hidden text-xs text-muted mr-1">{pt.kcal}:</span>
                       {Math.round(item.food.calories * m)}
                     </span>
                     <span className="text-right text-red-600">
                       <span className="sm:hidden text-xs mr-1">P:</span>
-                      {(item.food.protein * m).toFixed(1)}q
+                      {(item.food.protein * m).toFixed(1)}{lang === "ru" ? "г" : "q"}
                     </span>
                     <span className="text-right text-amber-600">
                       <span className="sm:hidden text-xs mr-1">K:</span>
-                      {(item.food.carbs * m).toFixed(1)}q
+                      {(item.food.carbs * m).toFixed(1)}{lang === "ru" ? "г" : "q"}
                     </span>
                     <span className="text-right text-blue-600">
                       <span className="sm:hidden text-xs mr-1">Y:</span>
-                      {(item.food.fat * m).toFixed(1)}q
+                      {(item.food.fat * m).toFixed(1)}{lang === "ru" ? "г" : "q"}
                     </span>
                     <button
                       onClick={() => handleRemoveFood(item.id)}
                       className="text-red-400 hover:text-red-600 transition text-lg leading-none justify-self-end"
-                      title="Sil"
+                      title={pt.delete}
                     >
                       &times;
                     </button>
@@ -474,51 +576,50 @@ Gündəlik kalori ehtiyacı insanın yaşı, cinsi, çəkisi, boyu və fiziki ak
                 <div className="text-2xl font-bold text-orange-600">
                   {Math.round(totals.calories)}
                 </div>
-                <div className="text-xs text-orange-600/70 font-medium mt-1">Kalori (kkal)</div>
+                <div className="text-xs text-orange-600/70 font-medium mt-1">{pt.calories}</div>
               </div>
               <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-center">
                 <div className="text-2xl font-bold text-red-600">
-                  {totals.protein.toFixed(1)}q
+                  {totals.protein.toFixed(1)}{lang === "ru" ? "г" : "q"}
                 </div>
-                <div className="text-xs text-red-600/70 font-medium mt-1">Protein</div>
+                <div className="text-xs text-red-600/70 font-medium mt-1">{pt.protein}</div>
               </div>
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
                 <div className="text-2xl font-bold text-amber-600">
-                  {totals.carbs.toFixed(1)}q
+                  {totals.carbs.toFixed(1)}{lang === "ru" ? "г" : "q"}
                 </div>
-                <div className="text-xs text-amber-600/70 font-medium mt-1">Karbohidrat</div>
+                <div className="text-xs text-amber-600/70 font-medium mt-1">{pt.carbohydrate}</div>
               </div>
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
                 <div className="text-2xl font-bold text-blue-600">
-                  {totals.fat.toFixed(1)}q
+                  {totals.fat.toFixed(1)}{lang === "ru" ? "г" : "q"}
                 </div>
-                <div className="text-xs text-blue-600/70 font-medium mt-1">Yağ</div>
+                <div className="text-xs text-blue-600/70 font-medium mt-1">{pt.fat}</div>
               </div>
             </div>
 
-            {/* Macro distribution bar */}
             {macroTotal > 0 && (
               <div>
-                <div className="text-sm font-medium text-foreground mb-2">Makro qida paylanması</div>
+                <div className="text-sm font-medium text-foreground mb-2">{pt.macroDistribution}</div>
                 <div className="flex rounded-full overflow-hidden h-5">
                   <div
                     className="bg-red-500 flex items-center justify-center text-[10px] text-white font-semibold"
                     style={{ width: `${proteinPct}%` }}
-                    title={`Protein: ${proteinPct.toFixed(1)}%`}
+                    title={`${pt.protein}: ${proteinPct.toFixed(1)}%`}
                   >
                     {proteinPct >= 8 && `${proteinPct.toFixed(0)}%`}
                   </div>
                   <div
                     className="bg-amber-500 flex items-center justify-center text-[10px] text-white font-semibold"
                     style={{ width: `${carbsPct}%` }}
-                    title={`Karbohidrat: ${carbsPct.toFixed(1)}%`}
+                    title={`${pt.carbohydrate}: ${carbsPct.toFixed(1)}%`}
                   >
                     {carbsPct >= 8 && `${carbsPct.toFixed(0)}%`}
                   </div>
                   <div
                     className="bg-blue-500 flex items-center justify-center text-[10px] text-white font-semibold"
                     style={{ width: `${fatPct}%` }}
-                    title={`Yağ: ${fatPct.toFixed(1)}%`}
+                    title={`${pt.fat}: ${fatPct.toFixed(1)}%`}
                   >
                     {fatPct >= 8 && `${fatPct.toFixed(0)}%`}
                   </div>
@@ -526,15 +627,15 @@ Gündəlik kalori ehtiyacı insanın yaşı, cinsi, çəkisi, boyu və fiziki ak
                 <div className="flex gap-4 mt-2 text-xs text-muted">
                   <span className="flex items-center gap-1">
                     <span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span>
-                    Protein {proteinPct.toFixed(1)}%
+                    {pt.protein} {proteinPct.toFixed(1)}%
                   </span>
                   <span className="flex items-center gap-1">
                     <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
-                    Karbohidrat {carbsPct.toFixed(1)}%
+                    {pt.carbohydrate} {carbsPct.toFixed(1)}%
                   </span>
                   <span className="flex items-center gap-1">
                     <span className="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span>
-                    Yağ {fatPct.toFixed(1)}%
+                    {pt.fat} {fatPct.toFixed(1)}%
                   </span>
                 </div>
               </div>
@@ -543,7 +644,7 @@ Gündəlik kalori ehtiyacı insanın yaşı, cinsi, çəkisi, boyu və fiziki ak
             {/* Daily Goal */}
             <div className="bg-gray-50 rounded-xl p-4 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <span className="text-sm font-semibold text-foreground">Gündəlik kalori hədəfi</span>
+                <span className="text-sm font-semibold text-foreground">{pt.dailyCalorieGoal}</span>
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
@@ -574,8 +675,8 @@ Gündəlik kalori ehtiyacı insanın yaşı, cinsi, çəkisi, boyu və fiziki ak
                   }
                 >
                   {remaining === 0
-                    ? "Hədəfə çatdınız!"
-                    : `Qalır: ${Math.round(remaining)} kkal`}
+                    ? pt.goalReached
+                    : pt.remaining.replace("{val}", String(Math.round(remaining)))}
                 </span>
               </div>
             </div>
@@ -586,8 +687,8 @@ Gündəlik kalori ehtiyacı insanın yaşı, cinsi, çəkisi, boyu və fiziki ak
         {addedFoods.length === 0 && (
           <div className="text-center py-8 text-muted">
             <div className="text-4xl mb-3">🍽️</div>
-            <p className="text-sm">Yuxarıdan qida seçib əlavə edin</p>
-            <p className="text-xs mt-1">Kalori və makro qida dəyərləri avtomatik hesablanacaq</p>
+            <p className="text-sm">{pt.emptyState}</p>
+            <p className="text-xs mt-1">{pt.emptyStateDetail}</p>
           </div>
         )}
       </div>
