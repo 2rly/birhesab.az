@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import CalculatorLayout from "@/components/CalculatorLayout";
+import { useLanguage } from "@/i18n";
 
 // ═══════════════════════════════════════════════
 // İnzibati vəzifələr üzrə maaş cədvəli (35 səviyyə × 7 pillə)
@@ -202,7 +203,241 @@ function formatMoney(n: number): string {
 
 type JobType = "admin" | "support";
 
+const pageTranslations = {
+  az: {
+    title: "Dövlət qulluqçularının maaş hesablayıcısı",
+    description: "Qurum, vəzifə və pilləyə uyğun aylıq vəzifə maaşını (gross və net) hesablayın — Prezidentin 19 mart 2026-cı il tarixli Fərmanına əsasən.",
+    breadcrumbCategory: "Hüquq və Dövlət",
+    breadcrumbLabel: "Dövlət qulluqçusu maaş hesablayıcısı",
+    formulaTitle: "Dövlət qulluqçusunun maaşı necə hesablanır? (Yeni qayda 2026)",
+    formulaContent: `Prezidentin 19 mart 2026-cı il tarixli Fərmanına əsasən:
+
+1. Vəzifə maaşı cədvəldən müəyyən edilir (səviyyə × pillə)
+2. Aylıq vəzifə maaşları tam ədədə (sonuncu rəqəmi 0 və ya 5) yuvarlaqlaşdırılır
+
+Dövlət sektoru üzrə tutulmalar (işçidən):
+• Gəlir vergisi:
+  0–200₼: 0%
+  200–2500₼: (maaş − 200) × 14%
+  2500₼+: 322 + (maaş − 2500) × 25%
+• DSMF: 3%
+• İşsizlik sığortası: 0,5%
+• İcbari tibbi sığorta: 8000₼-dək 2%, üstü 0,5%
+
+Net maaş = Gross − Gəlir vergisi − DSMF − İşsizlik − Tibbi sığorta
+
+Pillə sistemi (vəzifədəki staj müddəti):
+• I pillə: 1 ilədək staj
+• II pillə: 1–5 il staj
+• III pillə: 5–10 il staj
+• IV pillə: 10–15 il staj
+• V pillə: 15–20 il staj
+• VI pillə: 20–25 il staj
+• VII pillə: 25 ildən yuxarı staj
+
+Qeyd: Pillə həmin vəzifədəki staj müddətinə görə müəyyən edilir.`,
+    jobType: "Vəzifə növü",
+    adminJob: "İnzibati vəzifə",
+    adminJobDesc: "35 ödəniş səviyyəsi (aparatın rəhbəri, şöbə müdiri, məsləhətçi...)",
+    supportJob: "Yardımçı vəzifə",
+    supportJobDesc: "17 ödəniş səviyyəsi (mütəxəssis, inspektor, kargüzar...)",
+    organization: "Qurum",
+    selectOrg: "Qurum seçin...",
+    selectJobFirst: "Əvvəlcə vəzifə növünü seçin",
+    position: "Vəzifə",
+    selectPos: "Vəzifə seçin...",
+    selectOrgFirst: "Əvvəlcə qurumu seçin",
+    level: "səviyyə",
+    payStep: "Ödəniş pilləsi",
+    stepNote: "Pillə vəzifədəki staja görə müəyyən edilir (I: 1 ilədək, II: 1–5 il ... VII: 25+ il).",
+    stepTableTitle: "Pillə — Staj müddəti cədvəli",
+    step: "pillə",
+    netSalary: "Net əmək haqqı (əlinizə çatan)",
+    grossSalary: "Gross əmək haqqı",
+    perMonth: "AZN / ay",
+    stateSector: "Dövlət sektoru",
+    levelLabel: "Səviyyə",
+    employeeDeductions: "İşçidən tutulan",
+    incomeTax: "Gəlir vergisi",
+    incomeTaxDesc: "200₼-dək 0%, 200–2500₼ arası 14%, 2500₼-dan çox 25%",
+    noTaxNote: "200₼-dək gəlir vergisi tutulmur",
+    totalLabel: "Cəmi",
+    dsmf: "DSMF",
+    dsmfDesc: "Gross məbləğin 3%-i",
+    unemployment: "İşsizlik sığortası",
+    medical: "İcbari tibbi sığorta",
+    medicalDesc: "8000₼-dək 2%, 8000₼-dan çox 0,5%",
+    totalDeduction: "Cəmi tutulma",
+    annualCalc: "İllik hesablama",
+    annualNetIncome: "İllik net gəlir",
+    annualGross: "İllik gross",
+    annualDeduction: "İllik tutulma",
+    orgLabel: "Qurum",
+    jobTypeLabel: "Vəzifə növü",
+    adminLabel: "İnzibati",
+    supportLabel: "Yardımçı",
+    payLevel: "Ödəniş səviyyəsi",
+    stepLabel: "Pillə",
+    emptyStateText: "Nəticəni görmək üçün qurum, vəzifə və pilləni seçin.",
+  },
+  en: {
+    title: "Civil Servant Salary Calculator",
+    description: "Calculate the monthly salary (gross and net) based on institution, position, and step — per the Presidential Decree of March 19, 2026.",
+    breadcrumbCategory: "Law & Government",
+    breadcrumbLabel: "Civil servant salary calculator",
+    formulaTitle: "How is a civil servant's salary calculated? (New rules 2026)",
+    formulaContent: `Per the Presidential Decree of March 19, 2026:
+
+1. Position salary is determined from the table (level × step)
+2. Monthly salaries are rounded to whole numbers (last digit 0 or 5)
+
+Government sector deductions (from employee):
+• Income tax:
+  0–200₼: 0%
+  200–2500₼: (salary − 200) × 14%
+  2500₼+: 322 + (salary − 2500) × 25%
+• SSPF: 3%
+• Unemployment insurance: 0.5%
+• Compulsory medical insurance: up to 8000₼ 2%, above 0.5%
+
+Net salary = Gross − Income tax − SSPF − Unemployment − Medical insurance
+
+Step system (tenure in position):
+• Step I: up to 1 year
+• Step II: 1–5 years
+• Step III: 5–10 years
+• Step IV: 10–15 years
+• Step V: 15–20 years
+• Step VI: 20–25 years
+• Step VII: over 25 years
+
+Note: Step is determined by tenure in the position.`,
+    jobType: "Position type",
+    adminJob: "Administrative position",
+    adminJobDesc: "35 pay levels (department head, section chief, advisor...)",
+    supportJob: "Support position",
+    supportJobDesc: "17 pay levels (specialist, inspector, clerk...)",
+    organization: "Institution",
+    selectOrg: "Select institution...",
+    selectJobFirst: "First select position type",
+    position: "Position",
+    selectPos: "Select position...",
+    selectOrgFirst: "First select institution",
+    level: "level",
+    payStep: "Pay step",
+    stepNote: "Step is determined by tenure in position (I: up to 1 yr, II: 1–5 yrs ... VII: 25+ yrs).",
+    stepTableTitle: "Step — Tenure table",
+    step: "step",
+    netSalary: "Net salary (take-home)",
+    grossSalary: "Gross salary",
+    perMonth: "AZN / month",
+    stateSector: "Government sector",
+    levelLabel: "Level",
+    employeeDeductions: "Employee deductions",
+    incomeTax: "Income tax",
+    incomeTaxDesc: "Up to 200₼ 0%, 200–2500₼ 14%, above 2500₼ 25%",
+    noTaxNote: "No income tax on amounts up to 200₼",
+    totalLabel: "Total",
+    dsmf: "SSPF",
+    dsmfDesc: "3% of gross amount",
+    unemployment: "Unemployment insurance",
+    medical: "Compulsory medical insurance",
+    medicalDesc: "Up to 8000₼ 2%, above 8000₼ 0.5%",
+    totalDeduction: "Total deduction",
+    annualCalc: "Annual calculation",
+    annualNetIncome: "Annual net income",
+    annualGross: "Annual gross",
+    annualDeduction: "Annual deduction",
+    orgLabel: "Institution",
+    jobTypeLabel: "Position type",
+    adminLabel: "Administrative",
+    supportLabel: "Support",
+    payLevel: "Pay level",
+    stepLabel: "Step",
+    emptyStateText: "Select institution, position, and step to see the result.",
+  },
+  ru: {
+    title: "Калькулятор зарплаты госслужащих",
+    description: "Рассчитайте ежемесячную зарплату (брутто и нетто) по учреждению, должности и ступени — согласно Указу Президента от 19 марта 2026 года.",
+    breadcrumbCategory: "Право и государство",
+    breadcrumbLabel: "Калькулятор зарплаты госслужащих",
+    formulaTitle: "Как рассчитывается зарплата госслужащего? (Новые правила 2026)",
+    formulaContent: `Согласно Указу Президента от 19 марта 2026 года:
+
+1. Должностной оклад определяется из таблицы (уровень × ступень)
+2. Ежемесячные оклады округляются до целых чисел (последняя цифра 0 или 5)
+
+Удержания в госсекторе (с работника):
+• Подоходный налог:
+  0–200₼: 0%
+  200–2500₼: (оклад − 200) × 14%
+  2500₼+: 322 + (оклад − 2500) × 25%
+• ГФСЗ: 3%
+• Страхование от безработицы: 0,5%
+• Обяз. медстрахование: до 8000₼ 2%, свыше 0,5%
+
+Нетто = Брутто − Подоходный налог − ГФСЗ − Безработица − Медстрахование
+
+Система ступеней (стаж на должности):
+• Ступень I: до 1 года
+• Ступень II: 1–5 лет
+• Ступень III: 5–10 лет
+• Ступень IV: 10–15 лет
+• Ступень V: 15–20 лет
+• Ступень VI: 20–25 лет
+• Ступень VII: свыше 25 лет
+
+Примечание: Ступень определяется стажем на данной должности.`,
+    jobType: "Тип должности",
+    adminJob: "Административная должность",
+    adminJobDesc: "35 уровней оплаты (руководитель аппарата, начальник отдела, советник...)",
+    supportJob: "Вспомогательная должность",
+    supportJobDesc: "17 уровней оплаты (специалист, инспектор, делопроизводитель...)",
+    organization: "Учреждение",
+    selectOrg: "Выберите учреждение...",
+    selectJobFirst: "Сначала выберите тип должности",
+    position: "Должность",
+    selectPos: "Выберите должность...",
+    selectOrgFirst: "Сначала выберите учреждение",
+    level: "уровень",
+    payStep: "Ступень оплаты",
+    stepNote: "Ступень определяется стажем на должности (I: до 1 г., II: 1–5 л. ... VII: 25+ л.).",
+    stepTableTitle: "Ступень — Таблица стажа",
+    step: "ступень",
+    netSalary: "Нетто-зарплата (на руки)",
+    grossSalary: "Брутто-зарплата",
+    perMonth: "AZN / мес.",
+    stateSector: "Государственный сектор",
+    levelLabel: "Уровень",
+    employeeDeductions: "Удержания с работника",
+    incomeTax: "Подоходный налог",
+    incomeTaxDesc: "До 200₼ 0%, 200–2500₼ 14%, свыше 2500₼ 25%",
+    noTaxNote: "На суммы до 200₼ подоходный налог не начисляется",
+    totalLabel: "Итого",
+    dsmf: "ГФСЗ",
+    dsmfDesc: "3% от брутто-суммы",
+    unemployment: "Страхование от безработицы",
+    medical: "Обяз. медицинское страхование",
+    medicalDesc: "До 8000₼ 2%, свыше 8000₼ 0,5%",
+    totalDeduction: "Общее удержание",
+    annualCalc: "Годовой расчёт",
+    annualNetIncome: "Годовой нетто-доход",
+    annualGross: "Годовой брутто",
+    annualDeduction: "Годовое удержание",
+    orgLabel: "Учреждение",
+    jobTypeLabel: "Тип должности",
+    adminLabel: "Административная",
+    supportLabel: "Вспомогательная",
+    payLevel: "Уровень оплаты",
+    stepLabel: "Ступень",
+    emptyStateText: "Выберите учреждение, должность и ступень, чтобы увидеть результат.",
+  },
+};
+
 export default function CivilServantSalary() {
+  const { lang } = useLanguage();
+  const pt = pageTranslations[lang];
+
   const [jobType, setJobType] = useState<JobType | null>(null);
   const [org, setOrg] = useState("");
   const [posIdx, setPosIdx] = useState<number | null>(null);
@@ -236,44 +471,19 @@ export default function CivilServantSalary() {
 
   return (
     <CalculatorLayout
-      title="Dövlət qulluqçularının maaş hesablayıcısı"
-      description="Qurum, vəzifə və pilləyə uyğun aylıq vəzifə maaşını (gross və net) hesablayın — Prezidentin 19 mart 2026-cı il tarixli Fərmanına əsasən."
+      title={pt.title}
+      description={pt.description}
       breadcrumbs={[
-        { label: "Hüquq və Dövlət", href: "/?category=legal" },
-        { label: "Dövlət qulluqçusu maaş hesablayıcısı" },
+        { label: pt.breadcrumbCategory, href: "/?category=legal" },
+        { label: pt.breadcrumbLabel },
       ]}
-      formulaTitle="Dövlət qulluqçusunun maaşı necə hesablanır? (Yeni qayda 2026)"
-      formulaContent={`Prezidentin 19 mart 2026-cı il tarixli Fərmanına əsasən:
-
-1. Vəzifə maaşı cədvəldən müəyyən edilir (səviyyə × pillə)
-2. Aylıq vəzifə maaşları tam ədədə (sonuncu rəqəmi 0 və ya 5) yuvarlaqlaşdırılır
-
-Dövlət sektoru üzrə tutulmalar (işçidən):
-• Gəlir vergisi:
-  0–200₼: 0%
-  200–2500₼: (maaş − 200) × 14%
-  2500₼+: 322 + (maaş − 2500) × 25%
-• DSMF: 3%
-• İşsizlik sığortası: 0,5%
-• İcbari tibbi sığorta: 8000₼-dək 2%, üstü 0,5%
-
-Net maaş = Gross − Gəlir vergisi − DSMF − İşsizlik − Tibbi sığorta
-
-Pillə sistemi (vəzifədəki staj müddəti):
-• I pillə: 1 ilədək staj
-• II pillə: 1–5 il staj
-• III pillə: 5–10 il staj
-• IV pillə: 10–15 il staj
-• V pillə: 15–20 il staj
-• VI pillə: 20–25 il staj
-• VII pillə: 25 ildən yuxarı staj
-
-Qeyd: Pillə həmin vəzifədəki staj müddətinə görə müəyyən edilir.`}
+      formulaTitle={pt.formulaTitle}
+      formulaContent={pt.formulaContent}
       relatedIds={["salary", "overtime", "vacation-pay"]}
     >
       {/* Vəzifə növü */}
       <div className="mb-6">
-        <label className="block text-sm font-medium text-foreground mb-2">Vəzifə növü</label>
+        <label className="block text-sm font-medium text-foreground mb-2">{pt.jobType}</label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <button
             onClick={() => handleJobType("admin")}
@@ -283,8 +493,8 @@ Qeyd: Pillə həmin vəzifədəki staj müddətinə görə müəyyən edilir.`}
                 : "border-border bg-white hover:border-primary/30"
             }`}
           >
-            <p className="text-sm font-medium text-foreground">İnzibati vəzifə</p>
-            <p className="text-[11px] text-muted mt-0.5">35 ödəniş səviyyəsi (aparatın rəhbəri, şöbə müdiri, məsləhətçi...)</p>
+            <p className="text-sm font-medium text-foreground">{pt.adminJob}</p>
+            <p className="text-[11px] text-muted mt-0.5">{pt.adminJobDesc}</p>
           </button>
           <button
             onClick={() => handleJobType("support")}
@@ -294,22 +504,22 @@ Qeyd: Pillə həmin vəzifədəki staj müddətinə görə müəyyən edilir.`}
                 : "border-border bg-white hover:border-primary/30"
             }`}
           >
-            <p className="text-sm font-medium text-foreground">Yardımçı vəzifə</p>
-            <p className="text-[11px] text-muted mt-0.5">17 ödəniş səviyyəsi (mütəxəssis, inspektor, kargüzar...)</p>
+            <p className="text-sm font-medium text-foreground">{pt.supportJob}</p>
+            <p className="text-[11px] text-muted mt-0.5">{pt.supportJobDesc}</p>
           </button>
         </div>
       </div>
 
       {/* Qurum */}
       <div className="mb-6">
-        <label className="block text-sm font-medium text-foreground mb-2">Qurum</label>
+        <label className="block text-sm font-medium text-foreground mb-2">{pt.organization}</label>
         <select
           value={org}
           onChange={(e) => handleOrg(e.target.value)}
           disabled={!orgs}
           className="w-full px-4 py-3 rounded-xl border border-border bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-gray-50"
         >
-          <option value="">{orgs ? "Qurum seçin..." : "Əvvəlcə vəzifə növünü seçin"}</option>
+          <option value="">{orgs ? pt.selectOrg : pt.selectJobFirst}</option>
           {orgs && Object.keys(orgs).map((name) => (
             <option key={name} value={name}>{name}</option>
           ))}
@@ -318,23 +528,23 @@ Qeyd: Pillə həmin vəzifədəki staj müddətinə görə müəyyən edilir.`}
 
       {/* Vəzifə */}
       <div className="mb-6">
-        <label className="block text-sm font-medium text-foreground mb-2">Vəzifə</label>
+        <label className="block text-sm font-medium text-foreground mb-2">{pt.position}</label>
         <select
           value={posIdx !== null ? String(posIdx) : ""}
           onChange={(e) => handlePos(e.target.value)}
           disabled={!positions}
           className="w-full px-4 py-3 rounded-xl border border-border bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-gray-50"
         >
-          <option value="">{positions ? "Vəzifə seçin..." : "Əvvəlcə qurumu seçin"}</option>
+          <option value="">{positions ? pt.selectPos : pt.selectOrgFirst}</option>
           {positions && positions.map((p, i) => (
-            <option key={i} value={i}>{p.name} (səviyyə {p.level})</option>
+            <option key={i} value={i}>{p.name} ({pt.level} {p.level})</option>
           ))}
         </select>
       </div>
 
       {/* Ödəniş pilləsi */}
       <div className="mb-8">
-        <label className="block text-sm font-medium text-foreground mb-2">Ödəniş pilləsi</label>
+        <label className="block text-sm font-medium text-foreground mb-2">{pt.payStep}</label>
         <div className="flex gap-2">
           {stepInfo.map((s, i) => (
             <button
@@ -351,14 +561,14 @@ Qeyd: Pillə həmin vəzifədəki staj müddətinə görə müəyyən edilir.`}
             </button>
           ))}
         </div>
-        <p className="text-[11px] text-muted mt-2">Pillə vəzifədəki staja görə müəyyən edilir (I: 1 ilədək, II: 1–5 il ... VII: 25+ il).</p>
+        <p className="text-[11px] text-muted mt-2">{pt.stepNote}</p>
       </div>
 
       {/* Pillə-Staj cədvəli */}
       <div className="mb-8 bg-blue-50 rounded-xl border border-blue-200 p-4">
         <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2 text-sm">
           <span>&#128197;</span>
-          Pillə — Staj müddəti cədvəli
+          {pt.stepTableTitle}
         </h4>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {stepInfo.map((s, i) => (
@@ -370,7 +580,7 @@ Qeyd: Pillə həmin vəzifədəki staj müddətinə görə müəyyən edilir.`}
                   : "border-blue-200 bg-white"
               }`}
             >
-              <p className={`text-lg font-bold ${step === i ? "text-primary" : "text-foreground"}`}>{s.label} pillə</p>
+              <p className={`text-lg font-bold ${step === i ? "text-primary" : "text-foreground"}`}>{s.label} {pt.step}</p>
               <p className="text-xs text-muted">{s.range}</p>
             </div>
           ))}
@@ -383,21 +593,21 @@ Qeyd: Pillə həmin vəzifədəki staj müddətinə görə müəyyən edilir.`}
           {/* Əsas kartlar */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-gradient-to-br from-primary to-primary-dark rounded-2xl p-6 text-center text-white">
-              <p className="text-sm text-blue-200 mb-1">Net əmək haqqı (əlinizə çatan)</p>
+              <p className="text-sm text-blue-200 mb-1">{pt.netSalary}</p>
               <p className="text-3xl font-bold">{formatMoney(result.net)}</p>
-              <p className="text-xs text-blue-200 mt-1">AZN / ay</p>
+              <p className="text-xs text-blue-200 mt-1">{pt.perMonth}</p>
             </div>
             <div className="bg-gray-50 rounded-2xl border border-border p-6 text-center">
-              <p className="text-sm text-muted mb-1">Gross əmək haqqı</p>
+              <p className="text-sm text-muted mb-1">{pt.grossSalary}</p>
               <p className="text-3xl font-bold text-foreground">{formatMoney(gross)}</p>
-              <p className="text-xs text-muted mt-1">AZN / ay</p>
+              <p className="text-xs text-muted mt-1">{pt.perMonth}</p>
             </div>
           </div>
 
           {/* Badge */}
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
-              Dövlət sektoru — Səviyyə {pos.level}, {stepInfo[step!].label} pillə
+              {pt.stateSector} — {pt.levelLabel} {pos.level}, {stepInfo[step!].label} {pt.step}
             </span>
           </div>
 
@@ -406,20 +616,20 @@ Qeyd: Pillə həmin vəzifədəki staj müddətinə görə müəyyən edilir.`}
             <div className="bg-gray-50 px-5 py-3 border-b border-border">
               <h3 className="font-semibold text-foreground flex items-center gap-2">
                 <span>&#128100;</span>
-                İşçidən tutulan
+                {pt.employeeDeductions}
               </h3>
             </div>
             <div className="divide-y divide-border">
               {/* Gəlir vergisi */}
               <div className="px-5 py-3">
                 <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium text-foreground">Gəlir vergisi</span>
+                  <span className="text-sm font-medium text-foreground">{pt.incomeTax}</span>
                   <span className="text-sm font-bold text-foreground">{formatMoney(result.incomeTax)} AZN</span>
                 </div>
-                <p className="text-[11px] text-muted mb-1.5">200₼-dək 0%, 200–2500₼ arası 14%, 2500₼-dan çox 25%</p>
+                <p className="text-[11px] text-muted mb-1.5">{pt.incomeTaxDesc}</p>
                 {result.incomeTax === 0 ? (
                   <div className="bg-green-50 rounded-lg p-2.5">
-                    <p className="text-xs text-green-600">200₼-dək gəlir vergisi tutulmur</p>
+                    <p className="text-xs text-green-600">{pt.noTaxNote}</p>
                   </div>
                 ) : (
                   <div className="bg-gray-50 rounded-lg p-2.5 space-y-1">
@@ -433,7 +643,7 @@ Qeyd: Pillə həmin vəzifədəki staj müddətinə görə müəyyən edilir.`}
                         <>
                           <p className="text-xs text-muted">{b1}₼ × 14% = <span className="font-medium text-foreground">{formatMoney(b1 * 0.14)} AZN</span></p>
                           <p className="text-xs text-muted">{taxable - b1}₼ × 25% = <span className="font-medium text-foreground">{formatMoney((taxable - b1) * 0.25)} AZN</span></p>
-                          <p className="text-xs font-medium text-foreground border-t border-border pt-1">Cəmi: {formatMoney(result.incomeTax)} AZN</p>
+                          <p className="text-xs font-medium text-foreground border-t border-border pt-1">{pt.totalLabel}: {formatMoney(result.incomeTax)} AZN</p>
                         </>
                       );
                     })()}
@@ -444,10 +654,10 @@ Qeyd: Pillə həmin vəzifədəki staj müddətinə görə müəyyən edilir.`}
               {/* DSMF */}
               <div className="px-5 py-3">
                 <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium text-foreground">DSMF</span>
+                  <span className="text-sm font-medium text-foreground">{pt.dsmf}</span>
                   <span className="text-sm font-bold text-foreground">{formatMoney(result.dsmf)} AZN</span>
                 </div>
-                <p className="text-[11px] text-muted mb-1.5">Gross məbləğin 3%-i</p>
+                <p className="text-[11px] text-muted mb-1.5">{pt.dsmfDesc}</p>
                 <div className="bg-gray-50 rounded-lg p-2.5">
                   <p className="text-xs text-muted">{formatMoney(gross)}₼ × 3% = <span className="font-medium text-foreground">{formatMoney(result.dsmf)} AZN</span></p>
                 </div>
@@ -456,7 +666,7 @@ Qeyd: Pillə həmin vəzifədəki staj müddətinə görə müəyyən edilir.`}
               {/* İşsizlik */}
               <div className="px-5 py-3">
                 <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium text-foreground">İşsizlik sığortası</span>
+                  <span className="text-sm font-medium text-foreground">{pt.unemployment}</span>
                   <span className="text-sm font-bold text-foreground">{formatMoney(result.unemployment)} AZN</span>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-2.5">
@@ -467,10 +677,10 @@ Qeyd: Pillə həmin vəzifədəki staj müddətinə görə müəyyən edilir.`}
               {/* İcbari tibbi sığorta */}
               <div className="px-5 py-3">
                 <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium text-foreground">İcbari tibbi sığorta</span>
+                  <span className="text-sm font-medium text-foreground">{pt.medical}</span>
                   <span className="text-sm font-bold text-foreground">{formatMoney(result.medical)} AZN</span>
                 </div>
-                <p className="text-[11px] text-muted mb-1.5">8000₼-dək 2%, 8000₼-dan çox 0,5%</p>
+                <p className="text-[11px] text-muted mb-1.5">{pt.medicalDesc}</p>
                 <div className="bg-gray-50 rounded-lg p-2.5 space-y-1">
                   {gross <= 8000 ? (
                     <p className="text-xs text-muted">{formatMoney(gross)}₼ × 2% = <span className="font-medium text-foreground">{formatMoney(result.medical)} AZN</span></p>
@@ -478,7 +688,7 @@ Qeyd: Pillə həmin vəzifədəki staj müddətinə görə müəyyən edilir.`}
                     <>
                       <p className="text-xs text-muted">8000₼ × 2% = <span className="font-medium text-foreground">{formatMoney(8000 * 0.02)} AZN</span></p>
                       <p className="text-xs text-muted">{gross - 8000}₼ × 0,5% = <span className="font-medium text-foreground">{formatMoney((gross - 8000) * 0.005)} AZN</span></p>
-                      <p className="text-xs font-medium text-foreground border-t border-border pt-1">Cəmi: {formatMoney(result.medical)} AZN</p>
+                      <p className="text-xs font-medium text-foreground border-t border-border pt-1">{pt.totalLabel}: {formatMoney(result.medical)} AZN</p>
                     </>
                   )}
                 </div>
@@ -486,7 +696,7 @@ Qeyd: Pillə həmin vəzifədəki staj müddətinə görə müəyyən edilir.`}
 
               {/* Cəmi */}
               <div className="flex justify-between px-5 py-3 bg-red-50">
-                <span className="text-sm font-semibold text-red-700">Cəmi tutulma</span>
+                <span className="text-sm font-semibold text-red-700">{pt.totalDeduction}</span>
                 <span className="text-sm font-bold text-red-700">{formatMoney(result.totalDeductions)} AZN</span>
               </div>
             </div>
@@ -496,19 +706,19 @@ Qeyd: Pillə həmin vəzifədəki staj müddətinə görə müəyyən edilir.`}
           <div className="bg-blue-50 rounded-xl border border-blue-200 p-5">
             <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <span>&#128197;</span>
-              İllik hesablama
+              {pt.annualCalc}
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
               <div>
-                <p className="text-xs text-muted mb-1">İllik net gəlir</p>
+                <p className="text-xs text-muted mb-1">{pt.annualNetIncome}</p>
                 <p className="text-lg font-bold text-primary">{formatMoney(result.net * 12)} AZN</p>
               </div>
               <div>
-                <p className="text-xs text-muted mb-1">İllik gross</p>
+                <p className="text-xs text-muted mb-1">{pt.annualGross}</p>
                 <p className="text-lg font-bold text-foreground">{formatMoney(gross * 12)} AZN</p>
               </div>
               <div>
-                <p className="text-xs text-muted mb-1">İllik tutulma</p>
+                <p className="text-xs text-muted mb-1">{pt.annualDeduction}</p>
                 <p className="text-lg font-bold text-red-600">{formatMoney(result.totalDeductions * 12)} AZN</p>
               </div>
             </div>
@@ -517,27 +727,27 @@ Qeyd: Pillə həmin vəzifədəki staj müddətinə görə müəyyən edilir.`}
           {/* Seçim xülasəsi */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <div className="bg-gray-50 rounded-lg border border-border p-3">
-              <p className="text-[10px] text-muted uppercase tracking-wider">Qurum</p>
+              <p className="text-[10px] text-muted uppercase tracking-wider">{pt.orgLabel}</p>
               <p className="text-xs font-semibold text-foreground mt-0.5">{org}</p>
             </div>
             <div className="bg-gray-50 rounded-lg border border-border p-3">
-              <p className="text-[10px] text-muted uppercase tracking-wider">Vəzifə növü</p>
-              <p className="text-xs font-semibold text-foreground mt-0.5">{jobType === "admin" ? "İnzibati" : "Yardımçı"}</p>
+              <p className="text-[10px] text-muted uppercase tracking-wider">{pt.jobTypeLabel}</p>
+              <p className="text-xs font-semibold text-foreground mt-0.5">{jobType === "admin" ? pt.adminLabel : pt.supportLabel}</p>
             </div>
             <div className="bg-gray-50 rounded-lg border border-border p-3">
-              <p className="text-[10px] text-muted uppercase tracking-wider">Ödəniş səviyyəsi</p>
-              <p className="text-xs font-semibold text-foreground mt-0.5">Səviyyə {pos.level}</p>
+              <p className="text-[10px] text-muted uppercase tracking-wider">{pt.payLevel}</p>
+              <p className="text-xs font-semibold text-foreground mt-0.5">{pt.levelLabel} {pos.level}</p>
             </div>
             <div className="bg-gray-50 rounded-lg border border-border p-3">
-              <p className="text-[10px] text-muted uppercase tracking-wider">Pillə</p>
-              <p className="text-xs font-semibold text-foreground mt-0.5">{stepInfo[step!].label} pillə ({stepInfo[step!].range})</p>
+              <p className="text-[10px] text-muted uppercase tracking-wider">{pt.stepLabel}</p>
+              <p className="text-xs font-semibold text-foreground mt-0.5">{stepInfo[step!].label} {pt.step} ({stepInfo[step!].range})</p>
             </div>
           </div>
         </div>
       ) : (
         <div className="text-center py-8 text-muted">
           <span className="text-4xl block mb-3">&#127970;</span>
-          <p>Nəticəni görmək üçün qurum, vəzifə və pilləni seçin.</p>
+          <p>{pt.emptyStateText}</p>
         </div>
       )}
     </CalculatorLayout>
