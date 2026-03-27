@@ -12,7 +12,10 @@ const geistSans = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "BirHesab.az — Bütün hesablamalar bir yerdə",
+  title: {
+    default: "BirHesab.az — Bütün hesablamalar bir yerdə",
+    template: "%s | BirHesab.az",
+  },
   description:
     "Azərbaycanın ən geniş onlayn hesablayıcı platforması. Əmək haqqı, kredit, vergi, IELTS, gömrük və daha çox hesablayıcılar.",
   keywords: [
@@ -25,7 +28,29 @@ export const metadata: Metadata = {
     "gömrük",
     "BMI",
     "ƏDV",
+    "onlayn hesablama",
+    "birhesab",
+    "kalkulyator",
   ],
+  metadataBase: new URL("https://birhesab.az"),
+  openGraph: {
+    type: "website",
+    locale: "az_AZ",
+    url: "https://birhesab.az",
+    siteName: "BirHesab.az",
+    title: "BirHesab.az — Bütün hesablamalar bir yerdə",
+    description:
+      "Azərbaycanın ən geniş onlayn hesablayıcı platforması. Əmək haqqı, kredit, vergi, IELTS, gömrük və 50+ hesablayıcı.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BirHesab.az — Bütün hesablamalar bir yerdə",
+    description:
+      "Azərbaycanın ən geniş onlayn hesablayıcı platforması. 50+ hesablayıcı bir yerdə.",
+  },
+  alternates: {
+    canonical: "https://birhesab.az",
+  },
   icons: {
     icon: "/icon.svg",
   },
