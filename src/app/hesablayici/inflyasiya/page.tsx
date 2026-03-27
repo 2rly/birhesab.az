@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import CalculatorLayout from "@/components/CalculatorLayout";
+import { useLanguage } from "@/i18n";
 
 // Azərbaycan Respublikası Dövlət Statistika Komitəsi — rəsmi illik inflyasiya (%)
 // Mənbə: stat.gov.az
@@ -17,7 +18,130 @@ function formatMoney(n: number): string {
   return n.toLocaleString("az-AZ", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+const pageTranslations = {
+  az: {
+    title: "İnflyasiya korrektoru",
+    description: "Pulunuzun real alıcılıq qüvvəsini hesablayın — Dövlət Statistika Komitəsinin rəsmi illik inflyasiya göstəriciləri əsasında.",
+    breadcrumbCategory: "Maliyyə",
+    formulaTitle: "İnflyasiya korrektoru necə işləyir?",
+    formulaContent: `Hesablama Azərbaycan Respublikası Dövlət Statistika Komitəsinin (stat.gov.az) rəsmi illik inflyasiya göstəriciləri əsasında aparılır.
+
+Real dəyər = Nominal məbləğ / (1 + i₁) / (1 + i₂) / ... / (1 + iₙ)
+
+Burada i₁, i₂, ... iₙ — hər ilin inflyasiya dərəcəsidir (onluq kəsr şəklində).
+
+Məsələn, 2021-ci ildəki 1000 ₼ 2026-cı ildə:
+1000 / 1.067 / 1.139 / 1.088 / 1.049 / 1.052 ≈ 681.46 ₼ alıcılıq qüvvəsinə bərabərdir.
+
+Rəsmi illik inflyasiya (İQE):
+• 2021: 6.7%
+• 2022: 13.9%
+• 2023: 8.8%
+• 2024: 4.9%
+• 2025: 5.2%`,
+    annualInflationRate: "İllik inflyasiya dərəcəsi (Dövlət Statistika Komitəsi)",
+    startYear: "Başlanğıc il",
+    amountInYear: "-ci ildəki məbləğ (₼)",
+    example: "Məs: 2000",
+    amountOf: "-ci ildəki",
+    realPurchasingPower: "-cı ildəki real alıcılıq qüvvəsi:",
+    lostPurchasingPower: "İtirilən alıcılıq qüvvəsi:",
+    cumulativeInflation: "Kumulativ inflyasiya:",
+    realValueOfMoney: "Pulunuzun real dəyəri",
+    nominalValue: "Nominal dəyər",
+    realValue: "Real dəyər",
+    annualInflationImpact: "İllik inflyasiya təsiri",
+    yearCol: "İl",
+    inflationCol: "İnflyasiya",
+    yearStartCol: "İl başı",
+    lossCol: "İtki",
+    yearEndCol: "İl sonu",
+    emptyState: "Nəticəni görmək üçün məbləği daxil edin.",
+  },
+  en: {
+    title: "Inflation adjuster",
+    description: "Calculate the real purchasing power of your money — based on official annual inflation data from the State Statistics Committee.",
+    breadcrumbCategory: "Finance",
+    formulaTitle: "How does the inflation adjuster work?",
+    formulaContent: `Calculation is based on official annual inflation data from the State Statistics Committee of Azerbaijan (stat.gov.az).
+
+Real value = Nominal amount / (1 + i₁) / (1 + i₂) / ... / (1 + iₙ)
+
+Where i₁, i₂, ... iₙ — inflation rate for each year (as a decimal).
+
+Example: 1000 AZN in 2021 equals in 2026:
+1000 / 1.067 / 1.139 / 1.088 / 1.049 / 1.052 ≈ 681.46 AZN purchasing power.
+
+Official annual inflation (CPI):
+• 2021: 6.7%
+• 2022: 13.9%
+• 2023: 8.8%
+• 2024: 4.9%
+• 2025: 5.2%`,
+    annualInflationRate: "Annual inflation rate (State Statistics Committee)",
+    startYear: "Start year",
+    amountInYear: " amount (₼)",
+    example: "e.g.: 2000",
+    amountOf: " ",
+    realPurchasingPower: " real purchasing power:",
+    lostPurchasingPower: "Lost purchasing power:",
+    cumulativeInflation: "Cumulative inflation:",
+    realValueOfMoney: "Real value of your money",
+    nominalValue: "Nominal value",
+    realValue: "Real value",
+    annualInflationImpact: "Annual inflation impact",
+    yearCol: "Year",
+    inflationCol: "Inflation",
+    yearStartCol: "Year start",
+    lossCol: "Loss",
+    yearEndCol: "Year end",
+    emptyState: "Enter an amount to see the result.",
+  },
+  ru: {
+    title: "Корректор инфляции",
+    description: "Рассчитайте реальную покупательную способность ваших денег — на основе официальных данных Госкомстата.",
+    breadcrumbCategory: "Финансы",
+    formulaTitle: "Как работает корректор инфляции?",
+    formulaContent: `Расчёт основан на официальных данных годовой инфляции Государственного комитета статистики Азербайджана (stat.gov.az).
+
+Реальная стоимость = Номинальная сумма / (1 + i₁) / (1 + i₂) / ... / (1 + iₙ)
+
+Где i₁, i₂, ... iₙ — уровень инфляции каждого года (в десятичной форме).
+
+Пример: 1000 AZN в 2021 году в 2026 году равны:
+1000 / 1.067 / 1.139 / 1.088 / 1.049 / 1.052 ≈ 681.46 AZN покупательной способности.
+
+Официальная годовая инфляция (ИПЦ):
+• 2021: 6,7%
+• 2022: 13,9%
+• 2023: 8,8%
+• 2024: 4,9%
+• 2025: 5,2%`,
+    annualInflationRate: "Годовой уровень инфляции (Госкомстат)",
+    startYear: "Начальный год",
+    amountInYear: " сумма (₼)",
+    example: "Напр.: 2000",
+    amountOf: " ",
+    realPurchasingPower: " реальная покупательная способность:",
+    lostPurchasingPower: "Потерянная покупательная способность:",
+    cumulativeInflation: "Кумулятивная инфляция:",
+    realValueOfMoney: "Реальная стоимость ваших денег",
+    nominalValue: "Номинальная стоимость",
+    realValue: "Реальная стоимость",
+    annualInflationImpact: "Влияние годовой инфляции",
+    yearCol: "Год",
+    inflationCol: "Инфляция",
+    yearStartCol: "Начало года",
+    lossCol: "Потеря",
+    yearEndCol: "Конец года",
+    emptyState: "Введите сумму, чтобы увидеть результат.",
+  },
+};
+
 export default function InflationCalculator() {
+  const { lang } = useLanguage();
+  const pt = pageTranslations[lang];
+
   const startYears = INFLATION_DATA.map((d) => d.year);
   const currentYear = INFLATION_DATA[INFLATION_DATA.length - 1].year + 1; // 2026
 
@@ -28,7 +152,6 @@ export default function InflationCalculator() {
     const val = parseFloat(amount);
     if (!val || val <= 0) return null;
 
-    // İnflyasiyanı kumulativ hesabla: startYear-dan currentYear-a qədər
     const relevantYears = INFLATION_DATA.filter((d) => d.year >= startYear);
     let cumulativeMultiplier = 1;
     const yearBreakdown: { year: number; rate: number; valueStart: number; valueEnd: number; lost: number }[] = [];
@@ -63,39 +186,24 @@ export default function InflationCalculator() {
     };
   }, [amount, startYear]);
 
-  // Bar chart üçün max dəyər
   const maxRate = Math.max(...INFLATION_DATA.map((d) => d.rate));
 
   return (
     <CalculatorLayout
-      title="İnflyasiya korrektoru"
-      description="Pulunuzun real alıcılıq qüvvəsini hesablayın — Dövlət Statistika Komitəsinin rəsmi illik inflyasiya göstəriciləri əsasında."
+      title={pt.title}
+      description={pt.description}
       breadcrumbs={[
-        { label: "Maliyyə", href: "/?category=finance" },
-        { label: "İnflyasiya korrektoru" },
+        { label: pt.breadcrumbCategory, href: "/?category=finance" },
+        { label: pt.title },
       ]}
-      formulaTitle="İnflyasiya korrektoru necə işləyir?"
-      formulaContent={`Hesablama Azərbaycan Respublikası Dövlət Statistika Komitəsinin (stat.gov.az) rəsmi illik inflyasiya göstəriciləri əsasında aparılır.
-
-Real dəyər = Nominal məbləğ / (1 + i₁) / (1 + i₂) / ... / (1 + iₙ)
-
-Burada i₁, i₂, ... iₙ — hər ilin inflyasiya dərəcəsidir (onluq kəsr şəklində).
-
-Məsələn, 2021-ci ildəki 1000 ₼ 2026-cı ildə:
-1000 / 1.067 / 1.139 / 1.088 / 1.049 / 1.052 ≈ 681.46 ₼ alıcılıq qüvvəsinə bərabərdir.
-
-Rəsmi illik inflyasiya (İQE):
-• 2021: 6.7%
-• 2022: 13.9%
-• 2023: 8.8%
-• 2024: 4.9%
-• 2025: 5.2%`}
+      formulaTitle={pt.formulaTitle}
+      formulaContent={pt.formulaContent}
       relatedIds={["salary", "deposit", "currency"]}
     >
       {/* İnflyasiya tarixi barları */}
       <div className="mb-8">
         <h3 className="text-sm font-medium text-foreground mb-4">
-          İllik inflyasiya dərəcəsi (Dövlət Statistika Komitəsi)
+          {pt.annualInflationRate}
         </h3>
         <div className="flex items-end gap-3 h-32">
           {INFLATION_DATA.map((d) => (
@@ -116,7 +224,7 @@ Rəsmi illik inflyasiya (İQE):
       {/* Başlanğıc il seçimi */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">Başlanğıc il</label>
+          <label className="block text-sm font-medium text-foreground mb-2">{pt.startYear}</label>
           <select
             value={startYear}
             onChange={(e) => setStartYear(parseInt(e.target.value))}
@@ -129,13 +237,13 @@ Rəsmi illik inflyasiya (İQE):
         </div>
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            {startYear}-ci ildəki məbləğ (₼)
+            {startYear}{pt.amountInYear}
           </label>
           <input
             type="number"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            placeholder="Məs: 2000"
+            placeholder={pt.example}
             className="w-full p-3 rounded-xl border border-border bg-white text-sm focus:border-primary focus:ring-2 focus:ring-primary outline-none transition-all"
           />
           <div className="flex gap-2 mt-2">
@@ -160,22 +268,22 @@ Rəsmi illik inflyasiya (İQE):
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <p className="text-sm text-muted mb-1">
-                  {startYear}-ci ildəki {formatMoney(result.originalAmount)} ₼-in
+                  {startYear}{pt.amountOf} {formatMoney(result.originalAmount)} ₼
                 </p>
                 <p className="text-sm text-muted">
-                  {currentYear}-cı ildəki real alıcılıq qüvvəsi:
+                  {currentYear}{pt.realPurchasingPower}
                 </p>
                 <p className="text-3xl font-bold text-foreground mt-2">
                   {formatMoney(result.adjustedValue)} ₼
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-sm text-muted mb-1">İtirilən alıcılıq qüvvəsi:</p>
+                <p className="text-sm text-muted mb-1">{pt.lostPurchasingPower}</p>
                 <p className="text-3xl font-bold" style={{ color: "#FF5722" }}>
                   −{formatMoney(result.totalLost)} ₼
                 </p>
                 <p className="text-xs text-muted mt-1">
-                  Kumulativ inflyasiya: {result.totalInflationPercent.toFixed(1)}%
+                  {pt.cumulativeInflation} {result.totalInflationPercent.toFixed(1)}%
                 </p>
               </div>
             </div>
@@ -183,12 +291,12 @@ Rəsmi illik inflyasiya (İQE):
 
           {/* Vizual bar — orijinal vs real */}
           <div className="bg-white rounded-2xl border border-border p-5">
-            <h3 className="text-sm font-medium text-muted mb-4">Pulunuzun real dəyəri</h3>
+            <h3 className="text-sm font-medium text-muted mb-4">{pt.realValueOfMoney}</h3>
             <div className="space-y-3">
               {/* Orijinal */}
               <div>
                 <div className="flex justify-between text-xs text-muted mb-1">
-                  <span>{startYear} — Nominal dəyər</span>
+                  <span>{startYear} — {pt.nominalValue}</span>
                   <span>{formatMoney(result.originalAmount)} ₼</span>
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-8">
@@ -200,7 +308,7 @@ Rəsmi illik inflyasiya (İQE):
               {/* Real */}
               <div>
                 <div className="flex justify-between text-xs text-muted mb-1">
-                  <span>{currentYear} — Real dəyər</span>
+                  <span>{currentYear} — {pt.realValue}</span>
                   <span>{formatMoney(result.adjustedValue)} ₼</span>
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-8 relative">
@@ -231,16 +339,16 @@ Rəsmi illik inflyasiya (İQE):
 
           {/* İllik bölgü */}
           <div className="bg-white rounded-2xl border border-border p-5">
-            <h3 className="text-sm font-medium text-muted mb-3">İllik inflyasiya təsiri</h3>
+            <h3 className="text-sm font-medium text-muted mb-3">{pt.annualInflationImpact}</h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left p-2 font-medium text-foreground">İl</th>
-                    <th className="text-right p-2 font-medium text-foreground">İnflyasiya</th>
-                    <th className="text-right p-2 font-medium text-foreground">İl başı</th>
-                    <th className="text-right p-2 font-medium" style={{ color: "#FF5722" }}>İtki</th>
-                    <th className="text-right p-2 font-medium text-foreground">İl sonu</th>
+                    <th className="text-left p-2 font-medium text-foreground">{pt.yearCol}</th>
+                    <th className="text-right p-2 font-medium text-foreground">{pt.inflationCol}</th>
+                    <th className="text-right p-2 font-medium text-foreground">{pt.yearStartCol}</th>
+                    <th className="text-right p-2 font-medium" style={{ color: "#FF5722" }}>{pt.lossCol}</th>
+                    <th className="text-right p-2 font-medium text-foreground">{pt.yearEndCol}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -262,7 +370,7 @@ Rəsmi illik inflyasiya (İQE):
         </div>
       ) : (
         <div className="text-center py-8 text-muted">
-          <p>Nəticəni görmək üçün məbləği daxil edin.</p>
+          <p>{pt.emptyState}</p>
         </div>
       )}
     </CalculatorLayout>
