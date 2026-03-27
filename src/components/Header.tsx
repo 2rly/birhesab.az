@@ -25,13 +25,13 @@ export default function Header() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="/" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            <Link href="/" className="text-sm font-medium text-foreground hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
               {t.home}
             </Link>
-            <Link href="/#calculators" className="text-sm font-medium text-muted hover:text-primary transition-colors">
+            <Link href="/#calculators" className="text-sm font-medium text-muted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
               {t.calculators}
             </Link>
-            <Link href="/#about" className="text-sm font-medium text-muted hover:text-primary transition-colors">
+            <Link href="/#about" className="text-sm font-medium text-muted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
               {t.about}
             </Link>
           </nav>
@@ -42,6 +42,8 @@ export default function Header() {
                 <button
                   key={l.code}
                   onClick={() => setLang(l.code)}
+                  aria-label={`Switch to ${l.label}`}
+                  aria-pressed={lang === l.code}
                   className={`px-2.5 py-1.5 text-xs font-semibold transition-colors ${
                     lang === l.code
                       ? "bg-primary text-white"

@@ -23,6 +23,10 @@ html {
   scroll-behavior: smooth;
 }
 
+[id] {
+  scroll-margin-top: 5rem;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
 }

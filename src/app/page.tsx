@@ -60,12 +60,12 @@ export default function Home() {
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 tracking-tight">
               Bir<span className="text-amber-300">Hesab</span><span className="text-emerald-200">.az</span>
             </h1>
-            <p className="text-lg sm:text-xl text-emerald-200 max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl text-emerald-50 max-w-2xl mx-auto">
               {t.heroSubtitle}
             </p>
           </div>
           <SearchBar value={search} onChange={setSearch} />
-          <div className="flex justify-center gap-6 mt-8 text-sm text-emerald-200">
+          <div className="flex justify-center gap-6 mt-8 text-sm text-emerald-50">
             <div className="flex items-center gap-1.5">
               <span className="text-lg">📊</span>
               <span>{t.calculatorCount.replace("{count}", String(calculators.length))}</span>

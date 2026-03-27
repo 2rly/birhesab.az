@@ -32,7 +32,8 @@ export default function SearchBar({ value, onChange }: SearchBarProps) {
       {value && (
         <button
           onClick={() => onChange("")}
-          className="absolute inset-y-0 right-0 pr-4 flex items-center text-muted hover:text-foreground transition-colors"
+          aria-label="Clear search"
+          className="absolute inset-y-0 right-0 pr-4 flex items-center text-muted hover:text-foreground transition-colors min-w-[44px] min-h-[44px] justify-center"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
