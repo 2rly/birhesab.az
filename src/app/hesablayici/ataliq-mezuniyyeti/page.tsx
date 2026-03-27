@@ -2,12 +2,139 @@
 
 import { useState, useMemo } from "react";
 import CalculatorLayout from "@/components/CalculatorLayout";
+import { useLanguage } from "@/i18n";
+
+const pageTranslations = {
+  az: {
+    title: "Atalıq məzuniyyəti hesablayıcısı",
+    description: "Atalıq məzuniyyəti haqqını hesablayın — Azərbaycan Əmək Məcəlləsinə uyğun (14 təqvim günü).",
+    breadcrumbCategory: "Əmək Hüququ",
+    formulaTitle: "Atalıq məzuniyyəti haqqı necə hesablanır?",
+    formulaContent: `Hesablama alqoritmi:
+
+1. Məzuniyyətə çıxmazdan əvvəlki son 2 tam iş ayı götürülür
+2. Orta günlük əmək haqqı = 2 ayın əmək haqqı cəmi ÷ 2 ayda faktiki işlənmiş iş günlərinin sayı
+3. Məzuniyyət haqqı = Orta günlük əmək haqqı × 14 təqvim günü ərzində düşən iş günlərinin sayı
+
+Qeyd:
+• Atalıq məzuniyyəti 14 təqvim günü müddətindədir
+• Hesablamada yalnız faktiki işlənmiş iş günləri nəzərə alınır
+• 14 təqvim günündə adətən 10 iş günü olur (şənbə-bazar çıxılmaqla)`,
+    infoBanner: "Atalıq məzuniyyəti <b>14 təqvim günü</b> müddətindədir. Hesablama üçün məzuniyyətə çıxmazdan əvvəlki <b>son 2 tam iş ayının</b> məlumatları lazımdır.",
+    month1Title: "1-ci ay (əvvəlki ay)",
+    month2Title: "2-ci ay (ondan əvvəlki ay)",
+    salaryLabel: "Əmək haqqı (AZN)",
+    workDaysLabel: "Faktiki işlənmiş iş günləri",
+    workDaysIn14Label: "14 təqvim günü ərzində düşən iş günləri",
+    day: "gün",
+    workDaysIn14Hint: "Adətən 14 təqvim günündə 10 iş günü olur (şənbə-bazar çıxılmaqla)",
+    twoMonthTotal: "2 ayın əmək haqqı cəmi",
+    avgDailySalary: "Orta günlük əmək haqqı",
+    perDay: "AZN / gün",
+    paternityPay: "Atalıq məzuniyyəti haqqı",
+    calendarDays14: "AZN (14 təqvim günü)",
+    calculationSteps: "Hesablama addımları",
+    step1: "1. Son 2 ayın əmək haqqı cəmi",
+    step2: "2. Cəmi faktiki iş günləri",
+    step3: "3. Orta günlük əmək haqqı",
+    step4: "4. Atalıq məzuniyyəti haqqı",
+    workDays: "iş günü",
+    aboutTitle: "Atalıq məzuniyyəti haqqında",
+    aboutLine1: "Azərbaycan Əmək Məcəlləsinə əsasən atalıq məzuniyyəti <b>14 təqvim günü</b> müddətindədir.",
+    aboutLine2: "Hesablama üçün məzuniyyətə çıxmazdan əvvəlki <b>son 2 tam iş ayının</b> əmək haqqı və faktiki işlənmiş iş günləri nəzərə alınır.",
+    aboutLine3: "Orta günlük əmək haqqı, 14 təqvim günü ərzində düşən <b>iş günlərinin sayına</b> vurulur.",
+    emptyStateText: "Nəticəni görmək üçün hər iki ayın məlumatlarını daxil edin.",
+  },
+  en: {
+    title: "Paternity Leave Calculator",
+    description: "Calculate paternity leave pay — according to Azerbaijan Labor Code (14 calendar days).",
+    breadcrumbCategory: "Labor Law",
+    formulaTitle: "How is paternity leave pay calculated?",
+    formulaContent: `Calculation algorithm:
+
+1. The last 2 full working months before the leave are taken
+2. Average daily salary = Total salary for 2 months ÷ Number of actual working days in 2 months
+3. Leave pay = Average daily salary × Number of working days within the 14 calendar days
+
+Note:
+• Paternity leave is 14 calendar days
+• Only actual working days are considered in the calculation
+• 14 calendar days usually contain 10 working days (excluding weekends)`,
+    infoBanner: "Paternity leave is <b>14 calendar days</b>. For the calculation, data from the <b>last 2 full working months</b> before the leave is needed.",
+    month1Title: "Month 1 (previous month)",
+    month2Title: "Month 2 (the month before that)",
+    salaryLabel: "Salary (AZN)",
+    workDaysLabel: "Actual working days",
+    workDaysIn14Label: "Working days within 14 calendar days",
+    day: "days",
+    workDaysIn14Hint: "14 calendar days usually contain 10 working days (excluding weekends)",
+    twoMonthTotal: "Total salary for 2 months",
+    avgDailySalary: "Average daily salary",
+    perDay: "AZN / day",
+    paternityPay: "Paternity leave pay",
+    calendarDays14: "AZN (14 calendar days)",
+    calculationSteps: "Calculation steps",
+    step1: "1. Total salary for last 2 months",
+    step2: "2. Total actual working days",
+    step3: "3. Average daily salary",
+    step4: "4. Paternity leave pay",
+    workDays: "working days",
+    aboutTitle: "About paternity leave",
+    aboutLine1: "According to the Azerbaijan Labor Code, paternity leave is <b>14 calendar days</b>.",
+    aboutLine2: "The salary and actual working days of the <b>last 2 full working months</b> before the leave are used for the calculation.",
+    aboutLine3: "The average daily salary is multiplied by the <b>number of working days</b> within 14 calendar days.",
+    emptyStateText: "Enter data for both months to see the result.",
+  },
+  ru: {
+    title: "Калькулятор отцовского отпуска",
+    description: "Рассчитайте оплату отцовского отпуска — по Трудовому кодексу Азербайджана (14 календарных дней).",
+    breadcrumbCategory: "Трудовое право",
+    formulaTitle: "Как рассчитывается оплата отцовского отпуска?",
+    formulaContent: `Алгоритм расчёта:
+
+1. Берутся последние 2 полных рабочих месяца перед отпуском
+2. Среднедневная зарплата = Сумма зарплат за 2 месяца ÷ Количество фактически отработанных рабочих дней за 2 месяца
+3. Оплата отпуска = Среднедневная зарплата × Количество рабочих дней в 14 календарных днях
+
+Примечание:
+• Отцовский отпуск составляет 14 календарных дней
+• В расчёте учитываются только фактически отработанные рабочие дни
+• В 14 календарных днях обычно 10 рабочих дней (без учёта выходных)`,
+    infoBanner: "Отцовский отпуск составляет <b>14 календарных дней</b>. Для расчёта нужны данные за <b>последние 2 полных рабочих месяца</b> перед отпуском.",
+    month1Title: "1-й месяц (предыдущий)",
+    month2Title: "2-й месяц (позапрошлый)",
+    salaryLabel: "Зарплата (AZN)",
+    workDaysLabel: "Фактически отработанные рабочие дни",
+    workDaysIn14Label: "Рабочие дни в 14 календарных днях",
+    day: "дней",
+    workDaysIn14Hint: "В 14 календарных днях обычно 10 рабочих дней (без учёта выходных)",
+    twoMonthTotal: "Сумма зарплат за 2 месяца",
+    avgDailySalary: "Среднедневная зарплата",
+    perDay: "AZN / день",
+    paternityPay: "Оплата отцовского отпуска",
+    calendarDays14: "AZN (14 календарных дней)",
+    calculationSteps: "Шаги расчёта",
+    step1: "1. Сумма зарплат за последние 2 месяца",
+    step2: "2. Всего фактических рабочих дней",
+    step3: "3. Среднедневная зарплата",
+    step4: "4. Оплата отцовского отпуска",
+    workDays: "рабочих дней",
+    aboutTitle: "Об отцовском отпуске",
+    aboutLine1: "Согласно Трудовому кодексу Азербайджана, отцовский отпуск составляет <b>14 календарных дней</b>.",
+    aboutLine2: "Для расчёта используются зарплата и фактически отработанные дни за <b>последние 2 полных рабочих месяца</b> перед отпуском.",
+    aboutLine3: "Среднедневная зарплата умножается на <b>количество рабочих дней</b> в 14 календарных днях.",
+    emptyStateText: "Введите данные за оба месяца, чтобы увидеть результат.",
+  },
+};
 
 function formatMoney(n: number): string {
   return n.toLocaleString("az-AZ", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 export default function PaternityLeaveCalculator() {
+  const { lang } = useLanguage();
+  const pt = pageTranslations[lang];
+
   const [month1Salary, setMonth1Salary] = useState("");
   const [month2Salary, setMonth2Salary] = useState("");
   const [month1Days, setMonth1Days] = useState("");
@@ -46,40 +173,28 @@ export default function PaternityLeaveCalculator() {
 
   return (
     <CalculatorLayout
-      title="Atalıq məzuniyyəti hesablayıcısı"
-      description="Atalıq məzuniyyəti haqqını hesablayın — Azərbaycan Əmək Məcəlləsinə uyğun (14 təqvim günü)."
+      title={pt.title}
+      description={pt.description}
       breadcrumbs={[
-        { label: "Əmək Hüququ", href: "/?category=labor" },
-        { label: "Atalıq məzuniyyəti hesablayıcısı" },
+        { label: pt.breadcrumbCategory, href: "/?category=labor" },
+        { label: pt.title },
       ]}
-      formulaTitle="Atalıq məzuniyyəti haqqı necə hesablanır?"
-      formulaContent={`Hesablama alqoritmi:
-
-1. Məzuniyyətə çıxmazdan əvvəlki son 2 tam iş ayı götürülür
-2. Orta günlük əmək haqqı = 2 ayın əmək haqqı cəmi ÷ 2 ayda faktiki işlənmiş iş günlərinin sayı
-3. Məzuniyyət haqqı = Orta günlük əmək haqqı × 14 təqvim günü ərzində düşən iş günlərinin sayı
-
-Qeyd:
-• Atalıq məzuniyyəti 14 təqvim günü müddətindədir
-• Hesablamada yalnız faktiki işlənmiş iş günləri nəzərə alınır
-• 14 təqvim günündə adətən 10 iş günü olur (şənbə-bazar çıxılmaqla)`}
+      formulaTitle={pt.formulaTitle}
+      formulaContent={pt.formulaContent}
       relatedIds={["vacation-pay", "maternity-leave", "salary", "severance-pay"]}
     >
       {/* Qısa izah */}
       <div className="bg-amber-50 rounded-xl border border-amber-200 p-4 mb-6">
-        <p className="text-sm text-amber-800">
-          Atalıq məzuniyyəti <span className="font-semibold">14 təqvim günü</span> müddətindədir.
-          Hesablama üçün məzuniyyətə çıxmazdan əvvəlki <span className="font-semibold">son 2 tam iş ayının</span> məlumatları lazımdır.
-        </p>
+        <p className="text-sm text-amber-800" dangerouslySetInnerHTML={{ __html: pt.infoBanner }} />
       </div>
 
       <div className="mb-8 space-y-4">
         {/* 1-ci ay */}
         <div className="bg-white rounded-xl border border-border p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-3">1-ci ay (əvvəlki ay)</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-3">{pt.month1Title}</h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-muted mb-1">Əmək haqqı (AZN)</label>
+              <label className="block text-xs text-muted mb-1">{pt.salaryLabel}</label>
               <input
                 type="number"
                 value={month1Salary}
@@ -90,7 +205,7 @@ Qeyd:
               />
             </div>
             <div>
-              <label className="block text-xs text-muted mb-1">Faktiki işlənmiş iş günləri</label>
+              <label className="block text-xs text-muted mb-1">{pt.workDaysLabel}</label>
               <input
                 type="number"
                 value={month1Days}
@@ -106,10 +221,10 @@ Qeyd:
 
         {/* 2-ci ay */}
         <div className="bg-white rounded-xl border border-border p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-3">2-ci ay (ondan əvvəlki ay)</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-3">{pt.month2Title}</h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-muted mb-1">Əmək haqqı (AZN)</label>
+              <label className="block text-xs text-muted mb-1">{pt.salaryLabel}</label>
               <input
                 type="number"
                 value={month2Salary}
@@ -120,7 +235,7 @@ Qeyd:
               />
             </div>
             <div>
-              <label className="block text-xs text-muted mb-1">Faktiki işlənmiş iş günləri</label>
+              <label className="block text-xs text-muted mb-1">{pt.workDaysLabel}</label>
               <input
                 type="number"
                 value={month2Days}
@@ -137,7 +252,7 @@ Qeyd:
         {/* 14 gün ərzində iş günləri */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            14 təqvim günü ərzində düşən iş günləri
+            {pt.workDaysIn14Label}
           </label>
           <input
             type="number"
@@ -159,12 +274,12 @@ Qeyd:
                     : "border-border bg-white text-muted hover:border-primary/30"
                 }`}
               >
-                {d} gün
+                {d} {pt.day}
               </button>
             ))}
           </div>
           <p className="text-[11px] text-muted mt-1">
-            Adətən 14 təqvim günündə 10 iş günü olur (şənbə-bazar çıxılmaqla)
+            {pt.workDaysIn14Hint}
           </p>
         </div>
       </div>
@@ -175,19 +290,19 @@ Qeyd:
           {/* Əsas kartlar */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-gray-50 rounded-2xl border border-border p-6 text-center">
-              <p className="text-sm text-muted mb-1">2 ayın əmək haqqı cəmi</p>
+              <p className="text-sm text-muted mb-1">{pt.twoMonthTotal}</p>
               <p className="text-2xl font-bold text-foreground">{formatMoney(result.totalSalary)}</p>
               <p className="text-xs text-muted mt-1">AZN</p>
             </div>
             <div className="bg-gray-50 rounded-2xl border border-border p-6 text-center">
-              <p className="text-sm text-muted mb-1">Orta günlük əmək haqqı</p>
+              <p className="text-sm text-muted mb-1">{pt.avgDailySalary}</p>
               <p className="text-2xl font-bold text-foreground">{formatMoney(result.dailyRate)}</p>
-              <p className="text-xs text-muted mt-1">AZN / gün</p>
+              <p className="text-xs text-muted mt-1">{pt.perDay}</p>
             </div>
             <div className="bg-gradient-to-br from-primary to-primary-dark rounded-2xl p-6 text-center text-white">
-              <p className="text-sm text-blue-200 mb-1">Atalıq məzuniyyəti haqqı</p>
+              <p className="text-sm text-blue-200 mb-1">{pt.paternityPay}</p>
               <p className="text-2xl font-bold">{formatMoney(result.paternityPay)}</p>
-              <p className="text-xs text-blue-200 mt-1">AZN (14 təqvim günü)</p>
+              <p className="text-xs text-blue-200 mt-1">{pt.calendarDays14}</p>
             </div>
           </div>
 
@@ -196,13 +311,13 @@ Qeyd:
             <div className="bg-gray-50 px-5 py-3 border-b border-border">
               <h3 className="font-semibold text-foreground flex items-center gap-2">
                 <span>📊</span>
-                Hesablama addımları
+                {pt.calculationSteps}
               </h3>
             </div>
             <div className="divide-y divide-border">
               <div className="px-5 py-3">
                 <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium text-foreground">1. Son 2 ayın əmək haqqı cəmi</span>
+                  <span className="text-sm font-medium text-foreground">{pt.step1}</span>
                   <span className="text-sm font-bold text-foreground">{formatMoney(result.totalSalary)} AZN</span>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-2.5">
@@ -214,36 +329,36 @@ Qeyd:
 
               <div className="px-5 py-3">
                 <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium text-foreground">2. Cəmi faktiki iş günləri</span>
-                  <span className="text-sm font-bold text-foreground">{result.totalWorkDays} gün</span>
+                  <span className="text-sm font-medium text-foreground">{pt.step2}</span>
+                  <span className="text-sm font-bold text-foreground">{result.totalWorkDays} {pt.day}</span>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-2.5">
                   <p className="text-xs text-muted">
-                    {result.days1} gün + {result.days2} gün = {result.totalWorkDays} gün
+                    {result.days1} {pt.day} + {result.days2} {pt.day} = {result.totalWorkDays} {pt.day}
                   </p>
                 </div>
               </div>
 
               <div className="px-5 py-3">
                 <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium text-foreground">3. Orta günlük əmək haqqı</span>
+                  <span className="text-sm font-medium text-foreground">{pt.step3}</span>
                   <span className="text-sm font-bold text-foreground">{formatMoney(result.dailyRate)} AZN</span>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-2.5">
                   <p className="text-xs text-muted">
-                    {formatMoney(result.totalSalary)} ÷ {result.totalWorkDays} gün = {formatMoney(result.dailyRate)} AZN
+                    {formatMoney(result.totalSalary)} ÷ {result.totalWorkDays} {pt.day} = {formatMoney(result.dailyRate)} AZN
                   </p>
                 </div>
               </div>
 
               <div className="px-5 py-3 bg-blue-50">
                 <div className="flex justify-between mb-1">
-                  <span className="text-sm font-semibold text-primary">4. Atalıq məzuniyyəti haqqı</span>
+                  <span className="text-sm font-semibold text-primary">{pt.step4}</span>
                   <span className="text-sm font-bold text-primary">{formatMoney(result.paternityPay)} AZN</span>
                 </div>
                 <div className="bg-white rounded-lg p-2.5">
                   <p className="text-xs text-muted">
-                    {formatMoney(result.dailyRate)} × {result.workDaysIn14} iş günü = {formatMoney(result.paternityPay)} AZN
+                    {formatMoney(result.dailyRate)} × {result.workDaysIn14} {pt.workDays} = {formatMoney(result.paternityPay)} AZN
                   </p>
                 </div>
               </div>
@@ -254,19 +369,19 @@ Qeyd:
           <div className="bg-blue-50 rounded-xl border border-blue-200 p-5">
             <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <span>📋</span>
-              Atalıq məzuniyyəti haqqında
+              {pt.aboutTitle}
             </h4>
             <div className="space-y-2 text-sm text-muted">
-              <p>Azərbaycan Əmək Məcəlləsinə əsasən atalıq məzuniyyəti <span className="font-medium text-foreground">14 təqvim günü</span> müddətindədir.</p>
-              <p>Hesablama üçün məzuniyyətə çıxmazdan əvvəlki <span className="font-medium text-foreground">son 2 tam iş ayının</span> əmək haqqı və faktiki işlənmiş iş günləri nəzərə alınır.</p>
-              <p>Orta günlük əmək haqqı, 14 təqvim günü ərzində düşən <span className="font-medium text-foreground">iş günlərinin sayına</span> vurulur.</p>
+              <p dangerouslySetInnerHTML={{ __html: pt.aboutLine1 }} />
+              <p dangerouslySetInnerHTML={{ __html: pt.aboutLine2 }} />
+              <p dangerouslySetInnerHTML={{ __html: pt.aboutLine3 }} />
             </div>
           </div>
         </div>
       ) : (
         <div className="text-center py-8 text-muted">
           <span className="text-4xl block mb-3">👨‍👶</span>
-          <p>Nəticəni görmək üçün hər iki ayın məlumatlarını daxil edin.</p>
+          <p>{pt.emptyStateText}</p>
         </div>
       )}
     </CalculatorLayout>

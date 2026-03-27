@@ -5,6 +5,7 @@ import SearchBar from "@/components/SearchBar";
 import CategoryTabs from "@/components/CategoryTabs";
 import CalculatorCard from "@/components/CalculatorCard";
 import { calculators, type Category } from "@/data/calculators";
+import { useLanguage } from "@/i18n";
 
 function azLower(s: string): string {
   return s
@@ -16,6 +17,7 @@ function azLower(s: string): string {
 export default function Home() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<Category>("all");
+  const { t } = useLanguage();
 
   const popularCalculators = useMemo(
     () => calculators.filter((c) => c.popular),
@@ -32,15 +34,22 @@ export default function Home() {
     if (search.trim()) {
       const query = azLower(search.trim());
       results = results.filter(
-        (c) =>
-          azLower(c.name).includes(query) ||
-          azLower(c.description).includes(query) ||
-          azLower(c.id).includes(query)
+        (c) => {
+          const name = t.calculatorNames[c.id as keyof typeof t.calculatorNames] || c.name;
+          const desc = t.calculatorDescriptions[c.id as keyof typeof t.calculatorDescriptions] || c.description;
+          return (
+            azLower(name).includes(query) ||
+            azLower(desc).includes(query) ||
+            azLower(c.id).includes(query) ||
+            azLower(c.name).includes(query) ||
+            azLower(c.description).includes(query)
+          );
+        }
       );
     }
 
     return results;
-  }, [search, activeCategory]);
+  }, [search, activeCategory, t]);
 
   return (
     <>
@@ -52,22 +61,22 @@ export default function Home() {
               Bir<span className="text-amber-300">Hesab</span><span className="text-emerald-200">.az</span>
             </h1>
             <p className="text-lg sm:text-xl text-emerald-200 max-w-2xl mx-auto">
-              Bütün hesablamalar bir yerdə — Azərbaycanın ən geniş onlayn hesablayıcı platforması
+              {t.heroSubtitle}
             </p>
           </div>
           <SearchBar value={search} onChange={setSearch} />
           <div className="flex justify-center gap-6 mt-8 text-sm text-emerald-200">
             <div className="flex items-center gap-1.5">
               <span className="text-lg">📊</span>
-              <span>{calculators.length}+ hesablayıcı</span>
+              <span>{t.calculatorCount.replace("{count}", String(calculators.length))}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="text-lg">🇦🇿</span>
-              <span>Azərbaycan qaydaları</span>
+              <span>{t.azRules}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="text-lg">⚡</span>
-              <span>Ani nəticə</span>
+              <span>{t.instantResult}</span>
             </div>
           </div>
         </div>
@@ -78,7 +87,7 @@ export default function Home() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex items-center gap-2 mb-6">
             <span className="text-2xl">🔥</span>
-            <h2 className="text-2xl font-bold text-foreground">Ən çox istifadə olunanlar</h2>
+            <h2 className="text-2xl font-bold text-foreground">{t.mostPopular}</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {popularCalculators.map((calc) => (
@@ -92,7 +101,7 @@ export default function Home() {
       <section id="calculators" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex items-center gap-2 mb-6">
           <span className="text-2xl">📋</span>
-          <h2 className="text-2xl font-bold text-foreground">Bütün hesablayıcılar</h2>
+          <h2 className="text-2xl font-bold text-foreground">{t.allCalculators}</h2>
         </div>
 
         <div className="mb-8">
@@ -108,9 +117,9 @@ export default function Home() {
         ) : (
           <div className="text-center py-16">
             <span className="text-5xl mb-4 block">🔍</span>
-            <h3 className="text-lg font-semibold text-foreground mb-2">Nəticə tapılmadı</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-2">{t.noResults}</h3>
             <p className="text-muted">
-              &ldquo;{search}&rdquo; üçün heç bir hesablayıcı tapılmadı. Başqa açar söz yoxlayın.
+              &ldquo;{search}&rdquo; {t.noResultsMessage}
             </p>
           </div>
         )}

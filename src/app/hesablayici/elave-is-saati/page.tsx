@@ -2,31 +2,128 @@
 
 import { useState, useMemo } from "react";
 import CalculatorLayout from "@/components/CalculatorLayout";
-
-// Əmək Məcəlləsi, Maddə 165
-// İş vaxtından artıq iş:
-// - İlk 2 saat: əsas tarif x 2
-// - Sonrakı saatlar: əsas tarif x 2
-// Gecə saatları (22:00-06:00): əsas tarif x 1.2 (Maddə 164)
-// İstirahət və bayram günləri: əsas tarif x 2 (Maddə 166)
+import { useLanguage } from "@/i18n";
+import type { Lang } from "@/i18n";
 
 type OvertimeType = "weekday" | "night" | "weekend";
 
-const overtimeLabels: Record<OvertimeType, { label: string; icon: string; description: string }> = {
-  weekday: {
-    label: "İş günü (əlavə saat)",
-    icon: "🕐",
-    description: "İş vaxtından artıq işləmə — 2x əmək haqqı",
+const overtimeLabelTranslations: Record<Lang, Record<OvertimeType, { label: string; icon: string; description: string }>> = {
+  az: {
+    weekday: { label: "İş günü (əlavə saat)", icon: "🕐", description: "İş vaxtından artıq işləmə — 2x əmək haqqı" },
+    night: { label: "Gecə saatları (22:00–06:00)", icon: "🌙", description: "Gecə vaxtı işləmə — 1.2x əlavə" },
+    weekend: { label: "İstirahət / bayram günü", icon: "📅", description: "İstirahət və bayram günləri — 2x əmək haqqı" },
   },
-  night: {
-    label: "Gecə saatları (22:00–06:00)",
-    icon: "🌙",
-    description: "Gecə vaxtı işləmə — 1.2x əlavə",
+  en: {
+    weekday: { label: "Weekday (extra hours)", icon: "🕐", description: "Overtime work — 2x pay" },
+    night: { label: "Night hours (22:00–06:00)", icon: "🌙", description: "Night work — 1.2x extra" },
+    weekend: { label: "Weekend / holiday", icon: "📅", description: "Weekends and holidays — 2x pay" },
   },
-  weekend: {
-    label: "İstirahət / bayram günü",
-    icon: "📅",
-    description: "İstirahət və bayram günləri — 2x əmək haqqı",
+  ru: {
+    weekday: { label: "Рабочий день (доп. часы)", icon: "🕐", description: "Сверхурочная работа — 2x оплата" },
+    night: { label: "Ночные часы (22:00–06:00)", icon: "🌙", description: "Ночная работа — 1.2x доплата" },
+    weekend: { label: "Выходной / праздник", icon: "📅", description: "Выходные и праздники — 2x оплата" },
+  },
+};
+
+const pageTranslations = {
+  az: {
+    title: "Əlavə iş saatı hesablayıcısı",
+    description: "Aylıq əmək haqqı və əlavə iş saatlarını daxil edin — əlavə ödənişi hesablayın.",
+    breadcrumbCategory: "Maliyyə",
+    formulaTitle: "Əlavə iş saatı necə hesablanır?",
+    formulaContent: `Əsas saatlıq tarif = Aylıq əmək haqqı ÷ (İş günü × Gündəlik saat)
+
+Əmək Məcəlləsi, Maddə 165:
+• İş günü əlavə saatlar: saatlıq tarif × 2
+• Gecə saatları (22:00–06:00), Maddə 164: saatlıq tarif × 1.2 əlavə
+• İstirahət / bayram günləri, Maddə 166: saatlıq tarif × 2
+
+Məsələn: 2000 AZN maaş, 22 iş günü, 8 saat
+Saatlıq tarif = 2000 ÷ 176 = 11.36 AZN
+10 saat əlavə iş (iş günü) = 11.36 × 2 × 10 = 227.27 AZN`,
+    monthlyGrossSalary: "Aylıq gross əmək haqqı (AZN)",
+    overtimeHoursLabel: "Əlavə iş saatı (saat)",
+    monthlyWorkDays: "Aylıq iş günü",
+    dailyWorkHours: "Gündəlik iş saatı",
+    overtimeType: "Əlavə iş növü",
+    overtimePay: "Əlavə iş haqqı",
+    totalSalary: "Ümumi əmək haqqı",
+    basePlusOvertime: "AZN (əsas + əlavə)",
+    calculationDetails: "Hesablama detalları",
+    monthlyWorkHours: "Aylıq iş saatı",
+    hours: "saat",
+    hourlyRate: "Saatlıq tarif",
+    multiplier: "Əmsalı",
+    overtimeHourlyRate: "Əlavə saatlıq tarif",
+    overtimeHoursDetail: "Əlavə iş saatı",
+    overtimePayDetail: "Əlavə iş haqqı",
+    emptyStateText: "Nəticəni görmək üçün əmək haqqı və əlavə iş saatını daxil edin.",
+  },
+  en: {
+    title: "Overtime Calculator",
+    description: "Enter monthly salary and overtime hours — calculate overtime pay.",
+    breadcrumbCategory: "Finance",
+    formulaTitle: "How is overtime calculated?",
+    formulaContent: `Base hourly rate = Monthly salary ÷ (Working days × Daily hours)
+
+Labor Code, Article 165:
+• Weekday overtime: hourly rate × 2
+• Night hours (22:00–06:00), Article 164: hourly rate × 1.2 extra
+• Weekends / holidays, Article 166: hourly rate × 2
+
+Example: 2000 AZN salary, 22 working days, 8 hours
+Hourly rate = 2000 ÷ 176 = 11.36 AZN
+10 hours overtime (weekday) = 11.36 × 2 × 10 = 227.27 AZN`,
+    monthlyGrossSalary: "Monthly gross salary (AZN)",
+    overtimeHoursLabel: "Overtime hours",
+    monthlyWorkDays: "Monthly working days",
+    dailyWorkHours: "Daily working hours",
+    overtimeType: "Overtime type",
+    overtimePay: "Overtime pay",
+    totalSalary: "Total salary",
+    basePlusOvertime: "AZN (base + overtime)",
+    calculationDetails: "Calculation details",
+    monthlyWorkHours: "Monthly work hours",
+    hours: "hours",
+    hourlyRate: "Hourly rate",
+    multiplier: "Multiplier",
+    overtimeHourlyRate: "Overtime hourly rate",
+    overtimeHoursDetail: "Overtime hours",
+    overtimePayDetail: "Overtime pay",
+    emptyStateText: "Enter salary and overtime hours to see the result.",
+  },
+  ru: {
+    title: "Калькулятор сверхурочных",
+    description: "Введите месячную зарплату и сверхурочные часы — рассчитайте доплату.",
+    breadcrumbCategory: "Финансы",
+    formulaTitle: "Как рассчитываются сверхурочные?",
+    formulaContent: `Базовая почасовая ставка = Месячная зарплата ÷ (Рабочие дни × Часов в день)
+
+Трудовой кодекс, Статья 165:
+• Сверхурочные в рабочий день: почасовая ставка × 2
+• Ночные часы (22:00–06:00), Статья 164: почасовая ставка × 1.2 доплата
+• Выходные / праздники, Статья 166: почасовая ставка × 2
+
+Пример: зарплата 2000 AZN, 22 рабочих дня, 8 часов
+Почасовая ставка = 2000 ÷ 176 = 11.36 AZN
+10 часов сверхурочных (рабочий день) = 11.36 × 2 × 10 = 227.27 AZN`,
+    monthlyGrossSalary: "Месячная зарплата брутто (AZN)",
+    overtimeHoursLabel: "Сверхурочные часы",
+    monthlyWorkDays: "Рабочих дней в месяце",
+    dailyWorkHours: "Часов в рабочем дне",
+    overtimeType: "Тип сверхурочных",
+    overtimePay: "Оплата сверхурочных",
+    totalSalary: "Общая зарплата",
+    basePlusOvertime: "AZN (основная + сверхурочные)",
+    calculationDetails: "Детали расчёта",
+    monthlyWorkHours: "Рабочих часов в месяце",
+    hours: "часов",
+    hourlyRate: "Почасовая ставка",
+    multiplier: "Коэффициент",
+    overtimeHourlyRate: "Сверхурочная почасовая ставка",
+    overtimeHoursDetail: "Сверхурочные часы",
+    overtimePayDetail: "Оплата сверхурочных",
+    emptyStateText: "Введите зарплату и сверхурочные часы для расчёта.",
   },
 };
 
@@ -35,6 +132,10 @@ function formatMoney(n: number): string {
 }
 
 export default function OvertimeCalculator() {
+  const { lang } = useLanguage();
+  const pt = pageTranslations[lang];
+  const overtimeLabels = overtimeLabelTranslations[lang];
+
   const [monthlySalary, setMonthlySalary] = useState("");
   const [workingDays, setWorkingDays] = useState("22");
   const [dailyHours, setDailyHours] = useState("8");
@@ -82,30 +183,21 @@ export default function OvertimeCalculator() {
 
   return (
     <CalculatorLayout
-      title="Əlavə iş saatı hesablayıcısı"
-      description="Aylıq əmək haqqı və əlavə iş saatlarını daxil edin — əlavə ödənişi hesablayın."
+      title={pt.title}
+      description={pt.description}
       breadcrumbs={[
-        { label: "Maliyyə", href: "/?category=finance" },
-        { label: "Əlavə iş saatı hesablayıcısı" },
+        { label: pt.breadcrumbCategory, href: "/?category=finance" },
+        { label: pt.title },
       ]}
-      formulaTitle="Əlavə iş saatı necə hesablanır?"
-      formulaContent={`Əsas saatlıq tarif = Aylıq əmək haqqı ÷ (İş günü × Gündəlik saat)
-
-Əmək Məcəlləsi, Maddə 165:
-• İş günü əlavə saatlar: saatlıq tarif × 2
-• Gecə saatları (22:00–06:00), Maddə 164: saatlıq tarif × 1.2 əlavə
-• İstirahət / bayram günləri, Maddə 166: saatlıq tarif × 2
-
-Məsələn: 2000 AZN maaş, 22 iş günü, 8 saat
-Saatlıq tarif = 2000 ÷ 176 = 11.36 AZN
-10 saat əlavə iş (iş günü) = 11.36 × 2 × 10 = 227.27 AZN`}
+      formulaTitle={pt.formulaTitle}
+      formulaContent={pt.formulaContent}
       relatedIds={["salary", "freelancer-tax", "loan"]}
     >
       {/* Inputs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            💵 Aylıq gross əmək haqqı (AZN)
+            💵 {pt.monthlyGrossSalary}
           </label>
           <input
             type="number"
@@ -119,7 +211,7 @@ Saatlıq tarif = 2000 ÷ 176 = 11.36 AZN
 
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            ⏰ Əlavə iş saatı (saat)
+            ⏰ {pt.overtimeHoursLabel}
           </label>
           <input
             type="number"
@@ -133,7 +225,7 @@ Saatlıq tarif = 2000 ÷ 176 = 11.36 AZN
 
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            📆 Aylıq iş günü
+            📆 {pt.monthlyWorkDays}
           </label>
           <input
             type="number"
@@ -148,7 +240,7 @@ Saatlıq tarif = 2000 ÷ 176 = 11.36 AZN
 
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            🕐 Gündəlik iş saatı
+            🕐 {pt.dailyWorkHours}
           </label>
           <input
             type="number"
@@ -165,7 +257,7 @@ Saatlıq tarif = 2000 ÷ 176 = 11.36 AZN
       {/* Overtime Type */}
       <div className="mb-8">
         <label className="block text-sm font-medium text-foreground mb-3">
-          Əlavə iş növü
+          {pt.overtimeType}
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {(Object.keys(overtimeLabels) as OvertimeType[]).map((type) => (
@@ -192,14 +284,14 @@ Saatlıq tarif = 2000 ÷ 176 = 11.36 AZN
           {/* Main Result */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-gradient-to-br from-primary to-primary-dark rounded-2xl p-6 text-center text-white">
-              <p className="text-sm text-blue-200 mb-1">Əlavə iş haqqı</p>
+              <p className="text-sm text-blue-200 mb-1">{pt.overtimePay}</p>
               <p className="text-3xl font-bold">{formatMoney(result.overtimePayment)}</p>
               <p className="text-xs text-blue-200 mt-1">AZN</p>
             </div>
             <div className="bg-green-50 rounded-2xl border border-green-200 p-6 text-center">
-              <p className="text-sm text-green-600 mb-1">Ümumi əmək haqqı</p>
+              <p className="text-sm text-green-600 mb-1">{pt.totalSalary}</p>
               <p className="text-3xl font-bold text-green-700">{formatMoney(result.totalSalary)}</p>
-              <p className="text-xs text-green-600 mt-1">AZN (əsas + əlavə)</p>
+              <p className="text-xs text-green-600 mt-1">{pt.basePlusOvertime}</p>
             </div>
           </div>
 
@@ -208,32 +300,32 @@ Saatlıq tarif = 2000 ÷ 176 = 11.36 AZN
             <div className="bg-gray-50 px-5 py-3 border-b border-border">
               <h3 className="font-semibold text-foreground flex items-center gap-2">
                 <span>📊</span>
-                Hesablama detalları
+                {pt.calculationDetails}
               </h3>
             </div>
             <div className="divide-y divide-border">
               <div className="flex justify-between px-5 py-3">
-                <span className="text-sm text-muted">Aylıq iş saatı</span>
-                <span className="text-sm font-medium text-foreground">{result.totalMonthlyHours} saat</span>
+                <span className="text-sm text-muted">{pt.monthlyWorkHours}</span>
+                <span className="text-sm font-medium text-foreground">{result.totalMonthlyHours} {pt.hours}</span>
               </div>
               <div className="flex justify-between px-5 py-3">
-                <span className="text-sm text-muted">Saatlıq tarif</span>
+                <span className="text-sm text-muted">{pt.hourlyRate}</span>
                 <span className="text-sm font-medium text-foreground">{formatMoney(result.hourlyRate)} AZN</span>
               </div>
               <div className="flex justify-between px-5 py-3">
-                <span className="text-sm text-muted">Əmsalı</span>
+                <span className="text-sm text-muted">{pt.multiplier}</span>
                 <span className="text-sm font-medium text-primary">×{result.multiplier}</span>
               </div>
               <div className="flex justify-between px-5 py-3">
-                <span className="text-sm text-muted">Əlavə saatlıq tarif</span>
+                <span className="text-sm text-muted">{pt.overtimeHourlyRate}</span>
                 <span className="text-sm font-medium text-foreground">{formatMoney(result.overtimeRate)} AZN</span>
               </div>
               <div className="flex justify-between px-5 py-3">
-                <span className="text-sm text-muted">Əlavə iş saatı</span>
-                <span className="text-sm font-medium text-foreground">{overtimeHours} saat</span>
+                <span className="text-sm text-muted">{pt.overtimeHoursDetail}</span>
+                <span className="text-sm font-medium text-foreground">{overtimeHours} {pt.hours}</span>
               </div>
               <div className="flex justify-between px-5 py-3 bg-blue-50">
-                <span className="text-sm font-semibold text-primary">Əlavə iş haqqı</span>
+                <span className="text-sm font-semibold text-primary">{pt.overtimePayDetail}</span>
                 <span className="text-sm font-bold text-primary">{formatMoney(result.overtimePayment)} AZN</span>
               </div>
             </div>
@@ -242,7 +334,7 @@ Saatlıq tarif = 2000 ÷ 176 = 11.36 AZN
       ) : (
         <div className="text-center py-8 text-muted">
           <span className="text-4xl block mb-3">⏰</span>
-          <p>Nəticəni görmək üçün əmək haqqı və əlavə iş saatını daxil edin.</p>
+          <p>{pt.emptyStateText}</p>
         </div>
       )}
     </CalculatorLayout>

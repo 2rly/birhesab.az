@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { calculators } from "@/data/calculators";
 import CalculatorCard from "./CalculatorCard";
+import { useLanguage } from "@/i18n";
 
 interface Breadcrumb {
   label: string;
@@ -26,6 +29,7 @@ export default function CalculatorLayout({
   relatedIds = [],
   children,
 }: CalculatorLayoutProps) {
+  const { t } = useLanguage();
   const relatedCalculators = calculators.filter((c) => relatedIds.includes(c.id));
 
   return (
@@ -33,7 +37,7 @@ export default function CalculatorLayout({
       {/* Breadcrumbs */}
       <nav className="flex items-center gap-2 text-sm text-muted mb-6">
         <Link href="/" className="hover:text-primary transition-colors">
-          Ana səhifə
+          {t.home}
         </Link>
         {breadcrumbs.map((crumb, i) => (
           <span key={i} className="flex items-center gap-2">
@@ -76,7 +80,7 @@ export default function CalculatorLayout({
         <div>
           <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
             <span>🔗</span>
-            Əlaqəli hesablayıcılar
+            {t.relatedCalculators}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {relatedCalculators.map((calc) => (

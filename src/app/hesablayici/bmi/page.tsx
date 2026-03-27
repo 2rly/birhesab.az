@@ -2,6 +2,8 @@
 
 import { useState, useMemo } from "react";
 import CalculatorLayout from "@/components/CalculatorLayout";
+import { useLanguage } from "@/i18n";
+import type { Lang } from "@/i18n";
 
 type Gender = "male" | "female";
 type Unit = "metric" | "imperial";
@@ -16,22 +18,226 @@ interface BmiCategory {
   description: string;
 }
 
-const bmiCategories: BmiCategory[] = [
-  { label: "Çəki çatışmazlığı", range: "< 18.5", color: "text-blue-700", bgColor: "bg-blue-50", borderColor: "border-blue-200", emoji: "🔵", description: "Normal çəkidən aşağı — qidalanma rejimini yaxşılaşdırın" },
-  { label: "Normal çəki", range: "18.5 – 24.9", color: "text-green-700", bgColor: "bg-green-50", borderColor: "border-green-200", emoji: "🟢", description: "Sağlam çəki — bu çəkini qorumağa çalışın" },
-  { label: "Artıq çəki", range: "25.0 – 29.9", color: "text-amber-700", bgColor: "bg-amber-50", borderColor: "border-amber-200", emoji: "🟡", description: "Normaldan yuxarı — fiziki aktivliyi artırın" },
-  { label: "I dərəcə piylənmə", range: "30.0 – 34.9", color: "text-orange-700", bgColor: "bg-orange-50", borderColor: "border-orange-200", emoji: "🟠", description: "Mülayim piylənmə — həkim məsləhəti tövsiyə olunur" },
-  { label: "II dərəcə piylənmə", range: "35.0 – 39.9", color: "text-red-600", bgColor: "bg-red-50", borderColor: "border-red-200", emoji: "🔴", description: "Ciddi piylənmə — tibbi müdaxilə lazım ola bilər" },
-  { label: "III dərəcə piylənmə", range: "≥ 40.0", color: "text-red-800", bgColor: "bg-red-100", borderColor: "border-red-300", emoji: "⛔", description: "Ağır piylənmə — mütləq həkim nəzarəti" },
-];
+const bmiCategoriesTranslations: Record<Lang, BmiCategory[]> = {
+  az: [
+    { label: "Ceki catismazligi", range: "< 18.5", color: "text-blue-700", bgColor: "bg-blue-50", borderColor: "border-blue-200", emoji: "\u{1F535}", description: "Normal cekiden asagi \u2014 qidalanma rejimini yaxsilasdirin" },
+    { label: "Normal ceki", range: "18.5 \u2013 24.9", color: "text-green-700", bgColor: "bg-green-50", borderColor: "border-green-200", emoji: "\u{1F7E2}", description: "Saglam ceki \u2014 bu cekini qorumaga calisin" },
+    { label: "Artiq ceki", range: "25.0 \u2013 29.9", color: "text-amber-700", bgColor: "bg-amber-50", borderColor: "border-amber-200", emoji: "\u{1F7E1}", description: "Normaldan yuxari \u2014 fiziki aktivliyi artirin" },
+    { label: "I derece piylenme", range: "30.0 \u2013 34.9", color: "text-orange-700", bgColor: "bg-orange-50", borderColor: "border-orange-200", emoji: "\u{1F7E0}", description: "Mulayim piylenme \u2014 hekim mesleheti tovsiye olunur" },
+    { label: "II derece piylenme", range: "35.0 \u2013 39.9", color: "text-red-600", bgColor: "bg-red-50", borderColor: "border-red-200", emoji: "\u{1F534}", description: "Ciddi piylenme \u2014 tibbi mudaxile lazim ola biler" },
+    { label: "III derece piylenme", range: "\u2265 40.0", color: "text-red-800", bgColor: "bg-red-100", borderColor: "border-red-300", emoji: "\u26D4", description: "Agir piylenme \u2014 mutleq hekim nezareti" },
+  ],
+  en: [
+    { label: "Underweight", range: "< 18.5", color: "text-blue-700", bgColor: "bg-blue-50", borderColor: "border-blue-200", emoji: "\u{1F535}", description: "Below normal weight \u2014 improve your diet" },
+    { label: "Normal weight", range: "18.5 \u2013 24.9", color: "text-green-700", bgColor: "bg-green-50", borderColor: "border-green-200", emoji: "\u{1F7E2}", description: "Healthy weight \u2014 try to maintain it" },
+    { label: "Overweight", range: "25.0 \u2013 29.9", color: "text-amber-700", bgColor: "bg-amber-50", borderColor: "border-amber-200", emoji: "\u{1F7E1}", description: "Above normal \u2014 increase physical activity" },
+    { label: "Obesity class I", range: "30.0 \u2013 34.9", color: "text-orange-700", bgColor: "bg-orange-50", borderColor: "border-orange-200", emoji: "\u{1F7E0}", description: "Moderate obesity \u2014 medical advice recommended" },
+    { label: "Obesity class II", range: "35.0 \u2013 39.9", color: "text-red-600", bgColor: "bg-red-50", borderColor: "border-red-200", emoji: "\u{1F534}", description: "Severe obesity \u2014 medical intervention may be needed" },
+    { label: "Obesity class III", range: "\u2265 40.0", color: "text-red-800", bgColor: "bg-red-100", borderColor: "border-red-300", emoji: "\u26D4", description: "Morbid obesity \u2014 medical supervision required" },
+  ],
+  ru: [
+    { label: "\u0414\u0435\u0444\u0438\u0446\u0438\u0442 \u0432\u0435\u0441\u0430", range: "< 18.5", color: "text-blue-700", bgColor: "bg-blue-50", borderColor: "border-blue-200", emoji: "\u{1F535}", description: "\u041D\u0438\u0436\u0435 \u043D\u043E\u0440\u043C\u0430\u043B\u044C\u043D\u043E\u0433\u043E \u0432\u0435\u0441\u0430 \u2014 \u0443\u043B\u0443\u0447\u0448\u0438\u0442\u0435 \u0440\u0435\u0436\u0438\u043C \u043F\u0438\u0442\u0430\u043D\u0438\u044F" },
+    { label: "\u041D\u043E\u0440\u043C\u0430\u043B\u044C\u043D\u044B\u0439 \u0432\u0435\u0441", range: "18.5 \u2013 24.9", color: "text-green-700", bgColor: "bg-green-50", borderColor: "border-green-200", emoji: "\u{1F7E2}", description: "\u0417\u0434\u043E\u0440\u043E\u0432\u044B\u0439 \u0432\u0435\u0441 \u2014 \u0441\u0442\u0430\u0440\u0430\u0439\u0442\u0435\u0441\u044C \u0435\u0433\u043E \u043F\u043E\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0442\u044C" },
+    { label: "\u0418\u0437\u0431\u044B\u0442\u043E\u0447\u043D\u044B\u0439 \u0432\u0435\u0441", range: "25.0 \u2013 29.9", color: "text-amber-700", bgColor: "bg-amber-50", borderColor: "border-amber-200", emoji: "\u{1F7E1}", description: "\u0412\u044B\u0448\u0435 \u043D\u043E\u0440\u043C\u044B \u2014 \u0443\u0432\u0435\u043B\u0438\u0447\u044C\u0442\u0435 \u0444\u0438\u0437\u0438\u0447\u0435\u0441\u043A\u0443\u044E \u0430\u043A\u0442\u0438\u0432\u043D\u043E\u0441\u0442\u044C" },
+    { label: "\u041E\u0436\u0438\u0440\u0435\u043D\u0438\u0435 I \u0441\u0442\u0435\u043F\u0435\u043D\u0438", range: "30.0 \u2013 34.9", color: "text-orange-700", bgColor: "bg-orange-50", borderColor: "border-orange-200", emoji: "\u{1F7E0}", description: "\u0423\u043C\u0435\u0440\u0435\u043D\u043D\u043E\u0435 \u043E\u0436\u0438\u0440\u0435\u043D\u0438\u0435 \u2014 \u0440\u0435\u043A\u043E\u043C\u0435\u043D\u0434\u0443\u0435\u0442\u0441\u044F \u043A\u043E\u043D\u0441\u0443\u043B\u044C\u0442\u0430\u0446\u0438\u044F \u0432\u0440\u0430\u0447\u0430" },
+    { label: "\u041E\u0436\u0438\u0440\u0435\u043D\u0438\u0435 II \u0441\u0442\u0435\u043F\u0435\u043D\u0438", range: "35.0 \u2013 39.9", color: "text-red-600", bgColor: "bg-red-50", borderColor: "border-red-200", emoji: "\u{1F534}", description: "\u0422\u044F\u0436\u0451\u043B\u043E\u0435 \u043E\u0436\u0438\u0440\u0435\u043D\u0438\u0435 \u2014 \u043C\u043E\u0436\u0435\u0442 \u043F\u043E\u0442\u0440\u0435\u0431\u043E\u0432\u0430\u0442\u044C\u0441\u044F \u043C\u0435\u0434\u0438\u0446\u0438\u043D\u0441\u043A\u043E\u0435 \u0432\u043C\u0435\u0448\u0430\u0442\u0435\u043B\u044C\u0441\u0442\u0432\u043E" },
+    { label: "\u041E\u0436\u0438\u0440\u0435\u043D\u0438\u0435 III \u0441\u0442\u0435\u043F\u0435\u043D\u0438", range: "\u2265 40.0", color: "text-red-800", bgColor: "bg-red-100", borderColor: "border-red-300", emoji: "\u26D4", description: "\u041C\u043E\u0440\u0431\u0438\u0434\u043D\u043E\u0435 \u043E\u0436\u0438\u0440\u0435\u043D\u0438\u0435 \u2014 \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E\u0435 \u043D\u0430\u0431\u043B\u044E\u0434\u0435\u043D\u0438\u0435 \u0432\u0440\u0430\u0447\u0430" },
+  ],
+};
 
-function getBmiCategory(bmi: number): BmiCategory {
-  if (bmi < 18.5) return bmiCategories[0];
-  if (bmi < 25) return bmiCategories[1];
-  if (bmi < 30) return bmiCategories[2];
-  if (bmi < 35) return bmiCategories[3];
-  if (bmi < 40) return bmiCategories[4];
-  return bmiCategories[5];
+const pageTranslations = {
+  az: {
+    title: "BMI hesablayicisi",
+    description: "Beden kutle indeksinizi hesablayin ve saglamliq kateqoriyanizi oyrenin.",
+    breadcrumbCategory: "Saglamliq",
+    formulaTitle: "BMI nece hesablanir?",
+    formulaContent: `BMI = Ceki (kq) \u00F7 Boy\u00B2 (m)
+
+Meselen: 75 kq, 175 sm \u2192 BMI = 75 \u00F7 1.75\u00B2 = 75 \u00F7 3.0625 = 24.5
+
+Kateqoriyalar (\u00DCST \u2014 \u00DCmumdunya Sehiyye Teskilati):
+\u2022 < 18.5 \u2014 Ceki catismazligi
+\u2022 18.5\u201324.9 \u2014 Normal ceki
+\u2022 25.0\u201329.9 \u2014 Artiq ceki
+\u2022 30.0\u201334.9 \u2014 I derece piylenme
+\u2022 35.0\u201339.9 \u2014 II derece piylenme
+\u2022 \u2265 40.0 \u2014 III derece piylenme
+
+Qeyd: BMI ezele kutlesini, yasi ve cinsi nezere almir.
+Buna gore idmancilar ve yaslarda netice ferqli ola biler.`,
+    metricUnit: "Metrik (kq, sm)",
+    imperialUnit: "Imperial (lbs, ft)",
+    gender: "Cins",
+    male: "Kisi",
+    female: "Qadin",
+    heightLabel: "Boy (sm)",
+    heightLabelImperial: "Boy",
+    weightLabel: "Ceki (kq)",
+    weightLabelImperial: "Ceki (lbs)",
+    foot: "fut",
+    inch: "duym",
+    ageLabel: "Yas",
+    ageOptional: "ixtiyari",
+    yourBmi: "Sizin BMI gostericiniz",
+    bmiScale: "BMI skalasi",
+    idealWeightRange: "Ideal ceki araligi",
+    bmiPrime: "BMI Prime",
+    normal: "Normal",
+    aboveNormal: "Normaldan yuxari",
+    basalMetabolism: "Bazal metabolizm (BMR)",
+    kcalPerDay: "kkal / gun",
+    kg: "kq",
+    gainWeight: "Normal cekiye catmaq ucun artirin",
+    loseWeight: "Normal cekiye dusmek ucun azaldin",
+    bmiCategories: "BMI kateqoriyalari (\u00DCST)",
+    you: "Siz",
+    weightTableFor: "sm boy ucun ceki cedveli",
+    dailyCalorieNeeds: "Gundelik kalori ehtiyaci (BMR esasinda)",
+    sedentary: "Oturaq heyat terzi",
+    sedentaryDesc: "Az ve ya hec hereket yox",
+    lightActivity: "Yungul aktivlik",
+    lightActivityDesc: "Heftede 1\u20133 gun idman",
+    moderateActivity: "Orta aktivlik",
+    moderateActivityDesc: "Heftede 3\u20135 gun idman",
+    highActivity: "Yuksek aktivlik",
+    highActivityDesc: "Heftede 6\u20137 gun idman",
+    veryHighActivity: "Cox yuksek aktivlik",
+    veryHighActivityDesc: "Gunde 2 defe idman / agir fiziki is",
+    disclaimer: "Diqqet:",
+    disclaimerText: "BMI umumi gostericdir ve ezele kutlesi, sumuk qurulusu, yas ve cins kimi ferdi amilleri nezere almir. Idmancilar ve hamile qadinlarda netice deqiq olmaya biler. Saglamliq qerarlari ucun hekime muraciet edin.",
+    emptyStateText: "Neticeni gormek ucun boy ve cekinizi daxil edin.",
+  },
+  en: {
+    title: "BMI Calculator",
+    description: "Calculate your Body Mass Index and find out your health category.",
+    breadcrumbCategory: "Health",
+    formulaTitle: "How is BMI calculated?",
+    formulaContent: `BMI = Weight (kg) \u00F7 Height\u00B2 (m)
+
+Example: 75 kg, 175 cm \u2192 BMI = 75 \u00F7 1.75\u00B2 = 75 \u00F7 3.0625 = 24.5
+
+Categories (WHO \u2014 World Health Organization):
+\u2022 < 18.5 \u2014 Underweight
+\u2022 18.5\u201324.9 \u2014 Normal weight
+\u2022 25.0\u201329.9 \u2014 Overweight
+\u2022 30.0\u201334.9 \u2014 Obesity class I
+\u2022 35.0\u201339.9 \u2014 Obesity class II
+\u2022 \u2265 40.0 \u2014 Obesity class III
+
+Note: BMI does not account for muscle mass, age, or gender.
+Therefore, results may differ for athletes and elderly people.`,
+    metricUnit: "Metric (kg, cm)",
+    imperialUnit: "Imperial (lbs, ft)",
+    gender: "Gender",
+    male: "Male",
+    female: "Female",
+    heightLabel: "Height (cm)",
+    heightLabelImperial: "Height",
+    weightLabel: "Weight (kg)",
+    weightLabelImperial: "Weight (lbs)",
+    foot: "ft",
+    inch: "in",
+    ageLabel: "Age",
+    ageOptional: "optional",
+    yourBmi: "Your BMI score",
+    bmiScale: "BMI scale",
+    idealWeightRange: "Ideal weight range",
+    bmiPrime: "BMI Prime",
+    normal: "Normal",
+    aboveNormal: "Above normal",
+    basalMetabolism: "Basal metabolism (BMR)",
+    kcalPerDay: "kcal / day",
+    kg: "kg",
+    gainWeight: "Gain to reach normal weight",
+    loseWeight: "Lose to reach normal weight",
+    bmiCategories: "BMI categories (WHO)",
+    you: "You",
+    weightTableFor: "cm height weight table",
+    dailyCalorieNeeds: "Daily calorie needs (based on BMR)",
+    sedentary: "Sedentary lifestyle",
+    sedentaryDesc: "Little or no movement",
+    lightActivity: "Light activity",
+    lightActivityDesc: "Exercise 1\u20133 days/week",
+    moderateActivity: "Moderate activity",
+    moderateActivityDesc: "Exercise 3\u20135 days/week",
+    highActivity: "High activity",
+    highActivityDesc: "Exercise 6\u20137 days/week",
+    veryHighActivity: "Very high activity",
+    veryHighActivityDesc: "2x daily exercise / heavy physical work",
+    disclaimer: "Disclaimer:",
+    disclaimerText: "BMI is a general indicator and does not account for individual factors such as muscle mass, bone structure, age, and gender. Results may be inaccurate for athletes and pregnant women. Consult a doctor for health decisions.",
+    emptyStateText: "Enter your height and weight to see the result.",
+  },
+  ru: {
+    title: "\u041A\u0430\u043B\u044C\u043A\u0443\u043B\u044F\u0442\u043E\u0440 \u0418\u041C\u0422",
+    description: "\u0420\u0430\u0441\u0441\u0447\u0438\u0442\u0430\u0439\u0442\u0435 \u0438\u043D\u0434\u0435\u043A\u0441 \u043C\u0430\u0441\u0441\u044B \u0442\u0435\u043B\u0430 \u0438 \u0443\u0437\u043D\u0430\u0439\u0442\u0435 \u0441\u0432\u043E\u044E \u043A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u044E \u0437\u0434\u043E\u0440\u043E\u0432\u044C\u044F.",
+    breadcrumbCategory: "\u0417\u0434\u043E\u0440\u043E\u0432\u044C\u0435",
+    formulaTitle: "\u041A\u0430\u043A \u0440\u0430\u0441\u0441\u0447\u0438\u0442\u044B\u0432\u0430\u0435\u0442\u0441\u044F \u0418\u041C\u0422?",
+    formulaContent: `\u0418\u041C\u0422 = \u0412\u0435\u0441 (\u043A\u0433) \u00F7 \u0420\u043E\u0441\u0442\u00B2 (\u043C)
+
+\u041F\u0440\u0438\u043C\u0435\u0440: 75 \u043A\u0433, 175 \u0441\u043C \u2192 \u0418\u041C\u0422 = 75 \u00F7 1.75\u00B2 = 75 \u00F7 3.0625 = 24.5
+
+\u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0438 (\u0412\u041E\u0417 \u2014 \u0412\u0441\u0435\u043C\u0438\u0440\u043D\u0430\u044F \u043E\u0440\u0433\u0430\u043D\u0438\u0437\u0430\u0446\u0438\u044F \u0437\u0434\u0440\u0430\u0432\u043E\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u044F):
+\u2022 < 18.5 \u2014 \u0414\u0435\u0444\u0438\u0446\u0438\u0442 \u0432\u0435\u0441\u0430
+\u2022 18.5\u201324.9 \u2014 \u041D\u043E\u0440\u043C\u0430\u043B\u044C\u043D\u044B\u0439 \u0432\u0435\u0441
+\u2022 25.0\u201329.9 \u2014 \u0418\u0437\u0431\u044B\u0442\u043E\u0447\u043D\u044B\u0439 \u0432\u0435\u0441
+\u2022 30.0\u201334.9 \u2014 \u041E\u0436\u0438\u0440\u0435\u043D\u0438\u0435 I \u0441\u0442\u0435\u043F\u0435\u043D\u0438
+\u2022 35.0\u201339.9 \u2014 \u041E\u0436\u0438\u0440\u0435\u043D\u0438\u0435 II \u0441\u0442\u0435\u043F\u0435\u043D\u0438
+\u2022 \u2265 40.0 \u2014 \u041E\u0436\u0438\u0440\u0435\u043D\u0438\u0435 III \u0441\u0442\u0435\u043F\u0435\u043D\u0438
+
+\u041F\u0440\u0438\u043C\u0435\u0447\u0430\u043D\u0438\u0435: \u0418\u041C\u0422 \u043D\u0435 \u0443\u0447\u0438\u0442\u044B\u0432\u0430\u0435\u0442 \u043C\u044B\u0448\u0435\u0447\u043D\u0443\u044E \u043C\u0430\u0441\u0441\u0443, \u0432\u043E\u0437\u0440\u0430\u0441\u0442 \u0438 \u043F\u043E\u043B.
+\u041F\u043E\u044D\u0442\u043E\u043C\u0443 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u044B \u043C\u043E\u0433\u0443\u0442 \u043E\u0442\u043B\u0438\u0447\u0430\u0442\u044C\u0441\u044F \u0434\u043B\u044F \u0441\u043F\u043E\u0440\u0442\u0441\u043C\u0435\u043D\u043E\u0432 \u0438 \u043F\u043E\u0436\u0438\u043B\u044B\u0445 \u043B\u044E\u0434\u0435\u0439.`,
+    metricUnit: "\u041C\u0435\u0442\u0440\u0438\u0447\u0435\u0441\u043A\u0430\u044F (\u043A\u0433, \u0441\u043C)",
+    imperialUnit: "\u0418\u043C\u043F\u0435\u0440\u0441\u043A\u0430\u044F (lbs, ft)",
+    gender: "\u041F\u043E\u043B",
+    male: "\u041C\u0443\u0436\u0447\u0438\u043D\u0430",
+    female: "\u0416\u0435\u043D\u0449\u0438\u043D\u0430",
+    heightLabel: "\u0420\u043E\u0441\u0442 (\u0441\u043C)",
+    heightLabelImperial: "\u0420\u043E\u0441\u0442",
+    weightLabel: "\u0412\u0435\u0441 (\u043A\u0433)",
+    weightLabelImperial: "\u0412\u0435\u0441 (lbs)",
+    foot: "\u0444\u0443\u0442",
+    inch: "\u0434\u044E\u0439\u043C",
+    ageLabel: "\u0412\u043E\u0437\u0440\u0430\u0441\u0442",
+    ageOptional: "\u043D\u0435\u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E",
+    yourBmi: "\u0412\u0430\u0448 \u043F\u043E\u043A\u0430\u0437\u0430\u0442\u0435\u043B\u044C \u0418\u041C\u0422",
+    bmiScale: "\u0428\u043A\u0430\u043B\u0430 \u0418\u041C\u0422",
+    idealWeightRange: "\u0418\u0434\u0435\u0430\u043B\u044C\u043D\u044B\u0439 \u0434\u0438\u0430\u043F\u0430\u0437\u043E\u043D \u0432\u0435\u0441\u0430",
+    bmiPrime: "BMI Prime",
+    normal: "\u041D\u043E\u0440\u043C\u0430",
+    aboveNormal: "\u0412\u044B\u0448\u0435 \u043D\u043E\u0440\u043C\u044B",
+    basalMetabolism: "\u0411\u0430\u0437\u0430\u043B\u044C\u043D\u044B\u0439 \u043C\u0435\u0442\u0430\u0431\u043E\u043B\u0438\u0437\u043C (BMR)",
+    kcalPerDay: "\u043A\u043A\u0430\u043B / \u0434\u0435\u043D\u044C",
+    kg: "\u043A\u0433",
+    gainWeight: "\u041D\u0430\u0431\u0435\u0440\u0438\u0442\u0435 \u0434\u043B\u044F \u0434\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F \u043D\u043E\u0440\u043C\u0430\u043B\u044C\u043D\u043E\u0433\u043E \u0432\u0435\u0441\u0430",
+    loseWeight: "\u0421\u0431\u0440\u043E\u0441\u044C\u0442\u0435 \u0434\u043B\u044F \u0434\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F \u043D\u043E\u0440\u043C\u0430\u043B\u044C\u043D\u043E\u0433\u043E \u0432\u0435\u0441\u0430",
+    bmiCategories: "\u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0438 \u0418\u041C\u0422 (\u0412\u041E\u0417)",
+    you: "\u0412\u044B",
+    weightTableFor: "\u0441\u043C \u0442\u0430\u0431\u043B\u0438\u0446\u0430 \u0432\u0435\u0441\u0430 \u0434\u043B\u044F \u0440\u043E\u0441\u0442\u0430",
+    dailyCalorieNeeds: "\u0421\u0443\u0442\u043E\u0447\u043D\u0430\u044F \u043F\u043E\u0442\u0440\u0435\u0431\u043D\u043E\u0441\u0442\u044C \u0432 \u043A\u0430\u043B\u043E\u0440\u0438\u044F\u0445 (\u043D\u0430 \u043E\u0441\u043D\u043E\u0432\u0435 BMR)",
+    sedentary: "\u0421\u0438\u0434\u044F\u0447\u0438\u0439 \u043E\u0431\u0440\u0430\u0437 \u0436\u0438\u0437\u043D\u0438",
+    sedentaryDesc: "\u041C\u0430\u043B\u043E \u0438\u043B\u0438 \u043D\u0435\u0442 \u0434\u0432\u0438\u0436\u0435\u043D\u0438\u044F",
+    lightActivity: "\u041B\u0451\u0433\u043A\u0430\u044F \u0430\u043A\u0442\u0438\u0432\u043D\u043E\u0441\u0442\u044C",
+    lightActivityDesc: "\u0422\u0440\u0435\u043D\u0438\u0440\u043E\u0432\u043A\u0438 1\u20133 \u0434\u043D\u044F/\u043D\u0435\u0434\u0435\u043B\u044E",
+    moderateActivity: "\u0421\u0440\u0435\u0434\u043D\u044F\u044F \u0430\u043A\u0442\u0438\u0432\u043D\u043E\u0441\u0442\u044C",
+    moderateActivityDesc: "\u0422\u0440\u0435\u043D\u0438\u0440\u043E\u0432\u043A\u0438 3\u20135 \u0434\u043D\u0435\u0439/\u043D\u0435\u0434\u0435\u043B\u044E",
+    highActivity: "\u0412\u044B\u0441\u043E\u043A\u0430\u044F \u0430\u043A\u0442\u0438\u0432\u043D\u043E\u0441\u0442\u044C",
+    highActivityDesc: "\u0422\u0440\u0435\u043D\u0438\u0440\u043E\u0432\u043A\u0438 6\u20137 \u0434\u043D\u0435\u0439/\u043D\u0435\u0434\u0435\u043B\u044E",
+    veryHighActivity: "\u041E\u0447\u0435\u043D\u044C \u0432\u044B\u0441\u043E\u043A\u0430\u044F \u0430\u043A\u0442\u0438\u0432\u043D\u043E\u0441\u0442\u044C",
+    veryHighActivityDesc: "2 \u0442\u0440\u0435\u043D\u0438\u0440\u043E\u0432\u043A\u0438 \u0432 \u0434\u0435\u043D\u044C / \u0442\u044F\u0436\u0451\u043B\u044B\u0439 \u0444\u0438\u0437\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0442\u0440\u0443\u0434",
+    disclaimer: "\u0412\u043D\u0438\u043C\u0430\u043D\u0438\u0435:",
+    disclaimerText: "\u0418\u041C\u0422 \u2014 \u044D\u0442\u043E \u043E\u0431\u0449\u0438\u0439 \u043F\u043E\u043A\u0430\u0437\u0430\u0442\u0435\u043B\u044C, \u043A\u043E\u0442\u043E\u0440\u044B\u0439 \u043D\u0435 \u0443\u0447\u0438\u0442\u044B\u0432\u0430\u0435\u0442 \u043C\u044B\u0448\u0435\u0447\u043D\u0443\u044E \u043C\u0430\u0441\u0441\u0443, \u043A\u043E\u0441\u0442\u043D\u0443\u044E \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0443, \u0432\u043E\u0437\u0440\u0430\u0441\u0442 \u0438 \u043F\u043E\u043B. \u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u044B \u043C\u043E\u0433\u0443\u0442 \u0431\u044B\u0442\u044C \u043D\u0435\u0442\u043E\u0447\u043D\u044B\u043C\u0438 \u0434\u043B\u044F \u0441\u043F\u043E\u0440\u0442\u0441\u043C\u0435\u043D\u043E\u0432 \u0438 \u0431\u0435\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0445 \u0436\u0435\u043D\u0449\u0438\u043D. \u041F\u0440\u043E\u043A\u043E\u043D\u0441\u0443\u043B\u044C\u0442\u0438\u0440\u0443\u0439\u0442\u0435\u0441\u044C \u0441 \u0432\u0440\u0430\u0447\u043E\u043C \u043F\u0440\u0438 \u043F\u0440\u0438\u043D\u044F\u0442\u0438\u0438 \u0440\u0435\u0448\u0435\u043D\u0438\u0439 \u043E \u0437\u0434\u043E\u0440\u043E\u0432\u044C\u0435.",
+    emptyStateText: "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0440\u043E\u0441\u0442 \u0438 \u0432\u0435\u0441, \u0447\u0442\u043E\u0431\u044B \u0443\u0432\u0438\u0434\u0435\u0442\u044C \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442.",
+  },
+};
+
+function getBmiCategory(bmi: number, categories: BmiCategory[]): BmiCategory {
+  if (bmi < 18.5) return categories[0];
+  if (bmi < 25) return categories[1];
+  if (bmi < 30) return categories[2];
+  if (bmi < 35) return categories[3];
+  if (bmi < 40) return categories[4];
+  return categories[5];
 }
 
 function getIdealWeightRange(heightM: number): { min: number; max: number } {
@@ -46,6 +252,10 @@ function fmt(n: number): string {
 }
 
 export default function BMICalculator() {
+  const { lang } = useLanguage();
+  const pt = pageTranslations[lang];
+  const bmiCategories = bmiCategoriesTranslations[lang];
+
   const [heightCm, setHeightCm] = useState("");
   const [weight, setWeight] = useState("");
   const [age, setAge] = useState("");
@@ -79,21 +289,21 @@ export default function BMICalculator() {
 
     const userAge = parseInt(age) || 0;
     const bmi = weightKg / (heightM * heightM);
-    const category = getBmiCategory(bmi);
+    const category = getBmiCategory(bmi, bmiCategories);
     const idealRange = getIdealWeightRange(heightM);
 
-    // Fərq
+    // Weight difference
     let weightDiff = 0;
     let weightDiffLabel = "";
     if (bmi < 18.5) {
       weightDiff = idealRange.min - weightKg;
-      weightDiffLabel = "Normal çəkiyə çatmaq üçün artırın";
+      weightDiffLabel = pt.gainWeight;
     } else if (bmi >= 25) {
       weightDiff = weightKg - idealRange.max;
-      weightDiffLabel = "Normal çəkiyə düşmək üçün azaldın";
+      weightDiffLabel = pt.loseWeight;
     }
 
-    // BMR (Bazal metabolizm dərəcəsi) — Mifflin-St Jeor
+    // BMR (Basal Metabolic Rate) — Mifflin-St Jeor
     let bmr = 0;
     if (userAge > 0) {
       if (gender === "male") {
@@ -103,7 +313,7 @@ export default function BMICalculator() {
       }
     }
 
-    // BMI prime (BMI / 25 — 1.0 = üst normal hədd)
+    // BMI prime (BMI / 25 — 1.0 = upper normal limit)
     const bmiPrime = bmi / 25;
 
     return {
@@ -119,34 +329,29 @@ export default function BMICalculator() {
       bmiPrime,
       userAge,
     };
-  }, [heightCm, weight, age, gender, unit, heightFt, heightIn, weightLbs]);
+  }, [heightCm, weight, age, gender, unit, heightFt, heightIn, weightLbs, bmiCategories, pt]);
 
   // BMI scale marker position (BMI 10–50 range mapped to 0–100%)
   const scalePosition = result ? Math.min(100, Math.max(0, ((result.bmi - 10) / 40) * 100)) : 0;
 
+  const activityLevels = [
+    { label: pt.sedentary, factor: 1.2, desc: pt.sedentaryDesc },
+    { label: pt.lightActivity, factor: 1.375, desc: pt.lightActivityDesc },
+    { label: pt.moderateActivity, factor: 1.55, desc: pt.moderateActivityDesc },
+    { label: pt.highActivity, factor: 1.725, desc: pt.highActivityDesc },
+    { label: pt.veryHighActivity, factor: 1.9, desc: pt.veryHighActivityDesc },
+  ];
+
   return (
     <CalculatorLayout
-      title="BMI hesablayıcısı"
-      description="Bədən kütlə indeksinizi hesablayın və sağlamlıq kateqoriyanızı öyrənin."
+      title={pt.title}
+      description={pt.description}
       breadcrumbs={[
-        { label: "Sağlamlıq", href: "/?category=health" },
-        { label: "BMI hesablayıcısı" },
+        { label: pt.breadcrumbCategory, href: "/?category=health" },
+        { label: pt.title },
       ]}
-      formulaTitle="BMI necə hesablanır?"
-      formulaContent={`BMI = Çəki (kq) ÷ Boy² (m)
-
-Məsələn: 75 kq, 175 sm → BMI = 75 ÷ 1.75² = 75 ÷ 3.0625 = 24.5
-
-Kateqoriyalar (ÜST — Ümumdünya Səhiyyə Təşkilatı):
-• < 18.5 — Çəki çatışmazlığı
-• 18.5–24.9 — Normal çəki
-• 25.0–29.9 — Artıq çəki
-• 30.0–34.9 — I dərəcə piylənmə
-• 35.0–39.9 — II dərəcə piylənmə
-• ≥ 40.0 — III dərəcə piylənmə
-
-Qeyd: BMI əzələ kütləsini, yaşı və cinsi nəzərə almır.
-Buna görə idmançılar və yaşlı insanlarda nəticə fərqli ola bilər.`}
+      formulaTitle={pt.formulaTitle}
+      formulaContent={pt.formulaContent}
       relatedIds={["bmr", "ideal-weight", "water-intake", "pregnancy"]}
     >
       {/* Unit Toggle */}
@@ -159,7 +364,7 @@ Buna görə idmançılar və yaşlı insanlarda nəticə fərqli ola bilər.`}
               : "bg-white text-muted hover:bg-gray-50"
           }`}
         >
-          Metrik (kq, sm)
+          {pt.metricUnit}
         </button>
         <button
           onClick={() => setUnit("imperial")}
@@ -169,13 +374,13 @@ Buna görə idmançılar və yaşlı insanlarda nəticə fərqli ola bilər.`}
               : "bg-white text-muted hover:bg-gray-50"
           }`}
         >
-          İmperial (lbs, ft)
+          {pt.imperialUnit}
         </button>
       </div>
 
       {/* Gender */}
       <div className="mb-6">
-        <label className="block text-sm font-medium text-foreground mb-3">Cins</label>
+        <label className="block text-sm font-medium text-foreground mb-3">{pt.gender}</label>
         <div className="grid grid-cols-2 gap-3">
           <button
             onClick={() => setGender("male")}
@@ -185,8 +390,8 @@ Buna görə idmançılar və yaşlı insanlarda nəticə fərqli ola bilər.`}
                 : "border-border bg-white hover:border-primary/30"
             }`}
           >
-            <span className="text-2xl block mb-1">👨</span>
-            <p className="text-xs font-medium text-foreground">Kişi</p>
+            <span className="text-2xl block mb-1">{"\u{1F468}"}</span>
+            <p className="text-xs font-medium text-foreground">{pt.male}</p>
           </button>
           <button
             onClick={() => setGender("female")}
@@ -196,8 +401,8 @@ Buna görə idmançılar və yaşlı insanlarda nəticə fərqli ola bilər.`}
                 : "border-border bg-white hover:border-primary/30"
             }`}
           >
-            <span className="text-2xl block mb-1">👩</span>
-            <p className="text-xs font-medium text-foreground">Qadın</p>
+            <span className="text-2xl block mb-1">{"\u{1F469}"}</span>
+            <p className="text-xs font-medium text-foreground">{pt.female}</p>
           </button>
         </div>
       </div>
@@ -207,7 +412,7 @@ Buna görə idmançılar və yaşlı insanlarda nəticə fərqli ola bilər.`}
         {unit === "metric" ? (
           <>
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">📏 Boy (sm)</label>
+              <label className="block text-sm font-medium text-foreground mb-2">{"\u{1F4CF}"} {pt.heightLabel}</label>
               <input
                 type="number"
                 value={heightCm}
@@ -219,7 +424,7 @@ Buna görə idmançılar və yaşlı insanlarda nəticə fərqli ola bilər.`}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">⚖️ Çəki (kq)</label>
+              <label className="block text-sm font-medium text-foreground mb-2">{"\u2696\uFE0F"} {pt.weightLabel}</label>
               <input
                 type="number"
                 value={weight}
@@ -234,7 +439,7 @@ Buna görə idmançılar və yaşlı insanlarda nəticə fərqli ola bilər.`}
         ) : (
           <>
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">📏 Boy</label>
+              <label className="block text-sm font-medium text-foreground mb-2">{"\u{1F4CF}"} {pt.heightLabelImperial}</label>
               <div className="flex gap-2">
                 <div className="flex-1">
                   <input
@@ -246,7 +451,7 @@ Buna görə idmançılar və yaşlı insanlarda nəticə fərqli ola bilər.`}
                     max="8"
                     className="w-full px-4 py-3 rounded-xl border border-border bg-white text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-base"
                   />
-                  <p className="text-xs text-muted mt-1 text-center">fut</p>
+                  <p className="text-xs text-muted mt-1 text-center">{pt.foot}</p>
                 </div>
                 <div className="flex-1">
                   <input
@@ -258,12 +463,12 @@ Buna görə idmançılar və yaşlı insanlarda nəticə fərqli ola bilər.`}
                     max="11"
                     className="w-full px-4 py-3 rounded-xl border border-border bg-white text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-base"
                   />
-                  <p className="text-xs text-muted mt-1 text-center">düym</p>
+                  <p className="text-xs text-muted mt-1 text-center">{pt.inch}</p>
                 </div>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">⚖️ Çəki (lbs)</label>
+              <label className="block text-sm font-medium text-foreground mb-2">{"\u2696\uFE0F"} {pt.weightLabelImperial}</label>
               <input
                 type="number"
                 value={weightLbs}
@@ -278,7 +483,7 @@ Buna görə idmançılar və yaşlı insanlarda nəticə fərqli ola bilər.`}
         )}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            🎂 Yaş <span className="text-muted font-normal">— ixtiyari</span>
+            {"\u{1F382}"} {pt.ageLabel} <span className="text-muted font-normal">{"\u2014"} {pt.ageOptional}</span>
           </label>
           <input
             type="number"
@@ -297,7 +502,7 @@ Buna görə idmançılar və yaşlı insanlarda nəticə fərqli ola bilər.`}
         <div className="space-y-4">
           {/* BMI Result Card */}
           <div className={`${result.category.bgColor} rounded-2xl border ${result.category.borderColor} p-6 text-center`}>
-            <p className="text-sm text-muted mb-2">Sizin BMI göstəriciniz</p>
+            <p className="text-sm text-muted mb-2">{pt.yourBmi}</p>
             <p className={`text-5xl font-bold ${result.category.color}`}>{fmt(result.bmi)}</p>
             <div className="mt-3 inline-flex items-center gap-2">
               <span className="text-lg">{result.category.emoji}</span>
@@ -308,15 +513,15 @@ Buna görə idmançılar və yaşlı insanlarda nəticə fərqli ola bilər.`}
 
           {/* BMI Scale */}
           <div className="bg-gray-50 rounded-xl p-5">
-            <p className="text-xs text-muted mb-3 font-medium">BMI şkalası</p>
+            <p className="text-xs text-muted mb-3 font-medium">{pt.bmiScale}</p>
             <div className="relative">
               <div className="w-full h-5 rounded-full overflow-hidden flex">
-                <div className="h-full bg-blue-400" style={{ width: "21.25%" }} title="Çəki çatışmazlığı" />
-                <div className="h-full bg-green-400" style={{ width: "16%" }} title="Normal" />
-                <div className="h-full bg-amber-400" style={{ width: "12.5%" }} title="Artıq çəki" />
-                <div className="h-full bg-orange-400" style={{ width: "12.5%" }} title="I dərəcə" />
-                <div className="h-full bg-red-400" style={{ width: "12.5%" }} title="II dərəcə" />
-                <div className="h-full bg-red-700" style={{ width: "25.25%" }} title="III dərəcə" />
+                <div className="h-full bg-blue-400" style={{ width: "21.25%" }} title={bmiCategories[0].label} />
+                <div className="h-full bg-green-400" style={{ width: "16%" }} title={bmiCategories[1].label} />
+                <div className="h-full bg-amber-400" style={{ width: "12.5%" }} title={bmiCategories[2].label} />
+                <div className="h-full bg-orange-400" style={{ width: "12.5%" }} title={bmiCategories[3].label} />
+                <div className="h-full bg-red-400" style={{ width: "12.5%" }} title={bmiCategories[4].label} />
+                <div className="h-full bg-red-700" style={{ width: "25.25%" }} title={bmiCategories[5].label} />
               </div>
               {/* Marker */}
               <div
@@ -340,24 +545,24 @@ Buna görə idmançılar və yaşlı insanlarda nəticə fərqli ola bilər.`}
           {/* Info Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-white rounded-xl border border-border p-5 text-center">
-              <p className="text-xs text-muted mb-1">İdeal çəki aralığı</p>
+              <p className="text-xs text-muted mb-1">{pt.idealWeightRange}</p>
               <p className="text-lg font-bold text-foreground">
-                {fmt(result.idealRange.min)} – {fmt(result.idealRange.max)}
+                {fmt(result.idealRange.min)} {"\u2013"} {fmt(result.idealRange.max)}
               </p>
-              <p className="text-xs text-muted mt-1">kq</p>
+              <p className="text-xs text-muted mt-1">{pt.kg}</p>
             </div>
 
             <div className="bg-white rounded-xl border border-border p-5 text-center">
-              <p className="text-xs text-muted mb-1">BMI Prime</p>
+              <p className="text-xs text-muted mb-1">{pt.bmiPrime}</p>
               <p className="text-lg font-bold text-foreground">{result.bmiPrime.toFixed(2)}</p>
-              <p className="text-xs text-muted mt-1">{result.bmiPrime <= 1 ? "Normal" : "Normaldan yuxarı"}</p>
+              <p className="text-xs text-muted mt-1">{result.bmiPrime <= 1 ? pt.normal : pt.aboveNormal}</p>
             </div>
 
             {result.bmr > 0 && (
               <div className="bg-white rounded-xl border border-border p-5 text-center">
-                <p className="text-xs text-muted mb-1">Bazal metabolizm (BMR)</p>
+                <p className="text-xs text-muted mb-1">{pt.basalMetabolism}</p>
                 <p className="text-lg font-bold text-foreground">{Math.round(result.bmr)}</p>
-                <p className="text-xs text-muted mt-1">kkal / gün</p>
+                <p className="text-xs text-muted mt-1">{pt.kcalPerDay}</p>
               </div>
             )}
           </div>
@@ -366,8 +571,8 @@ Buna görə idmançılar və yaşlı insanlarda nəticə fərqli ola bilər.`}
           {result.weightDiff > 0 && (
             <div className={`${result.bmi < 18.5 ? "bg-blue-50 border-blue-200" : "bg-amber-50 border-amber-200"} rounded-xl border p-4`}>
               <p className={`text-sm font-medium ${result.bmi < 18.5 ? "text-blue-700" : "text-amber-700"} flex items-center gap-2`}>
-                <span>{result.bmi < 18.5 ? "📈" : "📉"}</span>
-                {result.weightDiffLabel}: <span className="font-bold">{fmt(result.weightDiff)} kq</span>
+                <span>{result.bmi < 18.5 ? "\u{1F4C8}" : "\u{1F4C9}"}</span>
+                {result.weightDiffLabel}: <span className="font-bold">{fmt(result.weightDiff)} {pt.kg}</span>
               </p>
             </div>
           )}
@@ -376,8 +581,8 @@ Buna görə idmançılar və yaşlı insanlarda nəticə fərqli ola bilər.`}
           <div className="bg-white rounded-xl border border-border overflow-hidden">
             <div className="bg-gray-50 px-5 py-3 border-b border-border">
               <h3 className="font-semibold text-foreground flex items-center gap-2">
-                <span>📊</span>
-                BMI kateqoriyaları (ÜST)
+                <span>{"\u{1F4CA}"}</span>
+                {pt.bmiCategories}
               </h3>
             </div>
             <div className="divide-y divide-border">
@@ -392,7 +597,7 @@ Buna görə idmançılar və yaşlı insanlarda nəticə fərqli ola bilər.`}
                     <div className="flex items-center gap-3">
                       <span className="text-sm text-muted">{cat.range}</span>
                       {isActive && (
-                        <span className="text-xs bg-foreground text-white px-2 py-0.5 rounded-full">Siz</span>
+                        <span className="text-xs bg-foreground text-white px-2 py-0.5 rounded-full">{pt.you}</span>
                       )}
                     </div>
                   </div>
@@ -405,8 +610,8 @@ Buna görə idmançılar və yaşlı insanlarda nəticə fərqli ola bilər.`}
           <div className="bg-white rounded-xl border border-border overflow-hidden">
             <div className="bg-gray-50 px-5 py-3 border-b border-border">
               <h3 className="font-semibold text-foreground flex items-center gap-2">
-                <span>📏</span>
-                {fmt(result.heightCm)} sm boy üçün çəki cədvəli
+                <span>{"\u{1F4CF}"}</span>
+                {fmt(result.heightCm)} {pt.weightTableFor}
               </h3>
             </div>
             <div className="divide-y divide-border">
@@ -423,7 +628,7 @@ Buna görə idmançılar və yaşlı insanlarda nəticə fərqli ola bilər.`}
                       <span className={`text-sm ${cat.color}`}>{cat.label}</span>
                     </div>
                     <span className="text-sm font-medium text-foreground">
-                      {bmiLow > 0 ? `${fmt(wLow)}` : "< " + fmt(wHigh)} {bmiLow > 0 ? `– ${fmt(wHigh)}` : ""} kq
+                      {bmiLow > 0 ? `${fmt(wLow)}` : "< " + fmt(wHigh)} {bmiLow > 0 ? `\u2013 ${fmt(wHigh)}` : ""} {pt.kg}
                     </span>
                   </div>
                 );
@@ -436,18 +641,12 @@ Buna görə idmançılar və yaşlı insanlarda nəticə fərqli ola bilər.`}
             <div className="bg-white rounded-xl border border-border overflow-hidden">
               <div className="bg-gray-50 px-5 py-3 border-b border-border">
                 <h3 className="font-semibold text-foreground flex items-center gap-2">
-                  <span>🔥</span>
-                  Gündəlik kalori ehtiyacı (BMR əsasında)
+                  <span>{"\u{1F525}"}</span>
+                  {pt.dailyCalorieNeeds}
                 </h3>
               </div>
               <div className="divide-y divide-border">
-                {[
-                  { label: "Oturaq həyat tərzi", factor: 1.2, desc: "Az və ya heç hərəkət yox" },
-                  { label: "Yüngül aktivlik", factor: 1.375, desc: "Həftədə 1–3 gün idman" },
-                  { label: "Orta aktivlik", factor: 1.55, desc: "Həftədə 3–5 gün idman" },
-                  { label: "Yüksək aktivlik", factor: 1.725, desc: "Həftədə 6–7 gün idman" },
-                  { label: "Çox yüksək aktivlik", factor: 1.9, desc: "Gündə 2 dəfə idman / ağır fiziki iş" },
-                ].map((level) => (
+                {activityLevels.map((level) => (
                   <div key={level.factor} className="flex items-center justify-between px-5 py-3">
                     <div>
                       <p className="text-sm font-medium text-foreground">{level.label}</p>
@@ -463,16 +662,14 @@ Buna görə idmançılar və yaşlı insanlarda nəticə fərqli ola bilər.`}
           {/* Disclaimer */}
           <div className="bg-blue-50 rounded-xl border border-blue-200 p-4">
             <p className="text-xs text-blue-700 leading-relaxed">
-              <span className="font-semibold">Diqqət:</span> BMI ümumi göstəricidir və əzələ kütləsi, sümük quruluşu,
-              yaş və cins kimi fərdi amilləri nəzərə almır. İdmançılar və hamilə qadınlarda nəticə dəqiq olmaya bilər.
-              Sağlamlıq qərarları üçün həkimə müraciət edin.
+              <span className="font-semibold">{pt.disclaimer}</span> {pt.disclaimerText}
             </p>
           </div>
         </div>
       ) : (
         <div className="text-center py-8 text-muted">
-          <span className="text-4xl block mb-3">⚖️</span>
-          <p>Nəticəni görmək üçün boy və çəkinizi daxil edin.</p>
+          <span className="text-4xl block mb-3">{"\u2696\uFE0F"}</span>
+          <p>{pt.emptyStateText}</p>
         </div>
       )}
     </CalculatorLayout>

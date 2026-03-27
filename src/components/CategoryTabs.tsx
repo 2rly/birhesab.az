@@ -1,6 +1,7 @@
 "use client";
 
 import { categories, type Category } from "@/data/calculators";
+import { useLanguage } from "@/i18n";
 
 interface CategoryTabsProps {
   active: Category;
@@ -8,6 +9,8 @@ interface CategoryTabsProps {
 }
 
 export default function CategoryTabs({ active, onChange }: CategoryTabsProps) {
+  const { t } = useLanguage();
+
   return (
     <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
       {categories.map((cat) => (
@@ -21,7 +24,7 @@ export default function CategoryTabs({ active, onChange }: CategoryTabsProps) {
           }`}
         >
           <span>{cat.icon}</span>
-          <span>{cat.name}</span>
+          <span>{t.categoryNames[cat.id as keyof typeof t.categoryNames] || cat.name}</span>
         </button>
       ))}
     </div>

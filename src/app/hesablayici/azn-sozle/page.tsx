@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import CalculatorLayout from "@/components/CalculatorLayout";
+import { useLanguage } from "@/i18n";
 
 const birler = ["", "bir", "iki", "üç", "dörd", "beş", "altı", "yeddi", "səkkiz", "doqquz"];
 const onluqlar = ["", "on", "iyirmi", "otuz", "qırx", "əlli", "altmış", "yetmiş", "səksən", "doxsan"];
@@ -100,7 +101,73 @@ const examples = [
   { value: 999999.99, label: "999 999,99" },
 ];
 
+const pageTranslations = {
+  az: {
+    title: "AZN sözlə yazılışı",
+    description: "Məbləği daxil edin — Azərbaycan dilində sözlə yazılışını əldə edin.",
+    breadcrumbCategory: "Gündəlik",
+    formulaTitle: "Məbləğin sözlə yazılışı qaydaları",
+    formulaContent: `Azərbaycan dilində məbləğin sözlə yazılışı:
+• Rəqəmlər: bir, iki, üç, dörd, beş, altı, yeddi, səkkiz, doqquz
+• Onluqlar: on, iyirmi, otuz, qırx, əlli, altmış, yetmiş, səksən, doxsan
+• Böyük rəqəmlər: yüz, min, milyon, milyard
+• Valyuta: manat və qəpik
+
+Məsələn: 1 547,32 → Bir min beş yüz qırx yeddi manat otuz iki qəpik`,
+    amountLabel: "Məbləğ (AZN)",
+    maxNote: "Maksimum: 999 999 999,99 AZN",
+    writtenForm: "Sözlə yazılışı",
+    copied: "Kopyalandı!",
+    copy: "Kopyala",
+    examples: "Nümunələr",
+    emptyStateText: "Nəticəni görmək üçün məbləği daxil edin.",
+  },
+  en: {
+    title: "AZN in words",
+    description: "Enter an amount — get its written form in Azerbaijani language.",
+    breadcrumbCategory: "Daily",
+    formulaTitle: "Rules for writing amounts in words",
+    formulaContent: `Writing amounts in words in Azerbaijani:
+• Digits: bir, iki, üç, dörd, beş, altı, yeddi, səkkiz, doqquz
+• Tens: on, iyirmi, otuz, qırx, əlli, altmış, yetmiş, səksən, doxsan
+• Large numbers: yüz, min, milyon, milyard
+• Currency: manat and qəpik
+
+Example: 1 547.32 → Bir min beş yüz qırx yeddi manat otuz iki qəpik`,
+    amountLabel: "Amount (AZN)",
+    maxNote: "Maximum: 999,999,999.99 AZN",
+    writtenForm: "Written form",
+    copied: "Copied!",
+    copy: "Copy",
+    examples: "Examples",
+    emptyStateText: "Enter an amount to see the result.",
+  },
+  ru: {
+    title: "AZN прописью",
+    description: "Введите сумму — получите её написание прописью на азербайджанском языке.",
+    breadcrumbCategory: "Повседневное",
+    formulaTitle: "Правила написания суммы прописью",
+    formulaContent: `Написание суммы прописью на азербайджанском языке:
+• Цифры: bir, iki, üç, dörd, beş, altı, yeddi, səkkiz, doqquz
+• Десятки: on, iyirmi, otuz, qırx, əlli, altmış, yetmiş, səksən, doxsan
+• Большие числа: yüz, min, milyon, milyard
+• Валюта: manat и qəpik
+
+Пример: 1 547,32 → Bir min beş yüz qırx yeddi manat otuz iki qəpik`,
+    amountLabel: "Сумма (AZN)",
+    maxNote: "Максимум: 999 999 999,99 AZN",
+    writtenForm: "Прописью",
+    copied: "Скопировано!",
+    copy: "Копировать",
+    examples: "Примеры",
+    emptyStateText: "Введите сумму, чтобы увидеть результат.",
+  },
+};
+
 export default function AznSozleCalculator() {
+  const { lang } = useLanguage();
+  const pt = pageTranslations[lang];
+
   const [amount, setAmount] = useState("");
   const [copied, setCopied] = useState(false);
 
@@ -123,26 +190,20 @@ export default function AznSozleCalculator() {
 
   return (
     <CalculatorLayout
-      title="AZN sözlə yazılışı"
-      description="Məbləği daxil edin — Azərbaycan dilində sözlə yazılışını əldə edin."
+      title={pt.title}
+      description={pt.description}
       breadcrumbs={[
-        { label: "Gündəlik", href: "/?category=daily" },
-        { label: "AZN sözlə yazılışı" },
+        { label: pt.breadcrumbCategory, href: "/?category=daily" },
+        { label: pt.title },
       ]}
-      formulaTitle="Məbləğin sözlə yazılışı qaydaları"
-      formulaContent={`Azərbaycan dilində məbləğin sözlə yazılışı:
-• Rəqəmlər: bir, iki, üç, dörd, beş, altı, yeddi, səkkiz, doqquz
-• Onluqlar: on, iyirmi, otuz, qırx, əlli, altmış, yetmiş, səksən, doxsan
-• Böyük rəqəmlər: yüz, min, milyon, milyard
-• Valyuta: manat və qəpik
-
-Məsələn: 1 547,32 → Bir min beş yüz qırx yeddi manat otuz iki qəpik`}
+      formulaTitle={pt.formulaTitle}
+      formulaContent={pt.formulaContent}
       relatedIds={["percentage", "discount", "currency", "vat"]}
     >
       {/* Input */}
       <div className="mb-8">
         <label className="block text-sm font-medium text-foreground mb-2">
-          💵 Məbləğ (AZN)
+          💵 {pt.amountLabel}
         </label>
         <input
           type="number"
@@ -154,7 +215,7 @@ Məsələn: 1 547,32 → Bir min beş yüz qırx yeddi manat otuz iki qəpik`}
           step="0.01"
           className="w-full px-4 py-4 rounded-xl border border-border bg-white text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-xl"
         />
-        <p className="text-xs text-muted mt-1">Maksimum: 999 999 999,99 AZN</p>
+        <p className="text-xs text-muted mt-1">{pt.maxNote}</p>
       </div>
 
       {/* Result */}
@@ -162,7 +223,7 @@ Məsələn: 1 547,32 → Bir min beş yüz qırx yeddi manat otuz iki qəpik`}
         <div className="space-y-6">
           {/* Main Result Card */}
           <div className="bg-gradient-to-br from-primary to-primary-dark rounded-2xl p-6 text-white">
-            <p className="text-sm text-blue-200 mb-2">Sözlə yazılışı</p>
+            <p className="text-sm text-blue-200 mb-2">{pt.writtenForm}</p>
             <p className="text-xl sm:text-2xl font-bold leading-relaxed">{result}</p>
           </div>
 
@@ -175,7 +236,7 @@ Məsələn: 1 547,32 → Bir min beş yüz qırx yeddi manat otuz iki qəpik`}
                 : "bg-gray-50 text-foreground border border-border hover:bg-gray-100"
             }`}
           >
-            {copied ? "Kopyalandı!" : "📋 Kopyala"}
+            {copied ? pt.copied : `📋 ${pt.copy}`}
           </button>
 
           {/* Examples */}
@@ -183,7 +244,7 @@ Məsələn: 1 547,32 → Bir min beş yüz qırx yeddi manat otuz iki qəpik`}
             <div className="bg-gray-50 px-5 py-3 border-b border-border">
               <h3 className="font-semibold text-foreground flex items-center gap-2">
                 <span>📝</span>
-                Nümunələr
+                {pt.examples}
               </h3>
             </div>
             <div className="divide-y divide-border">
@@ -203,7 +264,7 @@ Məsələn: 1 547,32 → Bir min beş yüz qırx yeddi manat otuz iki qəpik`}
       ) : (
         <div className="text-center py-8 text-muted">
           <span className="text-4xl block mb-3">🔤</span>
-          <p>Nəticəni görmək üçün məbləği daxil edin.</p>
+          <p>{pt.emptyStateText}</p>
 
           {/* Examples when no input */}
           <div className="mt-6 text-left">
@@ -211,7 +272,7 @@ Məsələn: 1 547,32 → Bir min beş yüz qırx yeddi manat otuz iki qəpik`}
               <div className="bg-gray-50 px-5 py-3 border-b border-border">
                 <h3 className="font-semibold text-foreground flex items-center gap-2">
                   <span>📝</span>
-                  Nümunələr
+                  {pt.examples}
                 </h3>
               </div>
               <div className="divide-y divide-border">

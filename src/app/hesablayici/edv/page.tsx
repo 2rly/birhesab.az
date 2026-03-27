@@ -2,6 +2,8 @@
 
 import { useState, useMemo } from "react";
 import CalculatorLayout from "@/components/CalculatorLayout";
+import { useLanguage } from "@/i18n";
+import type { Lang } from "@/i18n";
 
 type Direction = "add" | "extract";
 type VatRate = 18 | 10 | 5;
@@ -10,17 +12,195 @@ type PaymentType = "cash" | "cashless";
 // Nağdsız ödənişdə ƏDV-nin 15%-i geri qaytarılır (cashback)
 const CASHLESS_CASHBACK_RATE = 0.15;
 
-const vatRates: { value: VatRate; label: string; description: string }[] = [
-  { value: 18, label: "18%", description: "Standart dərəcə (əksər mal və xidmətlər)" },
-  { value: 10, label: "10%", description: "Güzəştli dərəcə (ərzaq, dərman və s.)" },
-  { value: 5, label: "5%", description: "Aşağı dərəcə (kənd təsərrüfatı və s.)" },
-];
+const vatRateTranslations: Record<Lang, { value: VatRate; label: string; description: string }[]> = {
+  az: [
+    { value: 18, label: "18%", description: "Standart dərəcə (əksər mal və xidmətlər)" },
+    { value: 10, label: "10%", description: "Güzəştli dərəcə (ərzaq, dərman və s.)" },
+    { value: 5, label: "5%", description: "Aşağı dərəcə (kənd təsərrüfatı və s.)" },
+  ],
+  en: [
+    { value: 18, label: "18%", description: "Standard rate (most goods and services)" },
+    { value: 10, label: "10%", description: "Reduced rate (food, medicine, etc.)" },
+    { value: 5, label: "5%", description: "Low rate (agriculture, etc.)" },
+  ],
+  ru: [
+    { value: 18, label: "18%", description: "Стандартная ставка (большинство товаров и услуг)" },
+    { value: 10, label: "10%", description: "Льготная ставка (продукты, лекарства и т.д.)" },
+    { value: 5, label: "5%", description: "Низкая ставка (сельское хозяйство и т.д.)" },
+  ],
+};
+
+const pageTranslations = {
+  az: {
+    title: "ƏDV hesablayıcısı",
+    description: "Əlavə Dəyər Vergisini hesablayın — məbləğə əlavə edin və ya məbləğdən ayırın.",
+    breadcrumbCategory: "Maliyyə",
+    formulaTitle: "ƏDV necə hesablanır?",
+    formulaContent: `ƏDV əlavə etmək:
+ƏDV məbləği = Qiymət × (ƏDV dərəcəsi ÷ 100)
+ƏDV-li qiymət = Qiymət + ƏDV məbləği
+
+ƏDV ayırmaq (ƏDV-li qiymətdən):
+ƏDV-siz qiymət = ƏDV-li qiymət ÷ (1 + ƏDV dərəcəsi ÷ 100)
+ƏDV məbləği = ƏDV-li qiymət − ƏDV-siz qiymət
+
+Azərbaycanda ƏDV dərəcələri (Vergi Məcəlləsi, Maddə 175):
+• 18% — standart (əksər mal və xidmətlər)
+• 10% — güzəştli (bəzi ərzaq, dərman, tibb avadanlığı)
+• 5% — aşağı (kənd təsərrüfatı məhsulları və s.)
+• 0% — ixrac əməliyyatları
+
+Nağdsız ödəniş üstünlüyü:
+Nağdsız ödəniş zamanı ƏDV məbləğinin 15%-i alıcıya geri qaytarılır (cashback).
+Məsələn: 1000 AZN məbləğə 18% ƏDV = 180 AZN
+Nağd ödəniş: 1180 AZN
+Nağdsız ödəniş: 1180 − (180 × 15%) = 1180 − 27 = 1153 AZN`,
+    addVat: "ƏDV əlavə et",
+    extractVat: "ƏDV ayır",
+    vatRate: "ƏDV dərəcəsi",
+    paymentMethod: "Ödəniş üsulu",
+    cashPayment: "Nağd ödəniş",
+    cashPaymentDesc: "Standart ƏDV tətbiq olunur",
+    cashlessPayment: "Nağdsız ödəniş",
+    cashlessPaymentDesc: "ƏDV-nin 15%-i geri qaytarılır",
+    amountWithoutVat: "ƏDV-siz məbləğ",
+    amountWithVat: "ƏDV-li məbləğ",
+    priceWithoutVat: "ƏDV-siz qiymət",
+    vatAmount: "ƏDV məbləği",
+    priceWithVat: "ƏDV-li qiymət",
+    cashlessAdvantage: "Nağdsız ödəniş üstünlüyü",
+    vatCashback: "ƏDV cashback (15%)",
+    effectiveVat: "Faktiki ƏDV",
+    effectivePayment: "Faktiki ödəniş",
+    cashPaymentCompare: "Nağd ödəyəndə:",
+    cashlessPaymentCompare: "Nağdsız ödəyəndə:",
+    saving: "qənaət:",
+    withoutVatLabel: "ƏDV-siz",
+    vatLabel: "ƏDV",
+    quickComparison: "Sürətli müqayisə",
+    forAmount: "üçün",
+    withoutVatShort: "ƏDV-siz:",
+    vatShort: "ƏDV:",
+    totalShort: "Cəmi:",
+    emptyStateText: "Nəticəni görmək üçün məbləğ daxil edin.",
+  },
+  en: {
+    title: "VAT Calculator",
+    description: "Calculate Value Added Tax — add to or extract from an amount.",
+    breadcrumbCategory: "Finance",
+    formulaTitle: "How is VAT calculated?",
+    formulaContent: `Adding VAT:
+VAT amount = Price × (VAT rate ÷ 100)
+Price with VAT = Price + VAT amount
+
+Extracting VAT (from VAT-inclusive price):
+Price without VAT = VAT-inclusive price ÷ (1 + VAT rate ÷ 100)
+VAT amount = VAT-inclusive price − Price without VAT
+
+VAT rates in Azerbaijan (Tax Code, Article 175):
+• 18% — standard (most goods and services)
+• 10% — reduced (certain food, medicine, medical equipment)
+• 5% — low (agricultural products, etc.)
+• 0% — export operations
+
+Cashless payment advantage:
+During cashless payment, 15% of the VAT amount is returned to the buyer (cashback).
+Example: 18% VAT on 1000 AZN = 180 AZN
+Cash payment: 1180 AZN
+Cashless payment: 1180 − (180 × 15%) = 1180 − 27 = 1153 AZN`,
+    addVat: "Add VAT",
+    extractVat: "Extract VAT",
+    vatRate: "VAT rate",
+    paymentMethod: "Payment method",
+    cashPayment: "Cash payment",
+    cashPaymentDesc: "Standard VAT applies",
+    cashlessPayment: "Cashless payment",
+    cashlessPaymentDesc: "15% of VAT is refunded",
+    amountWithoutVat: "Amount without VAT",
+    amountWithVat: "Amount with VAT",
+    priceWithoutVat: "Price without VAT",
+    vatAmount: "VAT amount",
+    priceWithVat: "Price with VAT",
+    cashlessAdvantage: "Cashless payment advantage",
+    vatCashback: "VAT cashback (15%)",
+    effectiveVat: "Effective VAT",
+    effectivePayment: "Effective payment",
+    cashPaymentCompare: "Cash payment:",
+    cashlessPaymentCompare: "Cashless payment:",
+    saving: "saving:",
+    withoutVatLabel: "Without VAT",
+    vatLabel: "VAT",
+    quickComparison: "Quick comparison",
+    forAmount: "for",
+    withoutVatShort: "Without VAT:",
+    vatShort: "VAT:",
+    totalShort: "Total:",
+    emptyStateText: "Enter an amount to see the result.",
+  },
+  ru: {
+    title: "Калькулятор НДС",
+    description: "Рассчитайте налог на добавленную стоимость — добавьте к сумме или выделите из суммы.",
+    breadcrumbCategory: "Финансы",
+    formulaTitle: "Как рассчитывается НДС?",
+    formulaContent: `Добавление НДС:
+Сумма НДС = Цена × (Ставка НДС ÷ 100)
+Цена с НДС = Цена + Сумма НДС
+
+Выделение НДС (из цены с НДС):
+Цена без НДС = Цена с НДС ÷ (1 + Ставка НДС ÷ 100)
+Сумма НДС = Цена с НДС − Цена без НДС
+
+Ставки НДС в Азербайджане (Налоговый кодекс, Статья 175):
+• 18% — стандартная (большинство товаров и услуг)
+• 10% — льготная (некоторые продукты, лекарства, медоборудование)
+• 5% — низкая (сельскохозяйственная продукция и т.д.)
+• 0% — экспортные операции
+
+Преимущество безналичной оплаты:
+При безналичной оплате 15% суммы НДС возвращается покупателю (кэшбэк).
+Пример: 18% НДС на 1000 AZN = 180 AZN
+Наличная оплата: 1180 AZN
+Безналичная оплата: 1180 − (180 × 15%) = 1180 − 27 = 1153 AZN`,
+    addVat: "Добавить НДС",
+    extractVat: "Выделить НДС",
+    vatRate: "Ставка НДС",
+    paymentMethod: "Способ оплаты",
+    cashPayment: "Наличная оплата",
+    cashPaymentDesc: "Применяется стандартный НДС",
+    cashlessPayment: "Безналичная оплата",
+    cashlessPaymentDesc: "15% НДС возвращается",
+    amountWithoutVat: "Сумма без НДС",
+    amountWithVat: "Сумма с НДС",
+    priceWithoutVat: "Цена без НДС",
+    vatAmount: "Сумма НДС",
+    priceWithVat: "Цена с НДС",
+    cashlessAdvantage: "Преимущество безналичной оплаты",
+    vatCashback: "Кэшбэк НДС (15%)",
+    effectiveVat: "Фактический НДС",
+    effectivePayment: "Фактический платёж",
+    cashPaymentCompare: "Наличная оплата:",
+    cashlessPaymentCompare: "Безналичная оплата:",
+    saving: "экономия:",
+    withoutVatLabel: "Без НДС",
+    vatLabel: "НДС",
+    quickComparison: "Быстрое сравнение",
+    forAmount: "для",
+    withoutVatShort: "Без НДС:",
+    vatShort: "НДС:",
+    totalShort: "Итого:",
+    emptyStateText: "Введите сумму, чтобы увидеть результат.",
+  },
+};
 
 function fmt(n: number): string {
   return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
 
 export default function VATCalculator() {
+  const { lang } = useLanguage();
+  const pt = pageTranslations[lang];
+  const vatRates = vatRateTranslations[lang];
+
   const [amount, setAmount] = useState("");
   const [direction, setDirection] = useState<Direction>("add");
   const [vatRate, setVatRate] = useState<VatRate>(18);
@@ -53,32 +233,14 @@ export default function VATCalculator() {
 
   return (
     <CalculatorLayout
-      title="ƏDV hesablayıcısı"
-      description="Əlavə Dəyər Vergisini hesablayın — məbləğə əlavə edin və ya məbləğdən ayırın."
+      title={pt.title}
+      description={pt.description}
       breadcrumbs={[
-        { label: "Maliyyə", href: "/?category=finance" },
-        { label: "ƏDV hesablayıcısı" },
+        { label: pt.breadcrumbCategory, href: "/?category=finance" },
+        { label: pt.title },
       ]}
-      formulaTitle="ƏDV necə hesablanır?"
-      formulaContent={`ƏDV əlavə etmək:
-ƏDV məbləği = Qiymət × (ƏDV dərəcəsi ÷ 100)
-ƏDV-li qiymət = Qiymət + ƏDV məbləği
-
-ƏDV ayırmaq (ƏDV-li qiymətdən):
-ƏDV-siz qiymət = ƏDV-li qiymət ÷ (1 + ƏDV dərəcəsi ÷ 100)
-ƏDV məbləği = ƏDV-li qiymət − ƏDV-siz qiymət
-
-Azərbaycanda ƏDV dərəcələri (Vergi Məcəlləsi, Maddə 175):
-• 18% — standart (əksər mal və xidmətlər)
-• 10% — güzəştli (bəzi ərzaq, dərman, tibb avadanlığı)
-• 5% — aşağı (kənd təsərrüfatı məhsulları və s.)
-• 0% — ixrac əməliyyatları
-
-Nağdsız ödəniş üstünlüyü:
-Nağdsız ödəniş zamanı ƏDV məbləğinin 15%-i alıcıya geri qaytarılır (cashback).
-Məsələn: 1000 AZN məbləğə 18% ƏDV = 180 AZN
-Nağd ödəniş: 1180 AZN
-Nağdsız ödəniş: 1180 − (180 × 15%) = 1180 − 27 = 1153 AZN`}
+      formulaTitle={pt.formulaTitle}
+      formulaContent={pt.formulaContent}
       relatedIds={["salary", "currency", "customs-duty", "freelancer-tax"]}
     >
       {/* Direction Toggle */}
@@ -91,7 +253,7 @@ Nağdsız ödəniş: 1180 − (180 × 15%) = 1180 − 27 = 1153 AZN`}
               : "bg-white text-muted hover:bg-gray-50"
           }`}
         >
-          ƏDV əlavə et
+          {pt.addVat}
         </button>
         <button
           onClick={() => setDirection("extract")}
@@ -101,13 +263,13 @@ Nağdsız ödəniş: 1180 − (180 × 15%) = 1180 − 27 = 1153 AZN`}
               : "bg-white text-muted hover:bg-gray-50"
           }`}
         >
-          ƏDV ayır
+          {pt.extractVat}
         </button>
       </div>
 
       {/* VAT Rate Selection */}
       <div className="mb-6">
-        <label className="block text-sm font-medium text-foreground mb-3">ƏDV dərəcəsi</label>
+        <label className="block text-sm font-medium text-foreground mb-3">{pt.vatRate}</label>
         <div className="grid grid-cols-3 gap-3">
           {vatRates.map((r) => (
             <button
@@ -128,7 +290,7 @@ Nağdsız ödəniş: 1180 − (180 × 15%) = 1180 − 27 = 1153 AZN`}
 
       {/* Payment Type */}
       <div className="mb-6">
-        <label className="block text-sm font-medium text-foreground mb-3">Ödəniş üsulu</label>
+        <label className="block text-sm font-medium text-foreground mb-3">{pt.paymentMethod}</label>
         <div className="grid grid-cols-2 gap-3">
           <button
             onClick={() => setPaymentType("cash")}
@@ -139,8 +301,8 @@ Nağdsız ödəniş: 1180 − (180 × 15%) = 1180 − 27 = 1153 AZN`}
             }`}
           >
             <span className="text-2xl block mb-1">💵</span>
-            <p className="text-sm font-medium text-foreground">Nağd ödəniş</p>
-            <p className="text-xs text-muted mt-1">Standart ƏDV tətbiq olunur</p>
+            <p className="text-sm font-medium text-foreground">{pt.cashPayment}</p>
+            <p className="text-xs text-muted mt-1">{pt.cashPaymentDesc}</p>
           </button>
           <button
             onClick={() => setPaymentType("cashless")}
@@ -151,8 +313,8 @@ Nağdsız ödəniş: 1180 − (180 × 15%) = 1180 − 27 = 1153 AZN`}
             }`}
           >
             <span className="text-2xl block mb-1">💳</span>
-            <p className="text-sm font-medium text-foreground">Nağdsız ödəniş</p>
-            <p className="text-xs text-muted mt-1">ƏDV-nin 15%-i geri qaytarılır</p>
+            <p className="text-sm font-medium text-foreground">{pt.cashlessPayment}</p>
+            <p className="text-xs text-muted mt-1">{pt.cashlessPaymentDesc}</p>
           </button>
         </div>
       </div>
@@ -160,7 +322,7 @@ Nağdsız ödəniş: 1180 − (180 × 15%) = 1180 − 27 = 1153 AZN`}
       {/* Input */}
       <div className="mb-8">
         <label className="block text-sm font-medium text-foreground mb-2">
-          💰 {direction === "add" ? "ƏDV-siz məbləğ" : "ƏDV-li məbləğ"} (AZN)
+          💰 {direction === "add" ? pt.amountWithoutVat : pt.amountWithVat} (AZN)
         </label>
         <input
           type="number"
@@ -178,19 +340,19 @@ Nağdsız ödəniş: 1180 − (180 × 15%) = 1180 − 27 = 1153 AZN`}
           {/* Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-gray-50 rounded-2xl border border-border p-6 text-center">
-              <p className="text-sm text-muted mb-1">ƏDV-siz qiymət</p>
+              <p className="text-sm text-muted mb-1">{pt.priceWithoutVat}</p>
               <p className="text-2xl font-bold text-foreground">{fmt(result.priceWithoutVat)}</p>
               <p className="text-xs text-muted mt-1">AZN</p>
             </div>
 
             <div className="bg-amber-50 rounded-2xl border border-amber-200 p-6 text-center">
-              <p className="text-sm text-amber-600 mb-1">ƏDV məbləği ({vatRate}%)</p>
+              <p className="text-sm text-amber-600 mb-1">{pt.vatAmount} ({vatRate}%)</p>
               <p className="text-2xl font-bold text-amber-700">{fmt(result.vatAmount)}</p>
               <p className="text-xs text-amber-600 mt-1">AZN</p>
             </div>
 
             <div className="bg-gradient-to-br from-primary to-primary-dark rounded-2xl p-6 text-center text-white">
-              <p className="text-sm text-blue-200 mb-1">ƏDV-li qiymət</p>
+              <p className="text-sm text-blue-200 mb-1">{pt.priceWithVat}</p>
               <p className="text-2xl font-bold">{fmt(result.totalWithVat)}</p>
               <p className="text-xs text-blue-200 mt-1">AZN</p>
             </div>
@@ -201,24 +363,24 @@ Nağdsız ödəniş: 1180 − (180 × 15%) = 1180 − 27 = 1153 AZN`}
             <div className="bg-green-50 rounded-2xl border border-green-200 p-5">
               <h4 className="font-semibold text-green-800 mb-3 flex items-center gap-2">
                 <span>💳</span>
-                Nağdsız ödəniş üstünlüyü
+                {pt.cashlessAdvantage}
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                 <div>
-                  <p className="text-xs text-green-600 mb-1">ƏDV cashback (15%)</p>
+                  <p className="text-xs text-green-600 mb-1">{pt.vatCashback}</p>
                   <p className="text-xl font-bold text-green-700">{fmt(result.cashback)} AZN</p>
                 </div>
                 <div>
-                  <p className="text-xs text-green-600 mb-1">Faktiki ƏDV</p>
+                  <p className="text-xs text-green-600 mb-1">{pt.effectiveVat}</p>
                   <p className="text-xl font-bold text-green-700">{fmt(result.effectiveVat)} AZN</p>
                 </div>
                 <div>
-                  <p className="text-xs text-green-600 mb-1">Faktiki ödəniş</p>
+                  <p className="text-xs text-green-600 mb-1">{pt.effectivePayment}</p>
                   <p className="text-xl font-bold text-green-700">{fmt(result.effectiveTotal)} AZN</p>
                 </div>
               </div>
               <p className="text-xs text-green-600 mt-3 text-center">
-                Nağd ödəyəndə: {fmt(result.totalWithVat)} AZN → Nağdsız ödəyəndə: {fmt(result.effectiveTotal)} AZN (qənaət: {fmt(result.saving)} AZN)
+                {pt.cashPaymentCompare} {fmt(result.totalWithVat)} AZN → {pt.cashlessPaymentCompare} {fmt(result.effectiveTotal)} AZN ({pt.saving} {fmt(result.saving)} AZN)
               </p>
             </div>
           )}
@@ -226,8 +388,8 @@ Nağdsız ödəniş: 1180 − (180 × 15%) = 1180 − 27 = 1153 AZN`}
           {/* Visual Breakdown */}
           <div className="bg-gray-50 rounded-xl p-5">
             <div className="flex justify-between text-sm mb-2">
-              <span className="text-muted">ƏDV-siz</span>
-              <span className="text-muted">ƏDV</span>
+              <span className="text-muted">{pt.withoutVatLabel}</span>
+              <span className="text-muted">{pt.vatLabel}</span>
             </div>
             <div className="w-full h-4 bg-amber-200 rounded-full overflow-hidden">
               <div
@@ -252,7 +414,7 @@ Nağdsız ödəniş: 1180 − (180 × 15%) = 1180 − 27 = 1153 AZN`}
             <div className="bg-gray-50 px-5 py-3 border-b border-border">
               <h3 className="font-semibold text-foreground flex items-center gap-2">
                 <span>📊</span>
-                Sürətli müqayisə — {fmt(parseFloat(amount))} AZN üçün
+                {pt.quickComparison} — {fmt(parseFloat(amount))} AZN {pt.forAmount}
               </h3>
             </div>
             <div className="divide-y divide-border">
@@ -272,9 +434,9 @@ Nağdsız ödəniş: 1180 − (180 × 15%) = 1180 − 27 = 1153 AZN`}
                   <div key={r.value} className={`flex items-center justify-between px-5 py-3 ${r.value === vatRate ? "bg-primary-light" : ""}`}>
                     <span className="text-sm font-medium text-foreground">{r.label}</span>
                     <div className="flex gap-6 text-sm">
-                      <span className="text-muted">ƏDV-siz: <span className="font-medium text-foreground">{fmt(without)}</span></span>
-                      <span className="text-muted">ƏDV: <span className="font-medium text-amber-700">{fmt(vat)}</span></span>
-                      <span className="text-muted">Cəmi: <span className="font-medium text-primary">{fmt(total)}</span></span>
+                      <span className="text-muted">{pt.withoutVatShort} <span className="font-medium text-foreground">{fmt(without)}</span></span>
+                      <span className="text-muted">{pt.vatShort} <span className="font-medium text-amber-700">{fmt(vat)}</span></span>
+                      <span className="text-muted">{pt.totalShort} <span className="font-medium text-primary">{fmt(total)}</span></span>
                     </div>
                   </div>
                 );
@@ -285,7 +447,7 @@ Nağdsız ödəniş: 1180 − (180 × 15%) = 1180 − 27 = 1153 AZN`}
       ) : (
         <div className="text-center py-8 text-muted">
           <span className="text-4xl block mb-3">🧾</span>
-          <p>Nəticəni görmək üçün məbləğ daxil edin.</p>
+          <p>{pt.emptyStateText}</p>
         </div>
       )}
     </CalculatorLayout>

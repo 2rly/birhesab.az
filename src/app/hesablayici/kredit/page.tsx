@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import CalculatorLayout from "@/components/CalculatorLayout";
+import { useLanguage } from "@/i18n";
 
 interface AmortizationRow {
   month: number;
@@ -59,7 +60,112 @@ function formatMoney(n: number): string {
   return n.toLocaleString("az-AZ", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+const pageTranslations = {
+  az: {
+    title: "Kredit hesablayıcısı",
+    description: "Kredit məbləği, faiz dərəcəsi və müddəti daxil edin — aylıq ödənişi və annuitet cədvəlini görün.",
+    breadcrumbCategory: "Maliyyə",
+    formulaTitle: "Annuitet ödənişi necə hesablanır?",
+    formulaContent: `Aylıq ödəniş = M × (r × (1+r)ⁿ) / ((1+r)ⁿ − 1)
+
+M — kredit məbləği
+r — aylıq faiz dərəcəsi (illik faiz / 12 / 100)
+n — kredit müddəti (ay)
+
+Annuitet sistemində hər ay eyni məbləğ ödənilir.
+İlk aylarda faiz payı çox, əsas borc payı az olur.
+Sonrakı aylarda əksinə — əsas borc payı artır, faiz azalır.`,
+    loanAmount: "Kredit məbləği (AZN)",
+    annualRate: "İllik faiz dərəcəsi (%)",
+    term: "Müddət (ay)",
+    monthlyPayment: "Aylıq ödəniş",
+    perMonth: "AZN / ay",
+    totalPayment: "Ümumi ödəniş",
+    overpayment: "Artıq ödəniş (faiz)",
+    principalDebt: "Əsas borc",
+    interest: "Faiz",
+    amortizationTable: "Annuitet cədvəli",
+    monthCol: "Ay",
+    paymentCol: "Ödəniş",
+    principalCol: "Əsas borc",
+    interestCol: "Faiz",
+    remainingCol: "Qalıq borc",
+    collapse: "Yığ",
+    showAll: "Bütün {count} ayı göstər",
+    emptyStateText: "Nəticəni görmək üçün məbləğ, faiz və müddət daxil edin.",
+  },
+  en: {
+    title: "Loan Calculator",
+    description: "Enter loan amount, interest rate and term — see monthly payment and amortization schedule.",
+    breadcrumbCategory: "Finance",
+    formulaTitle: "How is annuity payment calculated?",
+    formulaContent: `Monthly payment = M × (r × (1+r)ⁿ) / ((1+r)ⁿ − 1)
+
+M — loan amount
+r — monthly interest rate (annual rate / 12 / 100)
+n — loan term (months)
+
+In the annuity system, the same amount is paid every month.
+In the first months, the interest portion is high, the principal is low.
+In later months, the opposite — the principal portion increases, interest decreases.`,
+    loanAmount: "Loan amount (AZN)",
+    annualRate: "Annual interest rate (%)",
+    term: "Term (months)",
+    monthlyPayment: "Monthly payment",
+    perMonth: "AZN / month",
+    totalPayment: "Total payment",
+    overpayment: "Overpayment (interest)",
+    principalDebt: "Principal",
+    interest: "Interest",
+    amortizationTable: "Amortization schedule",
+    monthCol: "Month",
+    paymentCol: "Payment",
+    principalCol: "Principal",
+    interestCol: "Interest",
+    remainingCol: "Remaining balance",
+    collapse: "Collapse",
+    showAll: "Show all {count} months",
+    emptyStateText: "Enter amount, rate and term to see the result.",
+  },
+  ru: {
+    title: "Кредитный калькулятор",
+    description: "Введите сумму кредита, процентную ставку и срок — увидите ежемесячный платёж и график аннуитета.",
+    breadcrumbCategory: "Финансы",
+    formulaTitle: "Как рассчитывается аннуитетный платёж?",
+    formulaContent: `Ежемесячный платёж = M × (r × (1+r)ⁿ) / ((1+r)ⁿ − 1)
+
+M — сумма кредита
+r — ежемесячная процентная ставка (годовая ставка / 12 / 100)
+n — срок кредита (месяцев)
+
+В аннуитетной системе каждый месяц выплачивается одинаковая сумма.
+В первые месяцы доля процентов высока, доля основного долга мала.
+В последующие месяцы наоборот — доля основного долга растёт, проценты уменьшаются.`,
+    loanAmount: "Сумма кредита (AZN)",
+    annualRate: "Годовая процентная ставка (%)",
+    term: "Срок (месяцев)",
+    monthlyPayment: "Ежемесячный платёж",
+    perMonth: "AZN / мес",
+    totalPayment: "Общая выплата",
+    overpayment: "Переплата (проценты)",
+    principalDebt: "Основной долг",
+    interest: "Проценты",
+    amortizationTable: "График аннуитета",
+    monthCol: "Месяц",
+    paymentCol: "Платёж",
+    principalCol: "Основной долг",
+    interestCol: "Проценты",
+    remainingCol: "Остаток долга",
+    collapse: "Свернуть",
+    showAll: "Показать все {count} месяцев",
+    emptyStateText: "Введите сумму, ставку и срок для расчёта.",
+  },
+};
+
 export default function LoanCalculator() {
+  const { lang } = useLanguage();
+  const pt = pageTranslations[lang];
+
   const [amount, setAmount] = useState("");
   const [rate, setRate] = useState("");
   const [months, setMonths] = useState("");
@@ -86,29 +192,21 @@ export default function LoanCalculator() {
 
   return (
     <CalculatorLayout
-      title="Kredit hesablayıcısı"
-      description="Kredit məbləği, faiz dərəcəsi və müddəti daxil edin — aylıq ödənişi və annuitet cədvəlini görün."
+      title={pt.title}
+      description={pt.description}
       breadcrumbs={[
-        { label: "Maliyyə", href: "/?category=finance" },
-        { label: "Kredit hesablayıcısı" },
+        { label: pt.breadcrumbCategory, href: "/?category=finance" },
+        { label: pt.title },
       ]}
-      formulaTitle="Annuitet ödənişi necə hesablanır?"
-      formulaContent={`Aylıq ödəniş = M × (r × (1+r)ⁿ) / ((1+r)ⁿ − 1)
-
-M — kredit məbləği
-r — aylıq faiz dərəcəsi (illik faiz / 12 / 100)
-n — kredit müddəti (ay)
-
-Annuitet sistemində hər ay eyni məbləğ ödənilir.
-İlk aylarda faiz payı çox, əsas borc payı az olur.
-Sonrakı aylarda əksinə — əsas borc payı artır, faiz azalır.`}
+      formulaTitle={pt.formulaTitle}
+      formulaContent={pt.formulaContent}
       relatedIds={["mortgage", "car-loan", "deposit", "salary"]}
     >
       {/* Inputs */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            💰 Kredit məbləği (AZN)
+            💰 {pt.loanAmount}
           </label>
           <input
             type="number"
@@ -122,7 +220,7 @@ Sonrakı aylarda əksinə — əsas borc payı artır, faiz azalır.`}
 
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            📊 İllik faiz dərəcəsi (%)
+            📊 {pt.annualRate}
           </label>
           <input
             type="number"
@@ -137,7 +235,7 @@ Sonrakı aylarda əksinə — əsas borc payı artır, faiz azalır.`}
 
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            📅 Müddət (ay)
+            📅 {pt.term}
           </label>
           <input
             type="number"
@@ -157,19 +255,19 @@ Sonrakı aylarda əksinə — əsas borc payı artır, faiz azalır.`}
           {/* Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-gradient-to-br from-primary to-primary-dark rounded-2xl p-6 text-center text-white">
-              <p className="text-sm text-blue-200 mb-1">Aylıq ödəniş</p>
+              <p className="text-sm text-blue-200 mb-1">{pt.monthlyPayment}</p>
               <p className="text-3xl font-bold">{formatMoney(result.payment)}</p>
-              <p className="text-xs text-blue-200 mt-1">AZN / ay</p>
+              <p className="text-xs text-blue-200 mt-1">{pt.perMonth}</p>
             </div>
 
             <div className="bg-gray-50 rounded-2xl border border-border p-6 text-center">
-              <p className="text-sm text-muted mb-1">Ümumi ödəniş</p>
+              <p className="text-sm text-muted mb-1">{pt.totalPayment}</p>
               <p className="text-2xl font-bold text-foreground">{formatMoney(result.totalPayment)}</p>
               <p className="text-xs text-muted mt-1">AZN</p>
             </div>
 
             <div className="bg-amber-50 rounded-2xl border border-amber-200 p-6 text-center">
-              <p className="text-sm text-amber-600 mb-1">Artıq ödəniş (faiz)</p>
+              <p className="text-sm text-amber-600 mb-1">{pt.overpayment}</p>
               <p className="text-2xl font-bold text-amber-700">{formatMoney(result.totalInterest)}</p>
               <p className="text-xs text-amber-600 mt-1">AZN</p>
             </div>
@@ -178,8 +276,8 @@ Sonrakı aylarda əksinə — əsas borc payı artır, faiz azalır.`}
           {/* Progress Bar */}
           <div className="bg-gray-50 rounded-xl p-5">
             <div className="flex justify-between text-sm mb-2">
-              <span className="text-muted">Əsas borc</span>
-              <span className="text-muted">Faiz</span>
+              <span className="text-muted">{pt.principalDebt}</span>
+              <span className="text-muted">{pt.interest}</span>
             </div>
             <div className="w-full h-4 bg-amber-200 rounded-full overflow-hidden">
               <div
@@ -199,17 +297,17 @@ Sonrakı aylarda əksinə — əsas borc payı artır, faiz azalır.`}
           <div>
             <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <span>📋</span>
-              Annuitet cədvəli
+              {pt.amortizationTable}
             </h3>
             <div className="overflow-x-auto rounded-xl border border-border">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-gray-50 text-left">
-                    <th className="px-4 py-3 font-medium text-muted">Ay</th>
-                    <th className="px-4 py-3 font-medium text-muted text-right">Ödəniş</th>
-                    <th className="px-4 py-3 font-medium text-muted text-right">Əsas borc</th>
-                    <th className="px-4 py-3 font-medium text-muted text-right">Faiz</th>
-                    <th className="px-4 py-3 font-medium text-muted text-right">Qalıq borc</th>
+                    <th className="px-4 py-3 font-medium text-muted">{pt.monthCol}</th>
+                    <th className="px-4 py-3 font-medium text-muted text-right">{pt.paymentCol}</th>
+                    <th className="px-4 py-3 font-medium text-muted text-right">{pt.principalCol}</th>
+                    <th className="px-4 py-3 font-medium text-muted text-right">{pt.interestCol}</th>
+                    <th className="px-4 py-3 font-medium text-muted text-right">{pt.remainingCol}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -236,14 +334,14 @@ Sonrakı aylarda əksinə — əsas borc payı artır, faiz azalır.`}
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
                     </svg>
-                    Yığ
+                    {pt.collapse}
                   </>
                 ) : (
                   <>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
-                    Bütün {result.table.length} ayı göstər
+                    {pt.showAll.replace("{count}", String(result.table.length))}
                   </>
                 )}
               </button>
@@ -253,7 +351,7 @@ Sonrakı aylarda əksinə — əsas borc payı artır, faiz azalır.`}
       ) : (
         <div className="text-center py-8 text-muted">
           <span className="text-4xl block mb-3">🏦</span>
-          <p>Nəticəni görmək üçün məbləğ, faiz və müddət daxil edin.</p>
+          <p>{pt.emptyStateText}</p>
         </div>
       )}
     </CalculatorLayout>

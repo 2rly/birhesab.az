@@ -2,22 +2,151 @@
 
 import { useState, useMemo } from "react";
 import CalculatorLayout from "@/components/CalculatorLayout";
+import { useLanguage } from "@/i18n";
+import type { Lang } from "@/i18n";
 
 const MINIMUM_WAGE = 345; // AZN
 
 type BirthType = "normal" | "complicated" | "twins";
 
-const birthTypes: { value: BirthType; label: string; before: number; after: number; total: number; description: string }[] = [
-  { value: "normal", label: "Normal doğuş", before: 70, after: 56, total: 126, description: "70 gün (doğuşdan əvvəl) + 56 gün (doğuşdan sonra)" },
-  { value: "complicated", label: "Ağırlaşmış doğuş", before: 70, after: 70, total: 140, description: "70 gün (doğuşdan əvvəl) + 70 gün (doğuşdan sonra)" },
-  { value: "twins", label: "Əkiz doğuş", before: 70, after: 110, total: 180, description: "70 gün (doğuşdan əvvəl) + 110 gün (doğuşdan sonra)" },
-];
+const birthTypesTranslations: Record<Lang, { value: BirthType; label: string; before: number; after: number; total: number; description: string }[]> = {
+  az: [
+    { value: "normal", label: "Normal doğuş", before: 70, after: 56, total: 126, description: "70 gün (doğuşdan əvvəl) + 56 gün (doğuşdan sonra)" },
+    { value: "complicated", label: "Ağırlaşmış doğuş", before: 70, after: 70, total: 140, description: "70 gün (doğuşdan əvvəl) + 70 gün (doğuşdan sonra)" },
+    { value: "twins", label: "Əkiz doğuş", before: 70, after: 110, total: 180, description: "70 gün (doğuşdan əvvəl) + 110 gün (doğuşdan sonra)" },
+  ],
+  en: [
+    { value: "normal", label: "Normal delivery", before: 70, after: 56, total: 126, description: "70 days (before birth) + 56 days (after birth)" },
+    { value: "complicated", label: "Complicated delivery", before: 70, after: 70, total: 140, description: "70 days (before birth) + 70 days (after birth)" },
+    { value: "twins", label: "Twin delivery", before: 70, after: 110, total: 180, description: "70 days (before birth) + 110 days (after birth)" },
+  ],
+  ru: [
+    { value: "normal", label: "Нормальные роды", before: 70, after: 56, total: 126, description: "70 дней (до родов) + 56 дней (после родов)" },
+    { value: "complicated", label: "Осложнённые роды", before: 70, after: 70, total: 140, description: "70 дней (до родов) + 70 дней (после родов)" },
+    { value: "twins", label: "Двойня", before: 70, after: 110, total: 180, description: "70 дней (до родов) + 110 дней (после родов)" },
+  ],
+};
+
+const pageTranslations = {
+  az: {
+    title: "Analıq məzuniyyəti hesablayıcısı",
+    description: "Azərbaycanda analıq məzuniyyəti ödənişini hesablayın — doğuş növünə görə günləri və məbləği öyrənin.",
+    breadcrumbCategory: "Hüquq və Dövlət",
+    formulaTitle: "Analıq məzuniyyəti necə hesablanır?",
+    formulaContent: `Azərbaycan Əmək Məcəlləsi, Maddə 125-126:
+
+Məzuniyyət günləri:
+• Normal doğuş: 70 + 56 = 126 təqvim günü
+• Ağırlaşmış doğuş: 70 + 70 = 140 təqvim günü
+• Əkiz doğuş: 70 + 110 = 180 təqvim günü
+
+Ödəniş formulu:
+Orta günlük əmək haqqı = Son 12 ayın əmək haqqı / 365
+Analıq ödənişi = Orta günlük əmək haqqı × Məzuniyyət günləri
+
+Minimum: Minimum əmək haqqına (${MINIMUM_WAGE} AZN) əsasən hesablanır.
+Ödəniş DSMF tərəfindən həyata keçirilir.`,
+    birthType: "Doğuş növü",
+    days: "gün",
+    monthlySalary: "Aylıq əmək haqqı (gross, AZN)",
+    totalPayment: "Ümumi analıq ödənişi",
+    avgDailySalary: "Orta günlük əmək haqqı",
+    perDay: "AZN / gün",
+    minimumWageNote: `Daxil etdiyiniz əmək haqqı minimum əmək haqqından (${MINIMUM_WAGE} AZN) aşağı olduğu üçün minimum dərəcə tətbiq edildi.`,
+    paymentBreakdown: "Ödəniş bölgüləri",
+    annualSalary: "İllik əmək haqqı",
+    avgDailyCalc: "Orta günlük əmək haqqı (illik / 365)",
+    beforeBirth: "Doğuşdan əvvəl",
+    afterBirth: "Doğuşdan sonra",
+    totalPaymentLabel: "Cəmi ödəniş",
+    comparisonTitle: "Doğuş növlərinə görə müqayisə",
+    infoTitle: "Qeyd:",
+    infoText: "Analıq məzuniyyəti ödənişi DSMF (Dövlət Sosial Müdafiə Fondu) tərəfindən həyata keçirilir. İşəgötürən məzuniyyət müddətində iş yerini saxlamalıdır. Məzuniyyətdən sonra qadın uşaq 3 yaşına çatana qədər ödənişsiz məzuniyyət götürə bilər.",
+    emptyStateText: "Nəticəni görmək üçün aylıq əmək haqqını daxil edin.",
+  },
+  en: {
+    title: "Maternity Leave Calculator",
+    description: "Calculate maternity leave payments in Azerbaijan — learn the days and amounts based on delivery type.",
+    breadcrumbCategory: "Legal & Government",
+    formulaTitle: "How is maternity leave calculated?",
+    formulaContent: `Azerbaijan Labor Code, Articles 125-126:
+
+Leave days:
+• Normal delivery: 70 + 56 = 126 calendar days
+• Complicated delivery: 70 + 70 = 140 calendar days
+• Twin delivery: 70 + 110 = 180 calendar days
+
+Payment formula:
+Average daily salary = Last 12 months salary / 365
+Maternity payment = Average daily salary × Leave days
+
+Minimum: Calculated based on minimum wage (${MINIMUM_WAGE} AZN).
+Payment is made by SSPF.`,
+    birthType: "Delivery type",
+    days: "days",
+    monthlySalary: "Monthly salary (gross, AZN)",
+    totalPayment: "Total maternity payment",
+    avgDailySalary: "Average daily salary",
+    perDay: "AZN / day",
+    minimumWageNote: `Your salary is below the minimum wage (${MINIMUM_WAGE} AZN), so the minimum rate was applied.`,
+    paymentBreakdown: "Payment breakdown",
+    annualSalary: "Annual salary",
+    avgDailyCalc: "Average daily salary (annual / 365)",
+    beforeBirth: "Before birth",
+    afterBirth: "After birth",
+    totalPaymentLabel: "Total payment",
+    comparisonTitle: "Comparison by delivery type",
+    infoTitle: "Note:",
+    infoText: "Maternity leave payment is made by the SSPF (State Social Protection Fund). The employer must retain the position during the leave period. After the leave, the mother can take unpaid leave until the child turns 3.",
+    emptyStateText: "Enter a monthly salary to see the result.",
+  },
+  ru: {
+    title: "Калькулятор декретного отпуска",
+    description: "Рассчитайте выплату по декретному отпуску в Азербайджане — узнайте дни и суммы в зависимости от типа родов.",
+    breadcrumbCategory: "Право и государство",
+    formulaTitle: "Как рассчитывается декретный отпуск?",
+    formulaContent: `Трудовой кодекс Азербайджана, статьи 125-126:
+
+Дни отпуска:
+• Нормальные роды: 70 + 56 = 126 календарных дней
+• Осложнённые роды: 70 + 70 = 140 календарных дней
+• Двойня: 70 + 110 = 180 календарных дней
+
+Формула расчёта:
+Среднедневная зарплата = Зарплата за последние 12 месяцев / 365
+Декретная выплата = Среднедневная зарплата × Дни отпуска
+
+Минимум: Рассчитывается на основе минимальной зарплаты (${MINIMUM_WAGE} AZN).
+Выплата осуществляется ГФСЗ.`,
+    birthType: "Тип родов",
+    days: "дней",
+    monthlySalary: "Ежемесячная зарплата (брутто, AZN)",
+    totalPayment: "Общая декретная выплата",
+    avgDailySalary: "Среднедневная зарплата",
+    perDay: "AZN / день",
+    minimumWageNote: `Ваша зарплата ниже минимальной (${MINIMUM_WAGE} AZN), поэтому была применена минимальная ставка.`,
+    paymentBreakdown: "Разбивка выплат",
+    annualSalary: "Годовая зарплата",
+    avgDailyCalc: "Среднедневная зарплата (годовая / 365)",
+    beforeBirth: "До родов",
+    afterBirth: "После родов",
+    totalPaymentLabel: "Итого выплата",
+    comparisonTitle: "Сравнение по типу родов",
+    infoTitle: "Примечание:",
+    infoText: "Декретная выплата осуществляется ГФСЗ (Государственный фонд социальной защиты). Работодатель обязан сохранить рабочее место на время отпуска. После отпуска женщина может взять неоплачиваемый отпуск до достижения ребёнком 3 лет.",
+    emptyStateText: "Введите ежемесячную зарплату, чтобы увидеть результат.",
+  },
+};
 
 function fmt(n: number): string {
   return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
 
 export default function MaternityLeaveCalculator() {
+  const { lang } = useLanguage();
+  const pt = pageTranslations[lang];
+  const birthTypes = birthTypesTranslations[lang];
+
   const [monthlySalary, setMonthlySalary] = useState("");
   const [birthType, setBirthType] = useState<BirthType>("normal");
 
@@ -50,35 +179,23 @@ export default function MaternityLeaveCalculator() {
       totalDays: selected.total,
       isMinimumApplied: avgDailySalary < minDailySalary,
     };
-  }, [monthlySalary, birthType]);
+  }, [monthlySalary, birthType, birthTypes]);
 
   return (
     <CalculatorLayout
-      title="Analiq mezuniyyeti hesablayıcısı"
-      description="Azerbaycanda analiq mezuniyyeti odenisini hesablayin -- dogus novune gore gunleri ve mebleghi oyrenim."
+      title={pt.title}
+      description={pt.description}
       breadcrumbs={[
-        { label: "Huquq ve Dovlet", href: "/?category=legal" },
-        { label: "Analiq mezuniyyeti hesablayıcısı" },
+        { label: pt.breadcrumbCategory, href: "/?category=legal" },
+        { label: pt.title },
       ]}
-      formulaTitle="Analiq mezuniyyeti necedir hesablanir?"
-      formulaContent={`Azerbaycan Emek Mecellesi, Madde 125-126:
-
-Mezuniyyet gunleri:
-- Normal dogus: 70 + 56 = 126 teqvim gunu
-- Agirlasmis dogus: 70 + 70 = 140 teqvim gunu
-- Ekiz dogus: 70 + 110 = 180 teqvim gunu
-
-Odenis formulu:
-Orta gunluk emek haqqi = Son 12 ayin emek haqqi / 365
-Analiq odenisi = Orta gunluk emek haqqi x Mezuniyyet gunleri
-
-Minimum: Minimum emek haqqina (${MINIMUM_WAGE} AZN) esasen hesablanir.
-Odenis DSMF terefinden heyata kecirilir.`}
+      formulaTitle={pt.formulaTitle}
+      formulaContent={pt.formulaContent}
       relatedIds={["salary", "unemployment-benefit", "disability-benefit", "maternity-leave"]}
     >
       {/* Birth Type Selection */}
       <div className="mb-6">
-        <label className="block text-sm font-medium text-foreground mb-3">Dogus novu</label>
+        <label className="block text-sm font-medium text-foreground mb-3">{pt.birthType}</label>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {birthTypes.map((bt) => (
             <button
@@ -91,7 +208,7 @@ Odenis DSMF terefinden heyata kecirilir.`}
               }`}
             >
               <p className="text-sm font-medium text-foreground">{bt.label}</p>
-              <p className="text-xs text-muted mt-1">{bt.total} gun</p>
+              <p className="text-xs text-muted mt-1">{bt.total} {pt.days}</p>
               <p className="text-xs text-muted">{bt.description}</p>
             </button>
           ))}
@@ -101,7 +218,7 @@ Odenis DSMF terefinden heyata kecirilir.`}
       {/* Input */}
       <div className="mb-8">
         <label className="block text-sm font-medium text-foreground mb-2">
-          Ayliq emek haqqi (gross, AZN)
+          {pt.monthlySalary}
         </label>
         <input
           type="number"
@@ -119,14 +236,14 @@ Odenis DSMF terefinden heyata kecirilir.`}
           {/* Main Result */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-gradient-to-br from-primary to-primary-dark rounded-2xl p-6 text-center text-white">
-              <p className="text-sm text-blue-200 mb-1">Umumi analiq odenisi</p>
+              <p className="text-sm text-blue-200 mb-1">{pt.totalPayment}</p>
               <p className="text-3xl font-bold">{fmt(result.totalPayment)}</p>
-              <p className="text-xs text-blue-200 mt-1">AZN / {result.totalDays} gun</p>
+              <p className="text-xs text-blue-200 mt-1">AZN / {result.totalDays} {pt.days}</p>
             </div>
             <div className="bg-amber-50 rounded-2xl border border-amber-200 p-6 text-center">
-              <p className="text-sm text-amber-600 mb-1">Orta gunluk emek haqqi</p>
+              <p className="text-sm text-amber-600 mb-1">{pt.avgDailySalary}</p>
               <p className="text-3xl font-bold text-amber-700">{fmt(result.effectiveDailySalary)}</p>
-              <p className="text-xs text-amber-600 mt-1">AZN / gun</p>
+              <p className="text-xs text-amber-600 mt-1">{pt.perDay}</p>
             </div>
           </div>
 
@@ -134,7 +251,7 @@ Odenis DSMF terefinden heyata kecirilir.`}
           {result.isMinimumApplied && (
             <div className="bg-amber-50 rounded-xl border border-amber-200 p-4">
               <p className="text-sm text-amber-700 flex items-center gap-2">
-                <span>Daxil etdiyiniz emek haqqi minimum emek haqqindan ({MINIMUM_WAGE} AZN) asagi oldugu ucun minimum derece tetbiq edildi.</span>
+                <span>{pt.minimumWageNote}</span>
               </p>
             </div>
           )}
@@ -143,28 +260,28 @@ Odenis DSMF terefinden heyata kecirilir.`}
           <div className="bg-white rounded-xl border border-border overflow-hidden">
             <div className="bg-gray-50 px-5 py-3 border-b border-border">
               <h3 className="font-semibold text-foreground flex items-center gap-2">
-                <span>Odenis bolguleri</span>
+                <span>{pt.paymentBreakdown}</span>
               </h3>
             </div>
             <div className="divide-y divide-border">
               <div className="flex justify-between px-5 py-3">
-                <span className="text-sm text-muted">Illik emek haqqi</span>
+                <span className="text-sm text-muted">{pt.annualSalary}</span>
                 <span className="text-sm font-medium text-foreground">{fmt(result.annualSalary)} AZN</span>
               </div>
               <div className="flex justify-between px-5 py-3">
-                <span className="text-sm text-muted">Orta gunluk emek haqqi (illik / 365)</span>
+                <span className="text-sm text-muted">{pt.avgDailyCalc}</span>
                 <span className="text-sm font-medium text-foreground">{fmt(result.avgDailySalary)} AZN</span>
               </div>
               <div className="flex justify-between px-5 py-3">
-                <span className="text-sm text-muted">Dogusdan evvel ({result.daysBefore} gun)</span>
+                <span className="text-sm text-muted">{pt.beforeBirth} ({result.daysBefore} {pt.days})</span>
                 <span className="text-sm font-medium text-foreground">{fmt(result.beforeBirthPayment)} AZN</span>
               </div>
               <div className="flex justify-between px-5 py-3">
-                <span className="text-sm text-muted">Dogusdan sonra ({result.daysAfter} gun)</span>
+                <span className="text-sm text-muted">{pt.afterBirth} ({result.daysAfter} {pt.days})</span>
                 <span className="text-sm font-medium text-foreground">{fmt(result.afterBirthPayment)} AZN</span>
               </div>
               <div className="flex justify-between px-5 py-3 bg-blue-50">
-                <span className="text-sm font-semibold text-primary">Cemi odenis ({result.totalDays} gun)</span>
+                <span className="text-sm font-semibold text-primary">{pt.totalPaymentLabel} ({result.totalDays} {pt.days})</span>
                 <span className="text-sm font-bold text-primary">{fmt(result.totalPayment)} AZN</span>
               </div>
             </div>
@@ -173,8 +290,8 @@ Odenis DSMF terefinden heyata kecirilir.`}
           {/* Visual Bar */}
           <div className="bg-gray-50 rounded-xl p-5">
             <div className="flex justify-between text-sm mb-2">
-              <span className="text-muted">Dogusdan evvel</span>
-              <span className="text-muted">Dogusdan sonra</span>
+              <span className="text-muted">{pt.beforeBirth}</span>
+              <span className="text-muted">{pt.afterBirth}</span>
             </div>
             <div className="w-full h-4 bg-amber-200 rounded-full overflow-hidden">
               <div
@@ -184,10 +301,10 @@ Odenis DSMF terefinden heyata kecirilir.`}
             </div>
             <div className="flex justify-between text-sm mt-2">
               <span className="font-medium text-foreground">
-                {result.daysBefore} gun ({fmt(result.beforeBirthPayment)} AZN)
+                {result.daysBefore} {pt.days} ({fmt(result.beforeBirthPayment)} AZN)
               </span>
               <span className="font-medium text-amber-700">
-                {result.daysAfter} gun ({fmt(result.afterBirthPayment)} AZN)
+                {result.daysAfter} {pt.days} ({fmt(result.afterBirthPayment)} AZN)
               </span>
             </div>
           </div>
@@ -196,7 +313,7 @@ Odenis DSMF terefinden heyata kecirilir.`}
           <div className="bg-white rounded-xl border border-border overflow-hidden">
             <div className="bg-gray-50 px-5 py-3 border-b border-border">
               <h3 className="font-semibold text-foreground flex items-center gap-2">
-                <span>Dogus novlerine gore muqayise</span>
+                <span>{pt.comparisonTitle}</span>
               </h3>
             </div>
             <div className="divide-y divide-border">
@@ -208,7 +325,7 @@ Odenis DSMF terefinden heyata kecirilir.`}
                   <div key={bt.value} className={`flex items-center justify-between px-5 py-3 ${isActive ? "bg-primary-light" : ""}`}>
                     <div>
                       <p className="text-sm font-medium text-foreground">{bt.label}</p>
-                      <p className="text-xs text-muted">{bt.total} gun</p>
+                      <p className="text-xs text-muted">{bt.total} {pt.days}</p>
                     </div>
                     <span className="text-sm font-bold text-foreground">{fmt(total)} AZN</span>
                   </div>
@@ -220,16 +337,14 @@ Odenis DSMF terefinden heyata kecirilir.`}
           {/* Info Note */}
           <div className="bg-blue-50 rounded-xl border border-blue-200 p-4">
             <p className="text-xs text-blue-700 leading-relaxed">
-              <span className="font-semibold">Qeyd:</span> Analiq mezuniyyeti odenisi DSMF (Dovlet Sosial Mudafie Fondu)
-              terefinden heyata kecirilir. Isecigoturen mezuniyyet muddetinde is yerini saxlamaldir. Mezuniyyetden
-              sonra qadin usaq 3 yasina catana qeder odenissiz mezuniyyet goture biler.
+              <span className="font-semibold">{pt.infoTitle}</span> {pt.infoText}
             </p>
           </div>
         </div>
       ) : (
         <div className="text-center py-8 text-muted">
           <span className="text-4xl block mb-3">👶</span>
-          <p>Neticeni gormek ucun ayliq emek haqqini daxil edin.</p>
+          <p>{pt.emptyStateText}</p>
         </div>
       )}
     </CalculatorLayout>

@@ -124,6 +124,15 @@ export const calculators: Calculator[] = [
     path: "/hesablayici/kiraye-gelir-vergisi",
   },
   {
+    id: "life-insurance",
+    name: "Yaşam sığortası hesablayıcısı",
+    description: "PAŞA Həyat yığım modeli — sığorta ödənişi, vergi bonusu və investisiya gəliri",
+    category: "finance",
+    icon: "🛡️",
+    path: "/hesablayici/yasam-sigortasi",
+    popular: true,
+  },
+  {
     id: "overtime",
     name: "Əlavə iş saatı hesablayıcısı",
     description: "Əlavə iş saatı üçün əmək haqqı hesablaması",
@@ -139,6 +148,15 @@ export const calculators: Calculator[] = [
     icon: "👨‍🏫",
     path: "/hesablayici/muellim-maasi",
     popular: true,
+  },
+
+  {
+    id: "inflation",
+    name: "İnflyasiya korrektoru",
+    description: "Pulunuzun real alıcılıq qüvvəsini hesablayın — rəsmi inflyasiya göstəriciləri əsasında",
+    category: "finance",
+    icon: "📉",
+    path: "/hesablayici/inflyasiya",
   },
 
   // 🎓 Education
@@ -496,6 +514,14 @@ export const calculators: Calculator[] = [
     category: "labor",
     icon: "✈️",
     path: "/hesablayici/ezamiyye",
+  },
+  {
+    id: "military-service",
+    name: "Hərbi xidmət ödənişi hesablayıcısı",
+    description: "Hərbi xidmətə gedən işçiyə ödəniləcək məbləği hesablayın",
+    category: "labor",
+    icon: "🪖",
+    path: "/hesablayici/herbi-xidmet",
   },
 
   // 🍎 Qidalanma

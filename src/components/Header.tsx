@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useLanguage } from "@/i18n";
+import type { Lang } from "@/i18n";
 
-const LANGUAGES = [
+const LANGUAGES: { code: Lang; label: string }[] = [
   { code: "az", label: "AZ" },
   { code: "en", label: "EN" },
   { code: "ru", label: "RU" },
@@ -11,7 +13,7 @@ const LANGUAGES = [
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [currentLang, setCurrentLang] = useState("az");
+  const { lang, setLang, t } = useLanguage();
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-border">
@@ -24,29 +26,29 @@ export default function Header() {
 
           <nav className="hidden md:flex items-center gap-6">
             <Link href="/" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-              Ana səhifə
+              {t.home}
             </Link>
             <Link href="/#calculators" className="text-sm font-medium text-muted hover:text-primary transition-colors">
-              Hesablayıcılar
+              {t.calculators}
             </Link>
             <Link href="/#about" className="text-sm font-medium text-muted hover:text-primary transition-colors">
-              Haqqımızda
+              {t.about}
             </Link>
           </nav>
 
           <div className="flex items-center gap-3">
             <div className="flex items-center rounded-lg border border-border overflow-hidden">
-              {LANGUAGES.map((lang) => (
+              {LANGUAGES.map((l) => (
                 <button
-                  key={lang.code}
-                  onClick={() => setCurrentLang(lang.code)}
+                  key={l.code}
+                  onClick={() => setLang(l.code)}
                   className={`px-2.5 py-1.5 text-xs font-semibold transition-colors ${
-                    currentLang === lang.code
+                    lang === l.code
                       ? "bg-primary text-white"
                       : "bg-white text-muted hover:text-foreground"
                   }`}
                 >
-                  {lang.label}
+                  {l.label}
                 </button>
               ))}
             </div>
@@ -54,7 +56,7 @@ export default function Header() {
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              aria-label="Menyu"
+              aria-label={t.menu}
             >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {menuOpen ? (
@@ -75,21 +77,21 @@ export default function Header() {
                 onClick={() => setMenuOpen(false)}
                 className="px-3 py-2 rounded-lg text-sm font-medium text-foreground hover:bg-primary-light transition-colors"
               >
-                Ana səhifə
+                {t.home}
               </Link>
               <Link
                 href="/#calculators"
                 onClick={() => setMenuOpen(false)}
                 className="px-3 py-2 rounded-lg text-sm font-medium text-muted hover:bg-primary-light transition-colors"
               >
-                Hesablayıcılar
+                {t.calculators}
               </Link>
               <Link
                 href="/#about"
                 onClick={() => setMenuOpen(false)}
                 className="px-3 py-2 rounded-lg text-sm font-medium text-muted hover:bg-primary-light transition-colors"
               >
-                Haqqımızda
+                {t.about}
               </Link>
             </nav>
           </div>

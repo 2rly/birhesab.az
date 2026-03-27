@@ -1,7 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import { categories } from "@/data/calculators";
+import { useLanguage } from "@/i18n";
 
 export default function Footer() {
+  const { t } = useLanguage();
+
   return (
     <footer id="about" className="bg-foreground text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -12,12 +17,12 @@ export default function Footer() {
               <span className="text-sm text-emerald-500">.az</span>
             </h3>
             <p className="text-gray-400 text-sm leading-relaxed">
-              Bütün hesablamalar bir yerdə. Azərbaycanın ən geniş onlayn hesablayıcı platforması.
+              {t.footerDescription}
             </p>
           </div>
 
           <div>
-            <h4 className="font-semibold mb-3 text-gray-300">Kateqoriyalar</h4>
+            <h4 className="font-semibold mb-3 text-gray-300">{t.categories}</h4>
             <ul className="space-y-2">
               {categories
                 .filter((c) => c.id !== "all")
@@ -27,7 +32,7 @@ export default function Footer() {
                       href={`/?category=${cat.id}`}
                       className="text-sm text-gray-400 hover:text-white transition-colors"
                     >
-                      {cat.icon} {cat.name}
+                      {cat.icon} {t.categoryNames[cat.id as keyof typeof t.categoryNames] || cat.name}
                     </Link>
                   </li>
                 ))}
@@ -35,9 +40,9 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-3 text-gray-300">Əlaqə</h4>
+            <h4 className="font-semibold mb-3 text-gray-300">{t.contact}</h4>
             <p className="text-sm text-gray-400">
-              Təklif və iradlarınız üçün bizimlə əlaqə saxlayın.
+              {t.contactMessage}
             </p>
             <p className="text-sm text-gray-400 mt-2">info@birhesab.az</p>
           </div>
@@ -45,7 +50,7 @@ export default function Footer() {
 
         <div className="border-t border-gray-700 mt-8 pt-8 text-center">
           <p className="text-sm text-gray-500">
-            © {new Date().getFullYear()} BirHesab.az — Bütün hüquqlar qorunur.
+            © {new Date().getFullYear()} {t.copyright}
           </p>
         </div>
       </div>
