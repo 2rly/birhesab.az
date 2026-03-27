@@ -12,39 +12,39 @@ function fmt(n: number): string {
 
 const pageTranslations = {
   az: {
-    title: "Bahsis hesablayıcısı",
-    description: "Hesab mebleghine gore bahsis hesablayin ve nefer sayina bolun.",
-    breadcrumbCategory: "Gundelik",
-    formulaTitle: "Bahsis nece hesablanir?",
-    formulaContent: `Bahsis meblegi = Hesab meblegi x (Bahsis % / 100)
-Umumi meblegh = Hesab meblegi + Bahsis meblegi
-Her nefere dusen = Umumi meblegh / Nefer sayi
+    title: "Bahşiş hesablayıcısı",
+    description: "Hesab məbləğinə görə bahşiş hesablayın və nəfər sayına bölün.",
+    breadcrumbCategory: "Gündəlik",
+    formulaTitle: "Bahşiş necə hesablanır?",
+    formulaContent: `Bahşiş məbləği = Hesab məbləği x (Bahşiş % / 100)
+Ümumi məbləğ = Hesab məbləği + Bahşiş məbləği
+Hər nəfərə düşən = Ümumi məbləğ / Nəfər sayı
 
-Azerbaycanda bahsis enenesi:
-- Restoranlar: 5-15% (meblegh hesaba daxil deyilse)
-- Taksi: yuvarlaqlasdirma ve ya 5-10%
-- Otel xidmetleri: 2-5 AZN`,
-    billAmount: "Hesab meblegi (AZN)",
-    tipPercent: "Bahsis faizi",
-    customTipLabel: "Ve ya xususi faiz daxil edin:",
-    customTipPlaceholder: "Xususi %",
-    numPeople: "Nefer sayi",
-    tipAmount: "Bahsis meblegi",
-    totalAmount: "Umumi meblegh",
-    perPerson: "Her nefere",
-    perPersonUnit: "AZN / nefer",
-    breakdownTitle: "Hesab bolguleri",
-    billAmountLabel: "Hesab meblegi",
-    tipLabel: "Bahsis",
-    totalLabel: "Umumi",
-    tipPerPerson: "Her nefere dusen bahsis",
-    totalPerPerson: "Her nefere dusen umumi",
-    comparisonTitle: "Sureli muqayise",
-    compTip: "Bahsis:",
-    compTotal: "Umumi:",
-    compPerson: "Nefer:",
-    emptyStateText: "Neticeni gormek ucun hesab mebleghini daxil edin.",
-    people: "nefer",
+Azərbaycanda bahşiş ənənəsi:
+- Restoranlar: 5-15% (məbləğ hesaba daxil deyilsə)
+- Taksi: yuvarlaqlaşdırma və ya 5-10%
+- Otel xidmətləri: 2-5 AZN`,
+    billAmount: "Hesab məbləği (AZN)",
+    tipPercent: "Bahşiş faizi",
+    customTipLabel: "Və ya xüsusi faiz daxil edin:",
+    customTipPlaceholder: "Xüsusi %",
+    numPeople: "Nəfər sayı",
+    tipAmount: "Bahşiş məbləği",
+    totalAmount: "Ümumi məbləğ",
+    perPerson: "Hər nəfərə",
+    perPersonUnit: "AZN / nəfər",
+    breakdownTitle: "Hesab bölgüləri",
+    billAmountLabel: "Hesab məbləği",
+    tipLabel: "Bahşiş",
+    totalLabel: "Ümumi",
+    tipPerPerson: "Hər nəfərə düşən bahşiş",
+    totalPerPerson: "Hər nəfərə düşən ümumi",
+    comparisonTitle: "Sürətli müqayisə",
+    compTip: "Bahşiş:",
+    compTotal: "Ümumi:",
+    compPerson: "Nəfər:",
+    emptyStateText: "Nəticəni görmək üçün hesab məbləğini daxil edin.",
+    people: "nəfər",
   },
   en: {
     title: "Tip Calculator",

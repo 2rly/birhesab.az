@@ -14,44 +14,44 @@ function fmt(n: number): string {
 const pageTranslations = {
   az: {
     title: "Endirim hesablayıcısı",
-    description: "Endirimli qiymeti hesablayin, endirim faizini tapin ve ya ardicil endirimleri hesablayin.",
-    breadcrumbCategory: "Gundelik",
-    formulaTitle: "Endirim nece hesablanir?",
-    formulaContent: `Endirim hesablamasi:
-Endirim meblegi = Qiymet x (Endirim % / 100)
-Son qiymet = Qiymet - Endirim meblegi
+    description: "Endirimli qiyməti hesablayın, endirim faizini tapın və ya ardıcıl endirimləri hesablayın.",
+    breadcrumbCategory: "Gündəlik",
+    formulaTitle: "Endirim necə hesablanır?",
+    formulaContent: `Endirim hesablaması:
+Endirim məbləği = Qiymət x (Endirim % / 100)
+Son qiymət = Qiymət - Endirim məbləği
 
 Endirim faizi tapmaq:
-Endirim % = ((Ilkin qiymet - Son qiymet) / Ilkin qiymet) x 100
+Endirim % = ((İlkin qiymət - Son qiymət) / İlkin qiymət) x 100
 
-Ardicil endirimler:
-2 endirim ust-uste geldikde, hereketde ferqli esas qiymet istifade olunur.
-Meseleln: 100 AZN, 20% + 10% = 100 x 0.8 x 0.9 = 72 AZN (28% uygun endirim, 30% deyil!)`,
+Ardıcıl endirimlər:
+2 endirim üst-üstə gəldikdə, hərəkətdə fərqli əsas qiymət istifadə olunur.
+Məsələn: 100 AZN, 20% + 10% = 100 x 0.8 x 0.9 = 72 AZN (28% uyğun endirim, 30% deyil!)`,
     modeCalculate: "Endirim hesabla",
     modeFindPercent: "Faiz tap",
-    modeStacking: "Ardicil endirim",
-    originalPrice: "Ilkin qiymet (AZN)",
+    modeStacking: "Ardıcıl endirim",
+    originalPrice: "İlkin qiymət (AZN)",
     discountPercent: "Endirim faizi (%)",
-    salePrice: "Endirimli qiymet (AZN)",
+    salePrice: "Endirimli qiymət (AZN)",
     discount1: "1-ci endirim (%)",
     discount2: "2-ci endirim (%)",
-    discount3: "3-cu endirim (%)",
-    resultOriginalPrice: "Ilkin qiymet",
-    resultSaving: "Qenaet",
-    resultFinalPrice: "Son qiymet",
-    youPay: "Odeyirsiniz",
-    saving: "Qenaet",
+    discount3: "3-cü endirim (%)",
+    resultOriginalPrice: "İlkin qiymət",
+    resultSaving: "Qənaət",
+    resultFinalPrice: "Son qiymət",
+    youPay: "Ödəyirsiniz",
+    saving: "Qənaət",
     discountPercentLabel: "Endirim faizi",
     discountWord: "endirim",
-    savingAmount: "Qenaet meblegi",
-    totalSaving: "Umumi qenaet",
-    stackingStepsTitle: "Ardicil endirim addlmlari",
-    startingPrice: "Baslangic qiymet",
+    savingAmount: "Qənaət məbləği",
+    totalSaving: "Ümumi qənaət",
+    stackingStepsTitle: "Ardıcıl endirim addımları",
+    startingPrice: "Başlanğıc qiymət",
     stackingStep1: "1-ci endirim",
     stackingStep2: "2-ci endirim",
-    stackingStep3: "3-cu endirim",
-    finalPriceEffective: "Son qiymet (effektiv endirim:",
-    emptyStateText: "Neticeni gormek ucun qiymeti daxil edin.",
+    stackingStep3: "3-cü endirim",
+    finalPriceEffective: "Son qiymət (effektiv endirim:",
+    emptyStateText: "Nəticəni görmək üçün qiyməti daxil edin.",
   },
   en: {
     title: "Discount Calculator",
