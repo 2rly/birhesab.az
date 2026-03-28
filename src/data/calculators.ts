@@ -303,6 +303,23 @@ export const calculators: Calculator[] = [
     icon: "🚙",
     path: "/hesablayici/avtomobil-kredit",
   },
+  {
+    id: "traffic-fines",
+    name: "Yol cərimələri axtarışı",
+    description: "Azərbaycan yol hərəkəti cərimələri — maddə, məbləğ və axtarış",
+    category: "automotive",
+    icon: "🚨",
+    path: "/hesablayici/cerime",
+    popular: true,
+  },
+  {
+    id: "vehicle-fees",
+    name: "Nəqliyyat rüsumları hesablayıcısı",
+    description: "Qeydiyyat, texniki baxış, sürücülük vəsiqəsi və nömrə nişanı rüsumları",
+    category: "automotive",
+    icon: "📋",
+    path: "/hesablayici/rusum",
+  },
 
   // ⚖️ Legal & Government
   {
@@ -396,6 +413,34 @@ export const calculators: Calculator[] = [
     category: "health",
     icon: "🏃",
     path: "/hesablayici/ideal-ceki",
+  },
+
+  // 💻 Technology
+  {
+    id: "crypto",
+    name: "Kripto qiymət hesablayıcısı",
+    description: "BTC, ETH, SOL, USDT, BNB — real vaxt qiymətləri ilə AZN/USD çevirmə",
+    category: "finance",
+    icon: "₿",
+    path: "/hesablayici/kripto",
+    popular: true,
+  },
+  {
+    id: "qr-code",
+    name: "QR kod yaradıcı",
+    description: "Mətn və ya link-dən QR kod yaradın — real vaxt generasiya, PNG yükləmə",
+    category: "daily",
+    icon: "📱",
+    path: "/hesablayici/qr-kod",
+    popular: true,
+  },
+  {
+    id: "unit-converter",
+    name: "Vahid ölçü çeviricisi",
+    description: "Uzunluq, çəki, data — km/mil, kq/lb, MB/GB/TB çevirmə",
+    category: "daily",
+    icon: "📐",
+    path: "/hesablayici/vahid-cevirici",
   },
 
   // 📅 Daily

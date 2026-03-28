@@ -5,7 +5,7 @@ import { categories } from "@/data/calculators";
 import { useLanguage } from "@/i18n";
 
 export default function Footer() {
-  const { t } = useLanguage();
+  const { t, localizedPath } = useLanguage();
 
   return (
     <footer id="about" className="bg-foreground text-white">
@@ -29,7 +29,7 @@ export default function Footer() {
                 .map((cat) => (
                   <li key={cat.id}>
                     <Link
-                      href={`/?category=${cat.id}`}
+                      href={localizedPath(`/?category=${cat.id}`)}
                       className="text-sm text-gray-400 hover:text-white transition-colors"
                     >
                       {cat.icon} {t.categoryNames[cat.id as keyof typeof t.categoryNames] || cat.name}

@@ -13,25 +13,25 @@ const LANGUAGES: { code: Lang; label: string }[] = [
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { lang, setLang, t } = useLanguage();
+  const { lang, setLang, t, localizedPath } = useLanguage();
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href={localizedPath("/")} className="flex items-center gap-2">
             <span className="text-2xl font-bold text-emerald-600">Bir<span className="text-foreground">Hesab</span></span>
             <span className="text-xs text-emerald-500 font-semibold">.az</span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="/" className="text-sm font-medium text-foreground hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
+            <Link href={localizedPath("/")} className="text-sm font-medium text-foreground hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
               {t.home}
             </Link>
-            <Link href="/#calculators" className="text-sm font-medium text-muted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
+            <Link href={localizedPath("/#calculators")} className="text-sm font-medium text-muted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
               {t.calculators}
             </Link>
-            <Link href="/#about" className="text-sm font-medium text-muted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
+            <Link href={localizedPath("/#about")} className="text-sm font-medium text-muted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
               {t.about}
             </Link>
           </nav>
@@ -75,21 +75,21 @@ export default function Header() {
           <div className="md:hidden pb-4 border-t border-border">
             <nav className="flex flex-col gap-2 pt-4">
               <Link
-                href="/"
+                href={localizedPath("/")}
                 onClick={() => setMenuOpen(false)}
                 className="px-3 py-2 rounded-lg text-sm font-medium text-foreground hover:bg-primary-light transition-colors"
               >
                 {t.home}
               </Link>
               <Link
-                href="/#calculators"
+                href={localizedPath("/#calculators")}
                 onClick={() => setMenuOpen(false)}
                 className="px-3 py-2 rounded-lg text-sm font-medium text-muted hover:bg-primary-light transition-colors"
               >
                 {t.calculators}
               </Link>
               <Link
-                href="/#about"
+                href={localizedPath("/#about")}
                 onClick={() => setMenuOpen(false)}
                 className="px-3 py-2 rounded-lg text-sm font-medium text-muted hover:bg-primary-light transition-colors"
               >

@@ -6,6 +6,7 @@ import {
   ReactNode,
   useCallback,
 } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { Lang, translations } from "./translations";
 
 type LanguageContextType = {
@@ -20,20 +21,33 @@ const LanguageContext = createContext<LanguageContextType>({
   t: translations.az,
 });
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>(() => {
-    if (typeof window !== "undefined") {
-      return (localStorage.getItem("birhesab-lang") as Lang) || "az";
-    }
-    return "az";
-  });
+const SUPPORTED_LANGS: Lang[] = ["az", "en", "ru"];
 
-  const setLang = useCallback((newLang: Lang) => {
-    setLangState(newLang);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("birhesab-lang", newLang);
-    }
-  }, []);
+export function LanguageProvider({
+  children,
+  initialLang = "az",
+}: {
+  children: ReactNode;
+  initialLang?: Lang;
+}) {
+  const [lang, setLangState] = useState<Lang>(initialLang);
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const setLang = useCallback(
+    (newLang: Lang) => {
+      setLangState(newLang);
+      // Replace lang segment in URL
+      const segments = pathname.split("/");
+      if (segments.length >= 2 && SUPPORTED_LANGS.includes(segments[1] as Lang)) {
+        segments[1] = newLang;
+      } else {
+        segments.splice(1, 0, newLang);
+      }
+      router.push(segments.join("/"));
+    },
+    [pathname, router]
+  );
 
   const t = translations[lang];
 
@@ -45,5 +59,19 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 }
 
 export function useLanguage() {
-  return useContext(LanguageContext);
+  const ctx = useContext(LanguageContext);
+  const localizedPath = useCallback(
+    (path: string) => {
+      // Don't prefix external URLs, anchors, or already prefixed paths
+      if (path.startsWith("http") || path.startsWith("#")) return path;
+      const lang = ctx.lang;
+      // Handle hash in path like /?category=finance or /#calculators
+      if (path.startsWith("/")) {
+        return `/${lang}${path}`;
+      }
+      return `/${lang}/${path}`;
+    },
+    [ctx.lang]
+  );
+  return { ...ctx, localizedPath };
 }

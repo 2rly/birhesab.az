@@ -9,7 +9,7 @@ interface CalculatorCardProps {
 }
 
 export default function CalculatorCard({ calculator }: CalculatorCardProps) {
-  const { t } = useLanguage();
+  const { t, localizedPath } = useLanguage();
   const category = categories.find((c) => c.id === calculator.category);
   const name = t.calculatorNames[calculator.id as keyof typeof t.calculatorNames] || calculator.name;
   const description = t.calculatorDescriptions[calculator.id as keyof typeof t.calculatorDescriptions] || calculator.description;
@@ -17,7 +17,7 @@ export default function CalculatorCard({ calculator }: CalculatorCardProps) {
 
   return (
     <Link
-      href={calculator.path}
+      href={localizedPath(calculator.path)}
       className="group block bg-white rounded-2xl border border-border p-5 hover:shadow-lg hover:border-primary/30 transition-all duration-200"
     >
       <div className="flex items-start justify-between mb-3">

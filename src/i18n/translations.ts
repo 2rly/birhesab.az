@@ -109,6 +109,11 @@ const az = {
     ramadan: "Ramazan İmsakiyyəsi",
     zakat: "Fitrə zəkatı hesablayıcısı",
     "gold-silver": "Qiymətli metallar hesablayıcısı",
+    crypto: "Kripto qiymət hesablayıcısı",
+    "qr-code": "QR kod yaradıcı",
+    "unit-converter": "Vahid ölçü çeviricisi",
+    "traffic-fines": "Yol cərimələri axtarışı",
+    "vehicle-fees": "Nəqliyyat rüsumları hesablayıcısı",
   },
 
   // Calculator descriptions
@@ -197,6 +202,16 @@ const az = {
     zakat: "Ailə üzvü sayına görə fitrə zəkatı məbləği",
     "gold-silver":
       "Qızıl, gümüş, platin, palladium — əyara görə alış-satış qiymətləri",
+    crypto:
+      "BTC, ETH, SOL, USDT, BNB — real vaxt qiymətləri ilə AZN/USD çevirmə",
+    "qr-code":
+      "Mətn və ya link-dən QR kod yaradın — real vaxt generasiya, PNG yükləmə",
+    "unit-converter":
+      "Uzunluq, çəki, data — km/mil, kq/lb, MB/GB/TB çevirmə",
+    "traffic-fines":
+      "Azərbaycan yol hərəkəti cərimələri — maddə, məbləğ və axtarış",
+    "vehicle-fees":
+      "Qeydiyyat, texniki baxış, sürücülük vəsiqəsi və nömrə nişanı rüsumları",
   },
 };
 
@@ -309,6 +324,11 @@ const en: typeof az = {
     ramadan: "Ramadan Timetable",
     zakat: "Fitrah Zakat Calculator",
     "gold-silver": "Precious Metals Calculator",
+    crypto: "Crypto Price Calculator",
+    "qr-code": "QR Code Generator",
+    "unit-converter": "Unit Converter",
+    "traffic-fines": "Traffic Fines Search",
+    "vehicle-fees": "Vehicle Fees Calculator",
   },
 
   // Calculator descriptions
@@ -397,6 +417,16 @@ const en: typeof az = {
     zakat: "Fitrah zakat amount by number of family members",
     "gold-silver":
       "Gold, silver, platinum, palladium — buy/sell prices by purity",
+    crypto:
+      "BTC, ETH, SOL, USDT, BNB — real-time prices in AZN/USD",
+    "qr-code":
+      "Generate QR codes from text or links — real-time generation, PNG download",
+    "unit-converter":
+      "Length, weight, data — km/mile, kg/lb, MB/GB/TB conversion",
+    "traffic-fines":
+      "Azerbaijan traffic fines — article, amount and search",
+    "vehicle-fees":
+      "Registration, inspection, driver's license and license plate fees",
   },
 };
 
@@ -510,6 +540,11 @@ const ru: typeof az = {
     ramadan: "Расписание Рамадана",
     zakat: "Калькулятор фитр-закята",
     "gold-silver": "Калькулятор драгоценных металлов",
+    crypto: "Калькулятор криптовалют",
+    "qr-code": "Генератор QR-кодов",
+    "unit-converter": "Конвертер единиц измерения",
+    "traffic-fines": "Поиск дорожных штрафов",
+    "vehicle-fees": "Калькулятор транспортных сборов",
   },
 
   // Calculator descriptions
@@ -601,6 +636,16 @@ const ru: typeof az = {
     zakat: "Сумма фитр-закята по количеству членов семьи",
     "gold-silver":
       "Золото, серебро, платина, палладий — цены покупки/продажи по пробе",
+    crypto:
+      "BTC, ETH, SOL, USDT, BNB — цены в реальном времени в AZN/USD",
+    "qr-code":
+      "Генерация QR-кодов из текста или ссылок — в реальном времени, скачивание PNG",
+    "unit-converter":
+      "Длина, вес, данные — км/миля, кг/фунт, МБ/ГБ/ТБ конвертация",
+    "traffic-fines":
+      "Штрафы за нарушение ПДД Азербайджана — статья, сумма и поиск",
+    "vehicle-fees":
+      "Регистрация, техосмотр, водительское удостоверение и номерные знаки",
   },
 };
 

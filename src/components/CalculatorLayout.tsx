@@ -29,21 +29,21 @@ export default function CalculatorLayout({
   relatedIds = [],
   children,
 }: CalculatorLayoutProps) {
-  const { t } = useLanguage();
+  const { t, localizedPath } = useLanguage();
   const relatedCalculators = calculators.filter((c) => relatedIds.includes(c.id));
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Breadcrumbs */}
       <nav className="flex items-center gap-2 text-sm text-muted mb-6">
-        <Link href="/" className="hover:text-primary transition-colors">
+        <Link href={localizedPath("/")} className="hover:text-primary transition-colors">
           {t.home}
         </Link>
         {breadcrumbs.map((crumb, i) => (
           <span key={i} className="flex items-center gap-2">
             <span>/</span>
             {crumb.href ? (
-              <Link href={crumb.href} className="hover:text-primary transition-colors">
+              <Link href={localizedPath(crumb.href)} className="hover:text-primary transition-colors">
                 {crumb.label}
               </Link>
             ) : (

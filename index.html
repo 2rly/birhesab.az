@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dövlət Qulluqçularının Maaş Hesablayıcısı — BirHesab.az</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary:#2563eb;--primary-dark:#1d4ed8;--primary-light:#dbeafe;
+  --accent:#f59e0b;
+  --bg:#f0fdf4;--surface:#fff;
+  --foreground:#0f172a;--muted:#64748b;--border:#e2e8f0;
+  --red-600:#dc2626;--red-50:#fef2f2;--red-700:#b91c1c;
+  --green-50:#f0fdf4;--green-600:#16a34a;
+  --blue-50:#eff6ff;--blue-200:#bfdbfe;--blue-700:#1d4ed8;
+  --amber-50:#fffbeb;--amber-700:#b45309;
+  --gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;
+}
+body{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--foreground);
+  min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased;
+}
+
+/* Layout */
+.page{max-width:56rem;margin:0 auto;padding:2rem 1rem}
+@media(min-width:640px){.page{padding:2rem 1.5rem}}
+
+/* Breadcrumbs */
+.breadcrumbs{display:flex;align-items:center;gap:0.5rem;font-size:0.875rem;color:var(--muted);margin-bottom:1.5rem}
+.breadcrumbs a{color:var(--muted);text-decoration:none;transition:color .2s}
+.breadcrumbs a:hover{color:var(--primary)}
+.breadcrumbs .current{color:var(--foreground);font-weight:500}
+
+/* Header */
+.page-header{margin-bottom:2rem}
+.page-header h1{font-size:1.875rem;font-weight:700;color:var(--foreground);margin-bottom:0.5rem}
+.page-header p{color:var(--muted);font-size:0.9375rem}
+
+/* Main card */
+.calc-card{background:var(--surface);border-radius:1rem;border:1px solid var(--border);padding:1.5rem;margin-bottom:2rem}
+@media(min-width:640px){.calc-card{padding:2rem}}
+
+/* Labels */
+.field-label{display:block;font-size:0.875rem;font-weight:500;color:var(--foreground);margin-bottom:0.5rem}
+
+/* Select buttons (radio style like sector selector) */
+.selector-grid{display:grid;grid-template-columns:1fr;gap:0.75rem;margin-bottom:1.5rem}
+@media(min-width:640px){.selector-grid.cols-2{grid-template-columns:1fr 1fr}}
+.selector-btn{
+  padding:0.75rem;border-radius:0.75rem;border:1px solid var(--border);
+  background:var(--surface);text-align:left;cursor:pointer;transition:all .15s;
+  display:block;width:100%;
+}
+.selector-btn:hover{border-color:rgba(37,99,235,0.3)}
+.selector-btn.active{border-color:var(--primary);background:var(--primary-light);box-shadow:0 0 0 2px var(--primary)}
+.selector-btn .btn-title{font-size:0.875rem;font-weight:500;color:var(--foreground)}
+.selector-btn .btn-sub{font-size:0.6875rem;color:var(--muted);margin-top:0.125rem}
+
+/* Dropdown */
+select{
+  width:100%;padding:0.75rem 1rem;border-radius:0.75rem;border:1px solid var(--border);
+  background:var(--surface);color:var(--foreground);font-size:0.875rem;font-family:inherit;
+  appearance:none;cursor:pointer;transition:all .15s;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 0.875rem center;
+}
+select:focus{outline:none;border-color:transparent;box-shadow:0 0 0 2px var(--primary)}
+select:disabled{opacity:0.45;cursor:not-allowed;background-color:var(--gray-50)}
+
+/* Step buttons row */
+.step-row{display:flex;gap:0.375rem;flex-wrap:wrap}
+.step-btn{
+  flex:1;min-width:3rem;padding:0.625rem 0.25rem;border-radius:0.75rem;border:1px solid var(--border);
+  background:var(--surface);color:var(--foreground);font-size:0.875rem;font-weight:600;
+  cursor:pointer;transition:all .15s;text-align:center;font-family:inherit;
+}
+.step-btn:hover:not(:disabled){border-color:rgba(37,99,235,0.3);background:var(--blue-50)}
+.step-btn.active{border-color:var(--primary);background:var(--primary-light);box-shadow:0 0 0 2px var(--primary);color:var(--primary-dark)}
+.step-btn:disabled{opacity:0.35;cursor:not-allowed}
+
+/* Step hint */
+.step-hint{font-size:0.6875rem;color:var(--muted);margin-top:0.5rem}
+
+/* Tooltip */
+.tooltip-wrap{position:relative;display:inline-flex;align-items:center}
+.tooltip-icon{
+  width:1rem;height:1rem;border-radius:50%;border:1px solid var(--border);
+  display:inline-flex;align-items:center;justify-content:center;font-size:0.625rem;
+  color:var(--muted);cursor:help;margin-left:0.375rem;font-style:normal;
+}
+.tooltip-content{
+  display:none;position:absolute;bottom:calc(100% + 0.5rem);left:50%;transform:translateX(-50%);
+  background:var(--foreground);color:#fff;border-radius:0.5rem;padding:0.625rem 0.75rem;
+  font-size:0.6875rem;width:13.5rem;line-height:1.5;z-index:10;
+  box-shadow:0 4px 12px rgba(0,0,0,0.15);
+}
+.tooltip-content::after{
+  content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:var(--foreground);
+}
+.tooltip-wrap:hover .tooltip-content{display:block}
+
+/* Section divider */
+.section{margin-bottom:1.5rem}
+.section:last-child{margin-bottom:0}
+
+/* ═══ RESULT AREA ═══ */
+.result-area{margin-top:1.5rem;display:none}
+.result-area.visible{display:block;animation:fadeUp .35s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* Big cards */
+.result-cards{display:grid;grid-template-columns:1fr;gap:1rem;margin-bottom:1.5rem}
+@media(min-width:640px){.result-cards{grid-template-columns:1fr 1fr}}
+.result-net-card{
+  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+  border-radius:1rem;padding:1.5rem;text-align:center;color:#fff;
+}
+.result-net-card .label{font-size:0.875rem;color:#93c5fd;margin-bottom:0.25rem}
+.result-net-card .value{font-size:1.875rem;font-weight:700}
+.result-net-card .unit{font-size:0.75rem;color:#93c5fd;margin-top:0.25rem}
+
+.result-gross-card{
+  background:var(--gray-50);border-radius:1rem;border:1px solid var(--border);
+  padding:1.5rem;text-align:center;
+}
+.result-gross-card .label{font-size:0.875rem;color:var(--muted);margin-bottom:0.25rem}
+.result-gross-card .value{font-size:1.875rem;font-weight:700;color:var(--foreground)}
+.result-gross-card .unit{font-size:0.75rem;color:var(--muted);margin-top:0.25rem}
+
+/* Badge */
+.sector-badge{
+  display:inline-flex;align-items:center;padding:0.375rem 0.75rem;
+  border-radius:9999px;font-size:0.75rem;font-weight:500;
+  background:var(--blue-50);color:var(--blue-700);border:1px solid var(--blue-200);
+  margin-bottom:1.5rem;
+}
+
+/* Receipt-style breakdown */
+.receipt{background:var(--surface);border-radius:0.75rem;border:1px solid var(--border);overflow:hidden;margin-bottom:1.5rem}
+.receipt-header{
+  background:var(--gray-50);padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);
+  font-weight:600;font-size:0.875rem;color:var(--foreground);display:flex;align-items:center;gap:0.5rem;
+}
+.receipt-row{padding:0.75rem 1.25rem;border-bottom:1px solid var(--border)}
+.receipt-row:last-child{border-bottom:none}
+.receipt-row .row-top{display:flex;justify-content:space-between;margin-bottom:0.25rem}
+.receipt-row .row-label{font-size:0.875rem;font-weight:500;color:var(--foreground)}
+.receipt-row .row-value{font-size:0.875rem;font-weight:700;color:var(--foreground)}
+.receipt-row .row-sub{font-size:0.6875rem;color:var(--muted);margin-bottom:0.375rem}
+.receipt-row .row-detail{
+  background:var(--gray-50);border-radius:0.5rem;padding:0.625rem;
+  font-size:0.75rem;color:var(--muted);
+}
+.receipt-row .row-detail .val{font-weight:500;color:var(--foreground)}
+.receipt-total{
+  display:flex;justify-content:space-between;padding:0.75rem 1.25rem;
+  background:var(--red-50);
+}
+.receipt-total .t-label{font-size:0.875rem;font-weight:600;color:var(--red-700)}
+.receipt-total .t-value{font-size:0.875rem;font-weight:700;color:var(--red-700)}
+
+/* Annual */
+.annual-box{
+  background:var(--blue-50);border-radius:0.75rem;border:1px solid var(--blue-200);
+  padding:1.25rem;margin-bottom:1.5rem;
+}
+.annual-box h4{font-weight:600;color:var(--foreground);margin-bottom:0.75rem;font-size:0.875rem;display:flex;align-items:center;gap:0.5rem}
+.annual-grid{display:grid;grid-template-columns:1fr;gap:1rem;text-align:center}
+@media(min-width:640px){.annual-grid{grid-template-columns:1fr 1fr 1fr}}
+.annual-grid .a-label{font-size:0.75rem;color:var(--muted);margin-bottom:0.25rem}
+.annual-grid .a-value{font-size:1.125rem;font-weight:700}
+.annual-grid .a-value.blue{color:var(--primary)}
+.annual-grid .a-value.dark{color:var(--foreground)}
+.annual-grid .a-value.red{color:var(--red-600)}
+
+/* Meta panel */
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem}
+@media(max-width:480px){.meta-grid{grid-template-columns:1fr}}
+.meta-item{background:var(--gray-50);border-radius:0.5rem;padding:0.625rem 0.75rem;border:1px solid var(--border)}
+.meta-item .m-label{font-size:0.625rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
+.meta-item .m-value{font-size:0.8125rem;font-weight:600;color:var(--foreground);margin-top:0.125rem}
+
+/* Empty state */
+.empty-state{text-align:center;padding:2rem 0;color:var(--muted)}
+.empty-state .icon{font-size:2.5rem;margin-bottom:0.75rem}
+
+/* Formula section */
+.formula-box{
+  background:var(--blue-50);border-radius:1rem;border:1px solid var(--blue-200);
+  padding:1.5rem;margin-bottom:2rem;
+}
+.formula-box h3{font-weight:600;color:var(--foreground);margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem}
+.formula-box pre{
+  font-size:0.8125rem;color:var(--muted);line-height:1.6;white-space:pre-wrap;
+  font-family:inherit;
+}
+
+/* Footer note */
+.footer-note{
+  text-align:center;font-size:0.75rem;color:var(--muted);padding:1rem 0;line-height:1.7;
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <!-- Breadcrumbs -->
+  <nav class="breadcrumbs">
+    <a href="/">Ana səhifə</a>
+    <span>/</span>
+    <a href="/?category=finance">Maliyyə</a>
+    <span>/</span>
+    <span class="current">Dövlət qulluqçusu maaş hesablayıcısı</span>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1>Dövlət qulluqçularının maaş hesablayıcısı</h1>
+    <p>Qurum, vəzifə və pilləyə uyğun aylıq vəzifə maaşını (gross və net) hesablayın.</p>
+  </div>
+
+  <!-- Calculator Card -->
+  <div class="calc-card">
+    <!-- Step 1: Job Type -->
+    <div class="section">
+      <label class="field-label">Vəzifə növü</label>
+      <div class="selector-grid cols-2">
+        <button class="selector-btn" onclick="selectJobType('admin',this)">
+          <div class="btn-title">İnzibati vəzifə</div>
+          <div class="btn-sub">35 ödəniş səviyyəsi (aparatın rəhbəri, şöbə müdiri, məsləhətçi...)</div>
+        </button>
+        <button class="selector-btn" onclick="selectJobType('support',this)">
+          <div class="btn-title">Yardımçı vəzifə</div>
+          <div class="btn-sub">17 ödəniş səviyyəsi (mütəxəssis, inspektor, kargüzar...)</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Organization -->
+    <div class="section">
+      <label class="field-label" for="orgSelect">Qurum</label>
+      <select id="orgSelect" disabled onchange="onOrgChange(this.value)">
+        <option value="">Əvvəlcə vəzifə növünü seçin</option>
+      </select>
+    </div>
+
+    <!-- Step 3: Position -->
+    <div class="section">
+      <label class="field-label" for="posSelect">Vəzifə</label>
+      <select id="posSelect" disabled onchange="onPosChange(this.value)">
+        <option value="">Əvvəlcə qurumu seçin</option>
+      </select>
+    </div>
+
+    <!-- Step 4: Step -->
+    <div class="section">
+      <label class="field-label">
+        Ödəniş pilləsi
+        <span class="tooltip-wrap">
+          <i class="tooltip-icon">?</i>
+          <span class="tooltip-content">
+            Pillə vəzifədəki staja görə müəyyən edilir:<br>
+            <b>I</b> — 1 ilədək &nbsp; <b>II</b> — 1–5 il<br>
+            <b>III</b> — 5–10 il &nbsp; <b>IV</b> — 10–15 il<br>
+            <b>V</b> — 15–20 il &nbsp; <b>VI</b> — 20–25 il<br>
+            <b>VII</b> — 25+ il
+          </span>
+        </span>
+      </label>
+      <div class="step-row" id="stepGroup">
+        <button class="step-btn" disabled onclick="onStepClick(0)">I</button>
+        <button class="step-btn" disabled onclick="onStepClick(1)">II</button>
+        <button class="step-btn" disabled onclick="onStepClick(2)">III</button>
+        <button class="step-btn" disabled onclick="onStepClick(3)">IV</button>
+        <button class="step-btn" disabled onclick="onStepClick(4)">V</button>
+        <button class="step-btn" disabled onclick="onStepClick(5)">VI</button>
+        <button class="step-btn" disabled onclick="onStepClick(6)">VII</button>
+      </div>
+      <div class="step-hint">Pillə vəzifədəki staja görə müəyyən edilir (I: 1 ilədək, II: 1–5 il ... VII: 25+ il)</div>
+    </div>
+
+    <!-- Result Area -->
+    <div class="result-area" id="resultArea">
+      <!-- Big cards -->
+      <div class="result-cards">
+        <div class="result-net-card">
+          <div class="label">Net əmək haqqı (əlinizə çatan)</div>
+          <div class="value" id="netValue">—</div>
+          <div class="unit">AZN / ay</div>
+        </div>
+        <div class="result-gross-card">
+          <div class="label">Gross əmək haqqı</div>
+          <div class="value" id="grossValue">—</div>
+          <div class="unit">AZN / ay</div>
+        </div>
+      </div>
+
+      <!-- Sector badge -->
+      <div class="sector-badge">Dövlət sektoru</div>
+
+      <!-- Deduction receipt -->
+      <div class="receipt">
+        <div class="receipt-header"><span>&#128100;</span> İşçidən tutulan</div>
+        <div id="receiptBody"></div>
+        <div class="receipt-total">
+          <span class="t-label">Cəmi tutulma</span>
+          <span class="t-value" id="totalDed">—</span>
+        </div>
+      </div>
+
+      <!-- Annual -->
+      <div class="annual-box">
+        <h4><span>&#128197;</span> İllik hesablama</h4>
+        <div class="annual-grid">
+          <div>
+            <div class="a-label">İllik net gəlir</div>
+            <div class="a-value blue" id="annualNet">—</div>
+          </div>
+          <div>
+            <div class="a-label">İllik gross</div>
+            <div class="a-value dark" id="annualGross">—</div>
+          </div>
+          <div>
+            <div class="a-label">İllik tutulma</div>
+            <div class="a-value red" id="annualDed">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Meta -->
+      <div class="meta-grid" id="metaGrid"></div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty-state" id="emptyState">
+      <div class="icon">&#127970;</div>
+      <p>Nəticəni görmək üçün qurum, vəzifə və pilləni seçin.</p>
+    </div>
+  </div>
+
+  <!-- Formula -->
+  <div class="formula-box">
+    <h3><span>&#128208;</span> Dövlət qulluqçusunun maaşı necə hesablanır?</h3>
+    <pre>Prezidentin 19 mart 2026-cı il tarixli Fərmanına əsasən:
+
+1. Vəzifə maaşı cədvəldən müəyyən edilir (səviyyə × pillə)
+2. Aylıq vəzifə maaşları tam ədədə (sonuncu rəqəmi 0 və ya 5) yuvarlaqlaşdırılır
+
+Dövlət sektoru üzrə tutulmalar (işçidən):
+&#8226; Gəlir vergisi:
+  0–200&#8378;: 0%
+  200–2500&#8378;: (maaş &#8722; 200) &#215; 14%
+  2500&#8378;+: 322 + (maaş &#8722; 2500) &#215; 25%
+&#8226; DSMF: 3%
+&#8226; İşsizlik sığortası: 0,5%
+&#8226; İcbari tibbi sığorta: 8000&#8378;-dək 2%, üstü 0,5%
+
+Net maaş = Gross &#8722; Gəlir vergisi &#8722; DSMF &#8722; İşsizlik &#8722; Tibbi sığorta</pre>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-note">
+    Azərbaycan Respublikası Prezidentinin 19 mart 2026-cı il tarixli Fərmanına əsasən.<br>
+    Qeyd: Aylıq vəzifə maaşları tam ədədə (sonuncu rəqəmi 0 və ya 5) yuvarlaqlaşdırılır.
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════
+
+const adminGrid = {
+  1:[13680,14020,14365,14705,15050,15390,15730],
+  2:[12725,13045,13360,13680,14000,14315,14635],
+  3:[11835,12135,12430,12725,13020,13315,13615],
+  4:[11010,11285,11560,11835,12115,12390,12665],
+  5:[10245,10500,10755,11010,11265,11525,11780],
+  6:[9530,9765,10005,10245,10480,10720,10960],
+  7:[8865,9085,9305,9530,9750,9970,10195],
+  8:[8245,8450,8660,8865,9070,9275,9485],
+  9:[7670,7860,8055,8245,8435,8630,8820],
+  10:[7135,7315,7490,7670,7850,8025,8205],
+  11:[6635,6805,6970,7135,7300,7465,7635],
+  12:[6175,6330,6485,6635,6790,6945,7100],
+  13:[5745,5885,6030,6175,6320,6460,6605],
+  14:[5340,5475,5610,5745,5875,6010,6145],
+  15:[4970,5095,5220,5340,5465,5590,5715],
+  16:[4625,4740,4855,4970,5085,5200,5315],
+  17:[4300,4410,4515,4625,4730,4840,4945],
+  18:[4000,4100,4200,4300,4400,4500,4600],
+  19:[3720,3815,3910,4000,4095,4185,4280],
+  20:[3460,3550,3635,3720,3810,3895,3980],
+  21:[3220,3300,3380,3460,3545,3620,3705],
+  22:[2995,3070,3145,3220,3295,3370,3445],
+  23:[2785,2855,2925,2995,3065,3135,3205],
+  24:[2590,2655,2720,2785,2850,2915,2980],
+  25:[2410,2470,2530,2595,2650,2715,2775],
+  26:[2245,2300,2355,2410,2470,2525,2580],
+  27:[2085,2140,2190,2245,2295,2350,2400],
+  28:[1940,1990,2040,2085,2135,2185,2230],
+  29:[1805,1850,1895,1940,1985,2030,2075],
+  30:[1680,1720,1765,1805,1845,1890,1930],
+  31:[1560,1600,1640,1680,1720,1755,1795],
+  32:[1455,1490,1525,1560,1600,1635,1670],
+  33:[1355,1385,1420,1455,1485,1520,1555],
+  34:[1260,1290,1320,1355,1385,1415,1445],
+  35:[1170,1200,1230,1260,1285,1315,1345]
+};
+
+const supportGrid = {
+  1:[1165,1195,1220,1250,1280,1310,1340],
+  2:[1135,1160,1190,1220,1245,1275,1305],
+  3:[1105,1130,1160,1185,1215,1240,1270],
+  4:[1075,1100,1130,1155,1180,1210,1235],
+  5:[1045,1070,1100,1125,1150,1175,1205],
+  6:[1020,1045,1070,1095,1120,1145,1170],
+  7:[990,1015,1040,1065,1090,1115,1140],
+  8:[965,990,1015,1040,1065,1085,1110],
+  9:[940,965,985,1010,1035,1060,1080],
+  10:[915,940,960,985,1010,1030,1055],
+  11:[890,915,935,960,980,1005,1025],
+  12:[870,890,910,935,955,975,1000],
+  13:[845,865,890,910,930,950,970],
+  14:[825,845,865,885,905,925,945],
+  15:[800,820,840,860,880,900,920],
+  16:[780,800,820,840,860,880,900],
+  17:[760,780,800,815,835,855,875]
+};
+
+const adminOrgs = {
+  "Prezident Administrasiyası": [
+    {name:"Aparatın rəhbəri",level:6},
+    {name:"Aparatın rəhbərinin müavini",level:7},
+    {name:"Şöbə müdiri",level:8},
+    {name:"Şöbə müdirinin müavini",level:11},
+    {name:"Sektor müdiri, baş mühasib",level:15},
+    {name:"Baş məsləhətçi",level:16},
+    {name:"Böyük məsləhətçi",level:17},
+    {name:"Aparıcı məsləhətçi",level:18},
+    {name:"Məsləhətçi",level:19}
+  ],
+  "Nazirlər Kabineti": [
+    {name:"Aparatın rəhbəri",level:4},
+    {name:"Aparatın rəhbərinin müavini",level:5},
+    {name:"Şöbə müdiri",level:6},
+    {name:"Şöbə müdirinin müavini",level:7},
+    {name:"Sektor müdiri",level:9},
+    {name:"Baş məsləhətçi",level:10},
+    {name:"Böyük məsləhətçi",level:11},
+    {name:"Aparıcı məsləhətçi",level:12},
+    {name:"Məsləhətçi",level:13}
+  ],
+  "Nazirlik aparatı": [
+    {name:"Aparatın rəhbəri",level:6},
+    {name:"Aparatın rəhbərinin müavini",level:7},
+    {name:"Şöbə müdiri",level:8},
+    {name:"Şöbə müdirinin müavini",level:11},
+    {name:"Sektor müdiri, baş mühasib",level:15},
+    {name:"Baş məsləhətçi",level:16},
+    {name:"Böyük məsləhətçi",level:17},
+    {name:"Aparıcı məsləhətçi",level:18},
+    {name:"Məsləhətçi",level:19},
+    {name:"Rəhbərin müşaviri, köməkçisi",level:10}
+  ],
+  "Milli Məclis aparatı": [
+    {name:"Aparatın rəhbəri",level:4},
+    {name:"Aparatın rəhbərinin müavini",level:5},
+    {name:"Şöbə müdiri",level:6},
+    {name:"Şöbə müdirinin müavini",level:7},
+    {name:"Sektor müdiri",level:9},
+    {name:"Baş məsləhətçi",level:10},
+    {name:"Böyük məsləhətçi",level:11},
+    {name:"Aparıcı məsləhətçi",level:12},
+    {name:"Məsləhətçi",level:13}
+  ],
+  "Bakı Şəhər İcra Hakimiyyəti": [
+    {name:"Başçının birinci müavini",level:6},
+    {name:"Başçının müavini",level:7},
+    {name:"Aparatın rəhbəri",level:11},
+    {name:"Şöbə müdiri",level:14},
+    {name:"Şöbə müdirinin müavini",level:17},
+    {name:"Sektor müdiri, baş mühasib",level:20},
+    {name:"Baş məsləhətçi",level:21},
+    {name:"Böyük məsləhətçi",level:22},
+    {name:"Aparıcı məsləhətçi",level:23},
+    {name:"Məsləhətçi",level:24}
+  ],
+  "Yerli icra hakimiyyəti": [
+    {name:"Başçının birinci müavini",level:16},
+    {name:"Başçının müavini",level:17},
+    {name:"Şöbə müdiri",level:27},
+    {name:"Şöbə müdirinin müavini",level:29},
+    {name:"Sektor müdiri, baş mühasib",level:30},
+    {name:"Baş məsləhətçi",level:31},
+    {name:"Böyük məsləhətçi",level:32},
+    {name:"Aparıcı məsləhətçi",level:33},
+    {name:"Məsləhətçi",level:34}
+  ],
+  "Apellyasiya məhkəməsi aparatı": [
+    {name:"Aparatın rəhbəri",level:7},
+    {name:"Aparatın rəhbərinin müavini",level:9},
+    {name:"Şöbə müdiri",level:11},
+    {name:"Şöbə müdirinin müavini",level:15},
+    {name:"Sektor müdiri, baş mühasib",level:19},
+    {name:"Baş məsləhətçi",level:20},
+    {name:"Böyük məsləhətçi",level:21},
+    {name:"Aparıcı məsləhətçi",level:22},
+    {name:"Məsləhətçi, hakimin köməkçisi",level:23}
+  ],
+  "Rayon/şəhər məhkəməsi aparatı": [
+    {name:"Sektor müdiri, baş mühasib",level:30},
+    {name:"Baş məsləhətçi",level:31},
+    {name:"Böyük məsləhətçi",level:32},
+    {name:"Aparıcı məsləhətçi",level:33},
+    {name:"Məsləhətçi, məhkəmə iclasının katibi",level:34}
+  ],
+  "Dövlət agentliyi / xidməti": [
+    {name:"Rəhbər",level:7},
+    {name:"Rəhbərin müavini",level:9},
+    {name:"Şöbə müdiri",level:16},
+    {name:"Şöbə müdirinin müavini",level:19},
+    {name:"Sektor müdiri, baş mühasib",level:21},
+    {name:"Baş məsləhətçi",level:22},
+    {name:"Böyük məsləhətçi",level:23},
+    {name:"Aparıcı məsləhətçi",level:24},
+    {name:"Məsləhətçi",level:25}
+  ]
+};
+
+const supportOrgs = {
+  "Prezident Administrasiyası": [
+    {name:"Baş mütəxəssis",level:1},
+    {name:"Böyük mütəxəssis",level:2},
+    {name:"Aparıcı mütəxəssis",level:3},
+    {name:"Mütəxəssis",level:4}
+  ],
+  "Nazirlər Kabineti": [
+    {name:"Baş mütəxəssis",level:2},
+    {name:"Böyük mütəxəssis",level:3},
+    {name:"Aparıcı mütəxəssis",level:4},
+    {name:"Mütəxəssis",level:5}
+  ],
+  "Nazirlik aparatı": [
+    {name:"Baş mütəxəssis",level:6},
+    {name:"Böyük mütəxəssis",level:7},
+    {name:"Aparıcı mütəxəssis",level:8},
+    {name:"Mütəxəssis",level:9}
+  ],
+  "Milli Məclis aparatı": [
+    {name:"Baş mütəxəssis",level:2},
+    {name:"Böyük mütəxəssis",level:3},
+    {name:"Aparıcı mütəxəssis",level:4},
+    {name:"Mütəxəssis",level:5}
+  ],
+  "Bakı Şəhər İcra Hakimiyyəti": [
+    {name:"Baş mütəxəssis",level:10},
+    {name:"Böyük mütəxəssis",level:11},
+    {name:"Aparıcı mütəxəssis",level:12},
+    {name:"Mütəxəssis",level:13}
+  ],
+  "Yerli icra hakimiyyəti": [
+    {name:"Baş mütəxəssis",level:14},
+    {name:"Böyük mütəxəssis",level:15},
+    {name:"Aparıcı mütəxəssis",level:16},
+    {name:"Mütəxəssis",level:17}
+  ],
+  "Apellyasiya / Rayon məhkəməsi / Dövlət agentliyi": [
+    {name:"Baş mütəxəssis",level:14},
+    {name:"Böyük mütəxəssis",level:15},
+    {name:"Aparıcı mütəxəssis",level:16},
+    {name:"Mütəxəssis",level:17}
+  ]
+};
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let state = { jobType: null, org: null, posIdx: null, step: null };
+
+// ═══════════════════════════════════════════════
+// TAX (State sector)
+// ═══════════════════════════════════════════════
+
+function calcStateIncomeTax(gross) {
+  const taxFree = 200;
+  if (gross <= taxFree) return 0;
+  const taxable = gross - taxFree;
+  const b1 = 2500 - 200; // 2300
+  if (taxable <= b1) return taxable * 0.14;
+  return b1 * 0.14 + (taxable - b1) * 0.25;
+}
+
+function calcStateMedical(gross) {
+  if (gross <= 8000) return gross * 0.02;
+  return 8000 * 0.02 + (gross - 8000) * 0.005;
+}
+
+function calcNet(gross) {
+  const incomeTax = calcStateIncomeTax(gross);
+  const dsmf = gross * 0.03;
+  const unemployment = gross * 0.005;
+  const medical = calcStateMedical(gross);
+  const total = incomeTax + dsmf + unemployment + medical;
+  return { net: Math.max(0, gross - total), incomeTax, dsmf, unemployment, medical, totalDeductions: total };
+}
+
+// ═══════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════
+
+function fmt(n) {
+  return n.toLocaleString('az-AZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function getOrgs() { return state.jobType === 'admin' ? adminOrgs : supportOrgs; }
+function getGrid() { return state.jobType === 'admin' ? adminGrid : supportGrid; }
+
+const stepLabels = ['I','II','III','IV','V','VI','VII'];
+
+// ═══════════════════════════════════════════════
+// UI
+// ═══════════════════════════════════════════════
+
+function selectJobType(type, el) {
+  state.jobType = type;
+  state.org = null; state.posIdx = null; state.step = null;
+
+  // highlight
+  document.querySelectorAll('.selector-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+
+  // populate org
+  const orgSel = document.getElementById('orgSelect');
+  const orgs = getOrgs();
+  orgSel.innerHTML = '<option value="">Qurum seçin...</option>';
+  Object.keys(orgs).forEach(name => {
+    orgSel.innerHTML += '<option value="' + name + '">' + name + '</option>';
+  });
+  orgSel.disabled = false;
+
+  resetPos(); resetSteps(); hideResult();
+}
+
+function onOrgChange(val) {
+  state.org = val || null;
+  state.posIdx = null; state.step = null;
+  resetSteps(); hideResult();
+
+  const posSel = document.getElementById('posSelect');
+  if (!val) { posSel.innerHTML = '<option value="">Əvvəlcə qurumu seçin</option>'; posSel.disabled = true; return; }
+
+  const positions = getOrgs()[val];
+  posSel.innerHTML = '<option value="">Vəzifə seçin...</option>';
+  positions.forEach(function(p, i) {
+    posSel.innerHTML += '<option value="' + i + '">' + p.name + ' (səviyyə ' + p.level + ')</option>';
+  });
+  posSel.disabled = false;
+}
+
+function onPosChange(val) {
+  state.posIdx = val !== '' ? parseInt(val) : null;
+  state.step = null; hideResult();
+
+  var btns = document.querySelectorAll('.step-btn');
+  if (state.posIdx !== null) {
+    btns.forEach(function(b) { b.disabled = false; b.classList.remove('active'); });
+  } else {
+    btns.forEach(function(b) { b.disabled = true; b.classList.remove('active'); });
+  }
+}
+
+function onStepClick(idx) {
+  state.step = idx;
+  document.querySelectorAll('.step-btn').forEach(function(b, i) {
+    b.classList.toggle('active', i === idx);
+  });
+  showResult();
+}
+
+function resetPos() {
+  var posSel = document.getElementById('posSelect');
+  posSel.innerHTML = '<option value="">Əvvəlcə qurumu seçin</option>';
+  posSel.disabled = true;
+}
+
+function resetSteps() {
+  document.querySelectorAll('.step-btn').forEach(function(b) {
+    b.disabled = true; b.classList.remove('active');
+  });
+}
+
+function hideResult() {
+  document.getElementById('resultArea').classList.remove('visible');
+  document.getElementById('emptyState').style.display = '';
+}
+
+function showResult() {
+  var pos = getOrgs()[state.org][state.posIdx];
+  var level = pos.level;
+  var grid = getGrid();
+  var gross = grid[level][state.step];
+  var calc = calcNet(gross);
+
+  // Hide empty state
+  document.getElementById('emptyState').style.display = 'none';
+
+  // Big cards
+  document.getElementById('netValue').textContent = fmt(calc.net);
+  document.getElementById('grossValue').textContent = fmt(gross);
+
+  // Receipt rows
+  var taxFree = 200;
+  var taxable = Math.max(0, gross - taxFree);
+  var b1 = 2300;
+
+  var taxDetail = '';
+  if (gross <= taxFree) {
+    taxDetail = '<div class="row-detail" style="background:#f0fdf4;"><span style="color:#16a34a;font-size:0.75rem;">200\u20bc-d\u0259k g\u0259lir vergisi tutulmur</span></div>';
+  } else if (taxable <= b1) {
+    taxDetail = '<div class="row-detail">(' + gross + ' \u2212 ' + taxFree + ') \u00d7 14% = <span class="val">' + fmt(taxable * 0.14) + ' AZN</span></div>';
+  } else {
+    taxDetail = '<div class="row-detail">' +
+      b1 + '\u20bc \u00d7 14% = <span class="val">' + fmt(b1 * 0.14) + ' AZN</span><br>' +
+      (taxable - b1) + '\u20bc \u00d7 25% = <span class="val">' + fmt((taxable - b1) * 0.25) + ' AZN</span><br>' +
+      '<span style="border-top:1px solid #e2e8f0;display:block;padding-top:4px;margin-top:4px;font-weight:500;color:#0f172a;">C\u0259mi: ' + fmt(calc.incomeTax) + ' AZN</span>' +
+      '</div>';
+  }
+
+  var receiptHTML = '' +
+    '<div class="receipt-row">' +
+      '<div class="row-top"><span class="row-label">G\u0259lir vergisi</span><span class="row-value">' + fmt(calc.incomeTax) + ' AZN</span></div>' +
+      '<div class="row-sub">200\u20bc-d\u0259k 0%, 200\u20132500\u20bc aras\u0131 14%, 2500\u20bc-dan \u00e7ox 25%</div>' +
+      taxDetail +
+    '</div>' +
+    '<div class="receipt-row">' +
+      '<div class="row-top"><span class="row-label">DSMF</span><span class="row-value">' + fmt(calc.dsmf) + ' AZN</span></div>' +
+      '<div class="row-sub">Gross m\u0259bl\u0259\u011fin 3%-i</div>' +
+      '<div class="row-detail">' + fmt(gross) + '\u20bc \u00d7 3% = <span class="val">' + fmt(calc.dsmf) + ' AZN</span></div>' +
+    '</div>' +
+    '<div class="receipt-row">' +
+      '<div class="row-top"><span class="row-label">\u0130\u015fsizlik s\u0131\u011fortas\u0131</span><span class="row-value">' + fmt(calc.unemployment) + ' AZN</span></div>' +
+      '<div class="row-detail">' + fmt(gross) + '\u20bc \u00d7 0,5% = <span class="val">' + fmt(calc.unemployment) + ' AZN</span></div>' +
+    '</div>' +
+    '<div class="receipt-row">' +
+      '<div class="row-top"><span class="row-label">\u0130cbari tibbi s\u0131\u011forta</span><span class="row-value">' + fmt(calc.medical) + ' AZN</span></div>' +
+      '<div class="row-sub">' + (gross <= 8000 ? '8000\u20bc-d\u0259k 2%' : '8000\u20bc-d\u0259k 2%, \u00fcst\u00fc 0,5%') + '</div>' +
+      '<div class="row-detail">' + (gross <= 8000
+        ? fmt(gross) + '\u20bc \u00d7 2% = <span class="val">' + fmt(calc.medical) + ' AZN</span>'
+        : '8000\u20bc \u00d7 2% = <span class="val">' + fmt(8000 * 0.02) + ' AZN</span><br>' +
+          (gross - 8000) + '\u20bc \u00d7 0,5% = <span class="val">' + fmt((gross - 8000) * 0.005) + ' AZN</span><br>' +
+          '<span style="border-top:1px solid #e2e8f0;display:block;padding-top:4px;margin-top:4px;font-weight:500;color:#0f172a;">C\u0259mi: ' + fmt(calc.medical) + ' AZN</span>'
+      ) + '</div>' +
+    '</div>';
+
+  document.getElementById('receiptBody').innerHTML = receiptHTML;
+  document.getElementById('totalDed').textContent = fmt(calc.totalDeductions) + ' AZN';
+
+  // Annual
+  document.getElementById('annualNet').textContent = fmt(calc.net * 12) + ' AZN';
+  document.getElementById('annualGross').textContent = fmt(gross * 12) + ' AZN';
+  document.getElementById('annualDed').textContent = fmt(calc.totalDeductions * 12) + ' AZN';
+
+  // Meta
+  document.getElementById('metaGrid').innerHTML = '' +
+    '<div class="meta-item"><div class="m-label">Qurum</div><div class="m-value">' + state.org + '</div></div>' +
+    '<div class="meta-item"><div class="m-label">V\u0259zif\u0259 n\u00f6v\u00fc</div><div class="m-value">' + (state.jobType === 'admin' ? '\u0130nzibati' : 'Yard\u0131m\u00e7\u0131') + '</div></div>' +
+    '<div class="meta-item"><div class="m-label">\u00d6d\u0259ni\u015f s\u0259viyy\u0259si</div><div class="m-value">S\u0259viyy\u0259 ' + level + '</div></div>' +
+    '<div class="meta-item"><div class="m-label">Pill\u0259</div><div class="m-value">' + stepLabels[state.step] + ' pill\u0259</div></div>';
+
+  // Show
+  var area = document.getElementById('resultArea');
+  area.classList.remove('visible');
+  requestAnimationFrame(function() { requestAnimationFrame(function() { area.classList.add('visible'); }); });
+}
+</script>
+</body>
+</html>
