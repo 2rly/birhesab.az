@@ -42,7 +42,26 @@
       "Bash(cp sitemap.ts \"[lang]/sitemap.ts\")",
       "Bash(cp robots.ts \"[lang]/robots.ts\")",
       "Bash(rm page.tsx)",
-      "Bash(rm -rf hesablayici)"
+      "Bash(rm -rf hesablayici)",
+      "Bash(xargs cat:*)",
+      "WebFetch(domain:avtostop.az)",
+      "Bash(ls -la C:UsersXalqHackbirhesabsrcapp[lang]hesablayici)",
+      "Bash(ls /c/Users/XalqHack/birhesab/src/app/[lang]/hesablayici/)",
+      "Bash(find:*)",
+      "Bash(ls -1 /c/Users/XalqHack/birhesab/src/app/[lang]/hesablayici/)",
+      "Bash(grep:*)",
+      "Bash(curl -s http://localhost:3245/az/hesablayici/ipoteka)",
+      "Bash(cat .next/server/app/[lang]/hesablayici/ipoteka.html)",
+      "Bash(ls .next/server/app/[lang]/hesablayici/ipoteka/)",
+      "Bash(git stash:*)",
+      "Bash(pip install:*)",
+      "Bash(python3 -c \":*)",
+      "Bash(pip show:*)",
+      "Bash(python -c \":*)",
+      "WebFetch(domain:valyuta.com)",
+      "WebFetch(domain:www.cbar.az)",
+      "Bash(ls src/app/[lang]/hesablayici/tehsil-krediti/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3245)"
     ]
   }
 }

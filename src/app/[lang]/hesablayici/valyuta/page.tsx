@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import CalculatorLayout from "@/components/CalculatorLayout";
 import { useLanguage } from "@/i18n";
 import type { Lang } from "@/i18n";
@@ -9,122 +9,154 @@ interface CurrencyInfo {
   code: string;
   name: Record<Lang, string>;
   flag: string;
-  rateToAZN: number;
 }
 
-const currencies: CurrencyInfo[] = [
-  { code: "AZN", name: { az: "Azərbaycan manatı", en: "Azerbaijani manat", ru: "Азербайджанский манат" }, flag: "🇦🇿", rateToAZN: 1 },
-  { code: "USD", name: { az: "ABŞ dolları", en: "US dollar", ru: "Доллар США" }, flag: "🇺🇸", rateToAZN: 1.7 },
-  { code: "EUR", name: { az: "Avro", en: "Euro", ru: "Евро" }, flag: "🇪🇺", rateToAZN: 1.85 },
-  { code: "GBP", name: { az: "Britaniya funtu", en: "British pound", ru: "Британский фунт" }, flag: "🇬🇧", rateToAZN: 2.15 },
-  { code: "CHF", name: { az: "İsveçrə frankı", en: "Swiss franc", ru: "Швейцарский франк" }, flag: "🇨🇭", rateToAZN: 1.92 },
-  { code: "TRY", name: { az: "Türk lirəsi", en: "Turkish lira", ru: "Турецкая лира" }, flag: "🇹🇷", rateToAZN: 0.052 },
-  { code: "RUB", name: { az: "Rusiya rublu", en: "Russian ruble", ru: "Российский рубль" }, flag: "🇷🇺", rateToAZN: 0.019 },
-  { code: "UAH", name: { az: "Ukrayna qrivnası", en: "Ukrainian hryvnia", ru: "Украинская гривна" }, flag: "🇺🇦", rateToAZN: 0.041 },
-  { code: "GEL", name: { az: "Gürcüstan larisi", en: "Georgian lari", ru: "Грузинский лари" }, flag: "🇬🇪", rateToAZN: 0.62 },
-  { code: "KZT", name: { az: "Qazaxıstan tengesi", en: "Kazakh tenge", ru: "Казахстанский тенге" }, flag: "🇰🇿", rateToAZN: 0.0034 },
-  { code: "UZS", name: { az: "Özbəkistan somu", en: "Uzbek som", ru: "Узбекский сум" }, flag: "🇺🇿", rateToAZN: 0.00013 },
-  { code: "TMT", name: { az: "Türkmənistan manatı", en: "Turkmen manat", ru: "Туркменский манат" }, flag: "🇹🇲", rateToAZN: 0.486 },
-  { code: "IRR", name: { az: "İran rialı", en: "Iranian rial", ru: "Иранский риал" }, flag: "🇮🇷", rateToAZN: 0.000040 },
-  { code: "SAR", name: { az: "Səudiyyə riyalı", en: "Saudi riyal", ru: "Саудовский риял" }, flag: "🇸🇦", rateToAZN: 0.453 },
-  { code: "AED", name: { az: "BƏƏ dirhəmi", en: "UAE dirham", ru: "Дирхам ОАЭ" }, flag: "🇦🇪", rateToAZN: 0.463 },
-  { code: "CNY", name: { az: "Çin yuanı", en: "Chinese yuan", ru: "Китайский юань" }, flag: "🇨🇳", rateToAZN: 0.234 },
-  { code: "JPY", name: { az: "Yapon yeni", en: "Japanese yen", ru: "Японская иена" }, flag: "🇯🇵", rateToAZN: 0.0113 },
-  { code: "KRW", name: { az: "Koreya vonu", en: "Korean won", ru: "Корейская вона" }, flag: "🇰🇷", rateToAZN: 0.00124 },
-  { code: "INR", name: { az: "Hindistan rupisi", en: "Indian rupee", ru: "Индийская рупия" }, flag: "🇮🇳", rateToAZN: 0.0202 },
-  { code: "CAD", name: { az: "Kanada dolları", en: "Canadian dollar", ru: "Канадский доллар" }, flag: "🇨🇦", rateToAZN: 1.23 },
-  { code: "AUD", name: { az: "Avstraliya dolları", en: "Australian dollar", ru: "Австралийский доллар" }, flag: "🇦🇺", rateToAZN: 1.1 },
-  { code: "SEK", name: { az: "İsveç kronu", en: "Swedish krona", ru: "Шведская крона" }, flag: "🇸🇪", rateToAZN: 0.165 },
-  { code: "NOK", name: { az: "Norveç kronu", en: "Norwegian krone", ru: "Норвежская крона" }, flag: "🇳🇴", rateToAZN: 0.161 },
-  { code: "DKK", name: { az: "Danimarka kronu", en: "Danish krone", ru: "Датская крона" }, flag: "🇩🇰", rateToAZN: 0.248 },
-  { code: "PLN", name: { az: "Polşa zlotısı", en: "Polish zloty", ru: "Польский злотый" }, flag: "🇵🇱", rateToAZN: 0.44 },
-  { code: "CZK", name: { az: "Çexiya kronu", en: "Czech koruna", ru: "Чешская крона" }, flag: "🇨🇿", rateToAZN: 0.074 },
-  { code: "HUF", name: { az: "Macarıstan forinti", en: "Hungarian forint", ru: "Венгерский форинт" }, flag: "🇭🇺", rateToAZN: 0.0047 },
-  { code: "RON", name: { az: "Rumıniya leyi", en: "Romanian leu", ru: "Румынский лей" }, flag: "🇷🇴", rateToAZN: 0.372 },
-  { code: "BGN", name: { az: "Bolqarıstan levi", en: "Bulgarian lev", ru: "Болгарский лев" }, flag: "🇧🇬", rateToAZN: 0.946 },
-  { code: "BRL", name: { az: "Braziliya realı", en: "Brazilian real", ru: "Бразильский реал" }, flag: "🇧🇷", rateToAZN: 0.296 },
-  { code: "MXN", name: { az: "Meksika pesosu", en: "Mexican peso", ru: "Мексиканское песо" }, flag: "🇲🇽", rateToAZN: 0.099 },
-  { code: "EGP", name: { az: "Misir funtu", en: "Egyptian pound", ru: "Египетский фунт" }, flag: "🇪🇬", rateToAZN: 0.035 },
-  { code: "PKR", name: { az: "Pakistan rupisi", en: "Pakistani rupee", ru: "Пакистанская рупия" }, flag: "🇵🇰", rateToAZN: 0.0061 },
-  { code: "BTC", name: { az: "Bitkoin", en: "Bitcoin", ru: "Биткоин" }, flag: "₿", rateToAZN: 145000 },
+const currencyList: CurrencyInfo[] = [
+  { code: "AZN", name: { az: "Azərbaycan manatı", en: "Azerbaijani manat", ru: "Азербайджанский манат" }, flag: "🇦🇿" },
+  { code: "USD", name: { az: "ABŞ dolları", en: "US dollar", ru: "Доллар США" }, flag: "🇺🇸" },
+  { code: "EUR", name: { az: "Avro", en: "Euro", ru: "Евро" }, flag: "🇪🇺" },
+  { code: "GBP", name: { az: "Britaniya funtu", en: "British pound", ru: "Британский фунт" }, flag: "🇬🇧" },
+  { code: "CHF", name: { az: "İsveçrə frankı", en: "Swiss franc", ru: "Швейцарский франк" }, flag: "🇨🇭" },
+  { code: "TRY", name: { az: "Türk lirəsi", en: "Turkish lira", ru: "Турецкая лира" }, flag: "🇹🇷" },
+  { code: "RUB", name: { az: "Rusiya rublu", en: "Russian ruble", ru: "Российский рубль" }, flag: "🇷🇺" },
+  { code: "UAH", name: { az: "Ukrayna qrivnası", en: "Ukrainian hryvnia", ru: "Украинская гривна" }, flag: "🇺🇦" },
+  { code: "GEL", name: { az: "Gürcüstan larisi", en: "Georgian lari", ru: "Грузинский лари" }, flag: "🇬🇪" },
+  { code: "KZT", name: { az: "Qazaxıstan tengesi", en: "Kazakh tenge", ru: "Казахстанский тенге" }, flag: "🇰🇿" },
+  { code: "UZS", name: { az: "Özbəkistan somu", en: "Uzbek som", ru: "Узбекский сум" }, flag: "🇺🇿" },
+  { code: "TMT", name: { az: "Türkmənistan manatı", en: "Turkmen manat", ru: "Туркменский манат" }, flag: "🇹🇲" },
+  { code: "SAR", name: { az: "Səudiyyə riyalı", en: "Saudi riyal", ru: "Саудовский риял" }, flag: "🇸🇦" },
+  { code: "AED", name: { az: "BƏƏ dirhəmi", en: "UAE dirham", ru: "Дирхам ОАЭ" }, flag: "🇦🇪" },
+  { code: "CNY", name: { az: "Çin yuanı", en: "Chinese yuan", ru: "Китайский юань" }, flag: "🇨🇳" },
+  { code: "JPY", name: { az: "Yapon yeni", en: "Japanese yen", ru: "Японская иена" }, flag: "🇯🇵" },
+  { code: "KRW", name: { az: "Koreya vonu", en: "Korean won", ru: "Корейская вона" }, flag: "🇰🇷" },
+  { code: "INR", name: { az: "Hindistan rupisi", en: "Indian rupee", ru: "Индийская рупия" }, flag: "🇮🇳" },
+  { code: "CAD", name: { az: "Kanada dolları", en: "Canadian dollar", ru: "Канадский доллар" }, flag: "🇨🇦" },
+  { code: "AUD", name: { az: "Avstraliya dolları", en: "Australian dollar", ru: "Австралийский доллар" }, flag: "🇦🇺" },
+  { code: "NZD", name: { az: "Yeni Zelandiya dolları", en: "New Zealand dollar", ru: "Новозеландский доллар" }, flag: "🇳🇿" },
+  { code: "SEK", name: { az: "İsveç kronu", en: "Swedish krona", ru: "Шведская крона" }, flag: "🇸🇪" },
+  { code: "NOK", name: { az: "Norveç kronu", en: "Norwegian krone", ru: "Норвежская крона" }, flag: "🇳🇴" },
+  { code: "DKK", name: { az: "Danimarka kronu", en: "Danish krone", ru: "Датская крона" }, flag: "🇩🇰" },
+  { code: "PLN", name: { az: "Polşa zlotısı", en: "Polish zloty", ru: "Польский злотый" }, flag: "🇵🇱" },
+  { code: "CZK", name: { az: "Çexiya kronu", en: "Czech koruna", ru: "Чешская крона" }, flag: "🇨🇿" },
+  { code: "HUF", name: { az: "Macarıstan forinti", en: "Hungarian forint", ru: "Венгерский форинт" }, flag: "🇭🇺" },
+  { code: "RON", name: { az: "Rumıniya leyi", en: "Romanian leu", ru: "Румынский лей" }, flag: "🇷🇴" },
+  { code: "BGN", name: { az: "Bolqarıstan levi", en: "Bulgarian lev", ru: "Болгарский лев" }, flag: "🇧🇬" },
+  { code: "BYN", name: { az: "Belarus rublu", en: "Belarusian ruble", ru: "Белорусский рубль" }, flag: "🇧🇾" },
+  { code: "MDL", name: { az: "Moldova leyi", en: "Moldovan leu", ru: "Молдавский лей" }, flag: "🇲🇩" },
+  { code: "RSD", name: { az: "Serbiya dinarı", en: "Serbian dinar", ru: "Сербский динар" }, flag: "🇷🇸" },
+  { code: "KGS", name: { az: "Qırğızıstan somu", en: "Kyrgyz som", ru: "Киргизский сом" }, flag: "🇰🇬" },
+  { code: "PKR", name: { az: "Pakistan rupisi", en: "Pakistani rupee", ru: "Пакистанская рупия" }, flag: "🇵🇰" },
+  { code: "SGD", name: { az: "Sinqapur dolları", en: "Singapore dollar", ru: "Сингапурский доллар" }, flag: "🇸🇬" },
+  { code: "HKD", name: { az: "Honq Konq dolları", en: "Hong Kong dollar", ru: "Гонконгский доллар" }, flag: "🇭🇰" },
+  { code: "KWD", name: { az: "Küveyt dinarı", en: "Kuwaiti dinar", ru: "Кувейтский динар" }, flag: "🇰🇼" },
+  { code: "QAR", name: { az: "Qətər rialı", en: "Qatari riyal", ru: "Катарский риал" }, flag: "🇶🇦" },
+  { code: "ILS", name: { az: "İsrail şekeli", en: "Israeli shekel", ru: "Израильский шекель" }, flag: "🇮🇱" },
+  { code: "SDR", name: { az: "SDR (BVF)", en: "SDR (IMF)", ru: "СДР (МВФ)" }, flag: "💎" },
+  { code: "XAU", name: { az: "Qızıl (1 t.u.)", en: "Gold (1 troy oz)", ru: "Золото (1 тр. унц.)" }, flag: "🥇" },
+  { code: "XAG", name: { az: "Gümüş (1 t.u.)", en: "Silver (1 troy oz)", ru: "Серебро (1 тр. унц.)" }, flag: "🥈" },
+  { code: "XPT", name: { az: "Platin (1 t.u.)", en: "Platinum (1 troy oz)", ru: "Платина (1 тр. унц.)" }, flag: "⬜" },
+  { code: "XPD", name: { az: "Palladium (1 t.u.)", en: "Palladium (1 troy oz)", ru: "Палладий (1 тр. унц.)" }, flag: "🔲" },
 ];
 
 function formatAmount(n: number): string {
+  if (n === 0) return "0";
+  if (n < 0.0001 && n > 0) return n.toFixed(8);
   if (n < 0.01 && n > 0) return n.toFixed(6);
   if (n < 1) return n.toFixed(4);
+  if (n >= 1000000) return n.toLocaleString("az-AZ", { maximumFractionDigits: 2 });
   return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 const pageTranslations = {
   az: {
     title: "Valyuta çevirici",
-    description: "Valyutalar arası ani çevirmə — Mərkəzi Bankın təxmini məzənnələri ilə.",
+    description: "Valyutalar arası ani çevirmə — Mərkəzi Bankın rəsmi məzənnələri ilə (CBAR).",
     breadcrumbCategory: "Maliyyə",
     formulaTitle: "Məzənnə haqqında",
-    formulaContent: `Bu çevirici Azərbaycan Mərkəzi Bankının təxmini məzənnələrindən istifadə edir.
+    formulaContent: `Bu çevirici Azərbaycan Mərkəzi Bankının (CBAR) rəsmi gündəlik məzənnələrindən istifadə edir.
 
-Göstərilən məzənnələr informativ xarakter daşıyır və real vaxt məzənnələrindən fərqlənə bilər.
+Məzənnələr hər gün avtomatik yenilənir.
 
-Dəqiq məzənnə üçün bankınızla və ya Mərkəzi Bankın saytı ilə yoxlayın:
-www.cbar.az`,
+Mənbə: www.cbar.az`,
     from: "Buradan",
     to: "Bura",
     swapLabel: "Dəyişdir",
     exchangeRate: "Məzənnə",
     allCurrencies: "bütün valyutalarda",
-    rateTable: "AZN məzənnə cədvəli",
+    rateTable: "CBAR rəsmi məzənnə cədvəli",
     currencyCol: "Valyuta",
     oneUnitAzn: "1 vahid = AZN",
     oneAznEquals: "1 AZN =",
-    warning: "Diqqət",
-    warningText: "Göstərilən məzənnələr təxmini xarakter daşıyır. Dəqiq məzənnə üçün Azərbaycan Mərkəzi Bankının rəsmi saytını (cbar.az) və ya bankınızı yoxlayın. Bank alış/satış məzənnələri fərqlənə bilər.",
+    source: "Mənbə",
+    cbarOfficial: "Azərbaycan Respublikası Mərkəzi Bankı (CBAR)",
+    rateDate: "Məzənnə tarixi",
+    loading: "Məzənnələr yüklənir...",
+    loadError: "Məzənnələr yüklənmədi. Təxmini dəyərlər göstərilir.",
+    liveRates: "Canlı məzənnələr",
   },
   en: {
     title: "Currency Converter",
-    description: "Instant currency conversion — with approximate Central Bank exchange rates.",
+    description: "Instant currency conversion — with official Central Bank (CBAR) exchange rates.",
     breadcrumbCategory: "Finance",
     formulaTitle: "About exchange rates",
-    formulaContent: `This converter uses approximate exchange rates from the Central Bank of Azerbaijan.
+    formulaContent: `This converter uses official daily exchange rates from the Central Bank of Azerbaijan (CBAR).
 
-The displayed rates are for informational purposes and may differ from real-time rates.
+Rates are updated automatically every day.
 
-For exact rates, check with your bank or the Central Bank website:
-www.cbar.az`,
+Source: www.cbar.az`,
     from: "From",
     to: "To",
     swapLabel: "Swap",
     exchangeRate: "Exchange rate",
     allCurrencies: "in all currencies",
-    rateTable: "AZN rate table",
+    rateTable: "CBAR official rate table",
     currencyCol: "Currency",
     oneUnitAzn: "1 unit = AZN",
     oneAznEquals: "1 AZN =",
-    warning: "Warning",
-    warningText: "The displayed rates are approximate. For exact rates, check the official website of the Central Bank of Azerbaijan (cbar.az) or your bank. Bank buy/sell rates may differ.",
+    source: "Source",
+    cbarOfficial: "Central Bank of Azerbaijan (CBAR)",
+    rateDate: "Rate date",
+    loading: "Loading rates...",
+    loadError: "Failed to load rates. Showing approximate values.",
+    liveRates: "Live rates",
   },
   ru: {
     title: "Конвертер валют",
-    description: "Мгновенная конвертация валют — по приблизительным курсам Центрального банка.",
+    description: "Мгновенная конвертация валют — по официальным курсам Центрального банка (CBAR).",
     breadcrumbCategory: "Финансы",
     formulaTitle: "О курсах валют",
-    formulaContent: `Этот конвертер использует приблизительные курсы Центрального банка Азербайджана.
+    formulaContent: `Этот конвертер использует официальные ежедневные курсы Центрального банка Азербайджана (CBAR).
 
-Отображаемые курсы носят информационный характер и могут отличаться от курсов в реальном времени.
+Курсы обновляются автоматически каждый день.
 
-Для точных курсов обратитесь в ваш банк или на сайт Центрального банка:
-www.cbar.az`,
+Источник: www.cbar.az`,
     from: "Из",
     to: "В",
     swapLabel: "Поменять",
     exchangeRate: "Курс",
     allCurrencies: "во всех валютах",
-    rateTable: "Таблица курсов AZN",
+    rateTable: "Официальная таблица курсов CBAR",
     currencyCol: "Валюта",
     oneUnitAzn: "1 единица = AZN",
     oneAznEquals: "1 AZN =",
-    warning: "Внимание",
-    warningText: "Отображаемые курсы являются приблизительными. Для точных курсов проверьте официальный сайт Центрального банка Азербайджана (cbar.az) или ваш банк. Курсы покупки/продажи в банках могут отличаться.",
+    source: "Источник",
+    cbarOfficial: "Центральный банк Азербайджана (CBAR)",
+    rateDate: "Дата курса",
+    loading: "Загрузка курсов...",
+    loadError: "Не удалось загрузить курсы. Показаны приблизительные значения.",
+    liveRates: "Актуальные курсы",
   },
+};
+
+// Fallback rates (approximate) used if API fails
+const fallbackRates: Record<string, number> = {
+  AZN:1, USD:1.7, EUR:1.9608, GBP:2.2485, CHF:2.1283, TRY:0.0381, RUB:0.021123,
+  UAH:0.0388, GEL:0.6327, KZT:0.003595, UZS:0.00014, TMT:0.4857, SAR:0.4529,
+  AED:0.4628, CNY:0.247, JPY:0.01065, KRW:0.001127, INR:0.0183, CAD:1.2208,
+  AUD:1.1741, NZD:0.9704, SEK:0.1801, NOK:0.1746, DKK:0.2624, PLN:0.4583,
+  CZK:0.08, HUF:0.005102, RON:0.3847, BGN:0.946, BYN:0.5759, MDL:0.0966,
+  RSD:0.0167, KGS:0.0194, PKR:0.006076, SGD:1.3221, HKD:0.2169, KWD:5.4949,
+  QAR:0.4662, ILS:0.5423, SDR:2.3096, XAU:7950.492, XAG:124.129, XPT:3381.9885, XPD:2557.531,
 };
 
 export default function CurrencyConverter() {
@@ -134,40 +166,62 @@ export default function CurrencyConverter() {
   const [amount, setAmount] = useState("1");
   const [fromCode, setFromCode] = useState("USD");
   const [toCode, setToCode] = useState("AZN");
+  const [rates, setRates] = useState<Record<string, number>>(fallbackRates);
+  const [rateDate, setRateDate] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [isLive, setIsLive] = useState(false);
 
-  const from = currencies.find((c) => c.code === fromCode)!;
-  const to = currencies.find((c) => c.code === toCode)!;
+  useEffect(() => {
+    fetch("/api/rates")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.rates) {
+          setRates((prev) => ({ ...prev, ...data.rates }));
+          setRateDate(data.date || "");
+          setIsLive(true);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const availableCurrencies = useMemo(
+    () => currencyList.filter((c) => c.code in rates),
+    [rates]
+  );
+
+  const from = availableCurrencies.find((c) => c.code === fromCode) || availableCurrencies[0];
+  const to = availableCurrencies.find((c) => c.code === toCode) || availableCurrencies[1];
 
   const result = useMemo(() => {
     const a = parseFloat(amount);
     if (!a || a <= 0) return null;
-
-    const inAZN = a * from.rateToAZN;
-    const converted = inAZN / to.rateToAZN;
-    const rate = from.rateToAZN / to.rateToAZN;
-    const reverseRate = to.rateToAZN / from.rateToAZN;
-
+    const fromRate = rates[from.code] || 1;
+    const toRate = rates[to.code] || 1;
+    const inAZN = a * fromRate;
+    const converted = inAZN / toRate;
+    const rate = fromRate / toRate;
+    const reverseRate = toRate / fromRate;
     return { converted, rate, reverseRate, inAZN };
-  }, [amount, from, to]);
+  }, [amount, from, to, rates]);
 
-  const swap = () => {
+  const swap = useCallback(() => {
     setFromCode(toCode);
     setToCode(fromCode);
-  };
+  }, [fromCode, toCode]);
 
   const allConversions = useMemo(() => {
     const a = parseFloat(amount);
     if (!a || a <= 0) return [];
-
-    const inAZN = a * from.rateToAZN;
-    return currencies
-      .filter((c) => c.code !== fromCode)
-      .map((c) => ({
-        ...c,
-        converted: inAZN / c.rateToAZN,
-        rate: from.rateToAZN / c.rateToAZN,
-      }));
-  }, [amount, from, fromCode]);
+    const fromRate = rates[from.code] || 1;
+    const inAZN = a * fromRate;
+    return availableCurrencies
+      .filter((c) => c.code !== from.code)
+      .map((c) => {
+        const cRate = rates[c.code] || 1;
+        return { ...c, converted: inAZN / cRate, rate: fromRate / cRate };
+      });
+  }, [amount, from, rates, availableCurrencies]);
 
   return (
     <CalculatorLayout
@@ -181,6 +235,23 @@ export default function CurrencyConverter() {
       formulaContent={pt.formulaContent}
       relatedIds={["vat", "deposit", "salary", "customs-duty"]}
     >
+      {/* Live badge */}
+      {isLive && rateDate && (
+        <div className="flex items-center gap-2 mb-4">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            {pt.liveRates} — CBAR {rateDate}
+          </span>
+        </div>
+      )}
+
+      {loading && (
+        <div className="text-center py-4 text-muted text-sm mb-4">
+          <span className="animate-spin inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full mr-2" />
+          {pt.loading}
+        </div>
+      )}
+
       {/* Converter */}
       <div className="space-y-4 mb-8">
         {/* From */}
@@ -192,7 +263,7 @@ export default function CurrencyConverter() {
               onChange={(e) => setFromCode(e.target.value)}
               className="w-40 sm:w-48 px-4 py-3 rounded-xl border border-border bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-base appearance-none cursor-pointer"
             >
-              {currencies.map((c) => (
+              {availableCurrencies.map((c) => (
                 <option key={c.code} value={c.code}>
                   {c.flag} {c.code}
                 </option>
@@ -232,7 +303,7 @@ export default function CurrencyConverter() {
               onChange={(e) => setToCode(e.target.value)}
               className="w-40 sm:w-48 px-4 py-3 rounded-xl border border-border bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-base appearance-none cursor-pointer"
             >
-              {currencies.map((c) => (
+              {availableCurrencies.map((c) => (
                 <option key={c.code} value={c.code}>
                   {c.flag} {c.code}
                 </option>
@@ -253,10 +324,10 @@ export default function CurrencyConverter() {
           <div className="bg-gradient-to-br from-primary to-primary-dark rounded-2xl p-6 text-center text-white">
             <p className="text-sm text-blue-200 mb-2">{pt.exchangeRate}</p>
             <p className="text-2xl font-bold mb-1">
-              1 {fromCode} = {formatAmount(result.rate)} {toCode}
+              1 {from.code} = {formatAmount(result.rate)} {to.code}
             </p>
             <p className="text-sm text-blue-200">
-              1 {toCode} = {formatAmount(result.reverseRate)} {fromCode}
+              1 {to.code} = {formatAmount(result.reverseRate)} {from.code}
             </p>
           </div>
 
@@ -264,17 +335,18 @@ export default function CurrencyConverter() {
           <div>
             <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <span>💱</span>
-              {amount} {fromCode} — {pt.allCurrencies}
+              {amount} {from.code} — {pt.allCurrencies}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {allConversions.map((c) => (
                 <div
                   key={c.code}
-                  className={`flex items-center justify-between p-4 rounded-xl border transition-all ${
+                  className={`flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer ${
                     c.code === toCode
                       ? "border-primary bg-primary-light"
                       : "border-border bg-white hover:border-primary/30"
                   }`}
+                  onClick={() => setToCode(c.code)}
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">{c.flag}</span>
@@ -285,7 +357,7 @@ export default function CurrencyConverter() {
                   </div>
                   <div className="text-right">
                     <p className="font-bold text-foreground">{formatAmount(c.converted)}</p>
-                    <p className="text-xs text-muted">1 {fromCode} = {formatAmount(c.rate)}</p>
+                    <p className="text-xs text-muted">1 {from.code} = {formatAmount(c.rate)}</p>
                   </div>
                 </div>
               ))}
@@ -308,35 +380,39 @@ export default function CurrencyConverter() {
                   </tr>
                 </thead>
                 <tbody>
-                  {currencies
+                  {availableCurrencies
                     .filter((c) => c.code !== "AZN")
-                    .map((c) => (
-                      <tr key={c.code} className="border-t border-border hover:bg-gray-50">
-                        <td className="px-4 py-3 font-medium">
-                          {c.flag} {c.code} — {c.name[lang]}
-                        </td>
-                        <td className="px-4 py-3 text-right font-medium text-primary">
-                          {formatAmount(c.rateToAZN)} AZN
-                        </td>
-                        <td className="px-4 py-3 text-right text-muted">
-                          {formatAmount(1 / c.rateToAZN)} {c.code}
-                        </td>
-                      </tr>
-                    ))}
+                    .map((c) => {
+                      const r = rates[c.code] || 0;
+                      return (
+                        <tr key={c.code} className="border-t border-border hover:bg-gray-50">
+                          <td className="px-4 py-3 font-medium">
+                            {c.flag} {c.code} — {c.name[lang]}
+                          </td>
+                          <td className="px-4 py-3 text-right font-medium text-primary">
+                            {formatAmount(r)} AZN
+                          </td>
+                          <td className="px-4 py-3 text-right text-muted">
+                            {r > 0 ? formatAmount(1 / r) : "—"} {c.code}
+                          </td>
+                        </tr>
+                      );
+                    })}
                 </tbody>
               </table>
             </div>
           </div>
 
-          {/* Disclaimer */}
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
-            <h4 className="font-semibold text-amber-800 mb-2 flex items-center gap-2">
-              <span>⚠️</span>
-              {pt.warning}
-            </h4>
-            <p className="text-sm text-amber-700">
-              {pt.warningText}
-            </p>
+          {/* Source info */}
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">🏦</span>
+              <div>
+                <p className="text-sm font-semibold text-blue-800">{pt.source}: {pt.cbarOfficial}</p>
+                {rateDate && <p className="text-xs text-blue-600 mt-1">{pt.rateDate}: {rateDate}</p>}
+                <p className="text-xs text-blue-600 mt-0.5">www.cbar.az</p>
+              </div>
+            </div>
           </div>
         </div>
       )}

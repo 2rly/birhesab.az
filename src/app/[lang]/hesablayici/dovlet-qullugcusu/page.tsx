@@ -70,93 +70,497 @@ interface Position { name: string; level: number }
 
 const adminOrgs: Record<string, Position[]> = {
   "Prezident Administrasiyası": [
-    {name:"Aparatın rəhbəri",level:6},{name:"Aparatın rəhbərinin müavini",level:7},
-    {name:"Şöbə müdiri",level:8},{name:"Şöbə müdirinin müavini",level:11},
-    {name:"Sektor müdiri, baş mühasib",level:15},{name:"Baş məsləhətçi",level:16},
-    {name:"Böyük məsləhətçi",level:17},{name:"Aparıcı məsləhətçi",level:18},{name:"Məsləhətçi",level:19},
+    {name:"Rəhbər",level:1},
+    {name:"Prezidentin köməkçisi – şöbə müdiri",level:3},
+    {name:"Prezidentin köməkçisi",level:3},
+    {name:"Şöbə müdiri",level:4},
+    {name:"Prezidentin Mətbuat katibi",level:4},
+    {name:"Şöbə müdirinin müavini",level:5},
+    {name:"Rəhbərin köməkçisi",level:6},
+    {name:"Sektor müdiri",level:7},
+    {name:"Baş məsləhətçi",level:8},
+    {name:"Böyük məsləhətçi",level:9},
+    {name:"Aparıcı məsləhətçi",level:10},
+    {name:"Məsləhətçi",level:11},
   ],
-  "Nazirlər Kabineti": [
-    {name:"Aparatın rəhbəri",level:4},{name:"Aparatın rəhbərinin müavini",level:5},
-    {name:"Şöbə müdiri",level:6},{name:"Şöbə müdirinin müavini",level:7},
-    {name:"Sektor müdiri",level:9},{name:"Baş məsləhətçi",level:10},
-    {name:"Böyük məsləhətçi",level:11},{name:"Aparıcı məsləhətçi",level:12},{name:"Məsləhətçi",level:13},
+  "Birinci vitse-prezidentin Katibliyi": [
+    {name:"Katibliyin rəisi",level:2},
+    {name:"Rəisin müavini",level:4},
+    {name:"Birinci vitse-prezidentin köməkçisi",level:4},
+  ],
+  "Prezidentin İşlər İdarəsi": [
+    {name:"İşlər müdiri",level:2},
+    {name:"Birinci müavin",level:4},
+    {name:"Müavin",level:5},
+    {name:"Şöbə müdiri",level:6},
+    {name:"Şöbə müdirinin müavini",level:7},
+    {name:"Sektor müdiri, baş mühasib",level:8},
+    {name:"İşlər müdirinin köməkçisi",level:10},
+    {name:"Baş məsləhətçi",level:9},
+    {name:"Böyük məsləhətçi",level:10},
+    {name:"Aparıcı məsləhətçi",level:11},
+    {name:"Məsləhətçi",level:12},
+  ],
+  "Xüsusi Tibb Xidməti": [
+    {name:"Rəis",level:2},
+    {name:"Birinci müavin",level:4},
+    {name:"Müavin",level:5},
+    {name:"Şöbə müdiri",level:6},
+    {name:"Şöbə müdirinin müavini",level:7},
+    {name:"Sektor müdiri, baş mühasib",level:8},
+    {name:"Rəisin köməkçisi",level:10},
+    {name:"Baş məsləhətçi",level:9},
+    {name:"Böyük məsləhətçi",level:10},
+    {name:"Aparıcı məsləhətçi",level:11},
+    {name:"Məsləhətçi",level:12},
+  ],
+  "Prezidentin Protokol Xidməti": [
+    {name:"Rəis",level:2},
+    {name:"Birinci müavin",level:4},
+    {name:"Müavin",level:5},
+    {name:"Şöbə müdiri",level:6},
+    {name:"Şöbə müdirinin müavini",level:7},
+    {name:"Sektor müdiri, baş mühasib",level:8},
+    {name:"Baş məsləhətçi",level:9},
+    {name:"Böyük məsləhətçi",level:10},
+    {name:"Aparıcı məsləhətçi",level:11},
+    {name:"Məsləhətçi",level:12},
+  ],
+  "Təhlükəsizlik Şurası katibinin xidməti": [
+    {name:"Katib",level:2},
+    {name:"Katib müavini",level:5},
+    {name:"Şöbə müdiri",level:6},
+    {name:"Baş məsləhətçi",level:9},
+    {name:"Böyük məsləhətçi",level:10},
+    {name:"Aparıcı məsləhətçi",level:11},
+    {name:"Məsləhətçi",level:12},
+  ],
+  "Nazirlər Kabineti Aparatı": [
+    {name:"Aparatın rəhbəri",level:4},
+    {name:"Rəhbərin müavini",level:5},
+    {name:"Baş nazirin Katibliyinin rəisi",level:5},
+    {name:"Şöbə müdiri",level:6},
+    {name:"Mətbuat xidmətinin rəhbəri",level:6},
+    {name:"İşlər müdiri",level:6},
+    {name:"Şöbə müdirinin müavini",level:7},
+    {name:"Mətbuat xidməti rəhbərinin müavini",level:7},
+    {name:"İşlər müdirinin müavini",level:7},
+    {name:"Baş nazirin müşaviri, köməkçisi",level:7},
+    {name:"Baş nazirin müavininin köməkçisi",level:8},
+    {name:"İşlər İdarəsində şöbə müdiri",level:8},
+    {name:"Sektor müdiri",level:9},
+    {name:"İşlər İdarəsində şöbə müdirinin müavini",level:9},
+    {name:"Baş məsləhətçi",level:10},
+    {name:"Rəhbərin köməkçisi",level:10},
+    {name:"İşlər İdarəsində sektor müdiri, baş mühasib",level:10},
+    {name:"İşlər müdirinin köməkçisi",level:10},
+    {name:"Böyük məsləhətçi",level:11},
+    {name:"İşlər İdarəsində baş məsləhətçi",level:11},
+    {name:"Aparıcı məsləhətçi",level:12},
+    {name:"İşlər İdarəsində böyük məsləhətçi",level:12},
+    {name:"Məsləhətçi",level:13},
+    {name:"İşlər İdarəsində aparıcı məsləhətçi",level:13},
+    {name:"İşlər İdarəsində məsləhətçi",level:14},
+  ],
+  "Milli Məclis Aparatı": [
+    {name:"Aparatın rəhbəri",level:4},
+    {name:"Rəhbərin müavini",level:5},
+    {name:"Şöbə müdiri",level:6},
+    {name:"İşlər müdiri",level:6},
+    {name:"Şöbə müdirinin müavini",level:7},
+    {name:"İşlər müdirinin müavini",level:7},
+    {name:"Sədrin müşaviri, köməkçisi",level:7},
+    {name:"Sədrin müavininin köməkçisi",level:8},
+    {name:"İşlər İdarəsində şöbə müdiri",level:8},
+    {name:"Sektor müdiri",level:9},
+    {name:"Baş məsləhətçi",level:10},
+    {name:"Rəhbərin köməkçisi",level:10},
+    {name:"Böyük məsləhətçi",level:11},
+    {name:"Aparıcı məsləhətçi",level:12},
+    {name:"Məsləhətçi",level:13},
+    {name:"İşlər İdarəsində məsləhətçi",level:14},
+    {name:"İşlər müdirinin köməkçisi",level:14},
+  ],
+  "Konstitusiya Məhkəməsi Aparatı": [
+    {name:"Aparatın rəhbəri",level:4},
+    {name:"Rəhbərin müavini",level:5},
+    {name:"Şöbə müdiri",level:6},
+    {name:"İşlər müdiri",level:6},
+    {name:"Şöbə müdirinin müavini",level:7},
+    {name:"Sədrin müşaviri, köməkçisi",level:7},
+    {name:"İşlər İdarəsində şöbə müdiri",level:8},
+    {name:"Sektor müdiri",level:9},
+    {name:"Baş məsləhətçi",level:10},
+    {name:"Böyük məsləhətçi",level:11},
+    {name:"Aparıcı məsləhətçi",level:12},
+    {name:"Aparat rəhbərinin köməkçisi",level:12},
+    {name:"Məsləhətçi",level:13},
+    {name:"İşlər İdarəsində məsləhətçi",level:14},
+  ],
+  "Ali Məhkəmə Aparatı": [
+    {name:"Aparatın rəhbəri",level:4},
+    {name:"Rəhbərin müavini",level:5},
+    {name:"Şöbə müdiri",level:6},
+    {name:"İşlər müdiri",level:6},
+    {name:"Şöbə müdirinin müavini",level:7},
+    {name:"Sədrin müşaviri, köməkçisi",level:7},
+    {name:"İşlər İdarəsində şöbə müdiri",level:8},
+    {name:"Sektor müdiri",level:9},
+    {name:"Baş məsləhətçi",level:10},
+    {name:"İşlər İdarəsində sektor müdiri, baş mühasib",level:10},
+    {name:"Böyük məsləhətçi",level:11},
+    {name:"Aparıcı məsləhətçi",level:12},
+    {name:"Məsləhətçi, hakimin köməkçisi",level:13},
+    {name:"İşlər İdarəsində məsləhətçi",level:14},
+  ],
+  "Hesablama Palatası": [
+    {name:"Aparatın rəhbəri",level:6},
+    {name:"Rəhbərin müavini",level:7},
+    {name:"Şöbə müdiri",level:8},
+    {name:"Şöbə müdirinin müavini",level:11},
+    {name:"Sektor müdiri, baş mühasib",level:15},
+    {name:"Sədrin köməkçisi, müşaviri",level:10},
+    {name:"Baş məsləhətçi",level:16},
+    {name:"Böyük məsləhətçi",level:17},
+    {name:"Aparıcı məsləhətçi",level:18},
+    {name:"Məsləhətçi",level:19},
+  ],
+  "Məhkəmə-Hüquq Şurası": [
+    {name:"Aparatın rəhbəri",level:6},
+    {name:"Rəhbərin müavini",level:7},
+    {name:"Şöbə müdiri",level:8},
+    {name:"Şöbə müdirinin müavini",level:11},
+    {name:"Sektor müdiri, baş mühasib",level:15},
+    {name:"Baş məsləhətçi",level:16},
+    {name:"Böyük məsləhətçi",level:17},
+    {name:"Aparıcı məsləhətçi",level:18},
+    {name:"Məsləhətçi",level:19},
+  ],
+  "Ombudsman Aparatı": [
+    {name:"Aparatın rəhbəri",level:6},
+    {name:"Rəhbərin müavini",level:7},
+    {name:"Şöbə müdiri",level:8},
+    {name:"Şöbə müdirinin müavini",level:11},
+    {name:"Ombudsmanın köməkçisi, müşaviri",level:10},
+    {name:"Sektor müdiri, baş mühasib",level:15},
+    {name:"Baş məsləhətçi",level:16},
+    {name:"Böyük məsləhətçi",level:17},
+    {name:"Aparıcı məsləhətçi",level:18},
+    {name:"Məsləhətçi",level:19},
+    {name:"Regional mərkəz rəhbəri",level:18},
+    {name:"Regional mərkəz rəhbərinin müavini",level:19},
+    {name:"Regional mərkəzdə sektor müdiri, baş mühasib",level:25},
+    {name:"Regional mərkəzdə baş məsləhətçi",level:26},
+    {name:"Regional mərkəzdə böyük məsləhətçi",level:27},
+    {name:"Regional mərkəzdə aparıcı məsləhətçi",level:28},
+    {name:"Regional mərkəzdə məsləhətçi",level:29},
+  ],
+  "Baş Prokurorluq": [
+    {name:"Şöbə müdiri",level:8},
+    {name:"Şöbə müdirinin müavini",level:11},
+    {name:"Sektor müdiri, baş mühasib",level:15},
+    {name:"Baş məsləhətçi",level:16},
+    {name:"Böyük məsləhətçi",level:17},
+    {name:"Aparıcı məsləhətçi",level:18},
+    {name:"Məsləhətçi",level:19},
   ],
   "Nazirlik aparatı": [
-    {name:"Aparatın rəhbəri",level:6},{name:"Aparatın rəhbərinin müavini",level:7},
-    {name:"Şöbə müdiri",level:8},{name:"Şöbə müdirinin müavini",level:11},
-    {name:"Sektor müdiri, baş mühasib",level:15},{name:"Baş məsləhətçi",level:16},
-    {name:"Böyük məsləhətçi",level:17},{name:"Aparıcı məsləhətçi",level:18},
-    {name:"Məsləhətçi",level:19},{name:"Rəhbərin müşaviri, köməkçisi",level:10},
+    {name:"Aparatın rəhbəri",level:6},
+    {name:"Aparatın rəhbərinin müavini",level:7},
+    {name:"Şöbə müdiri",level:8},
+    {name:"Şöbə müdirinin müavini",level:11},
+    {name:"Rəhbərin müşaviri, köməkçisi",level:10},
+    {name:"Sektor müdiri, baş mühasib",level:15},
+    {name:"Baş məsləhətçi",level:16},
+    {name:"Böyük məsləhətçi",level:17},
+    {name:"Aparıcı məsləhətçi",level:18},
+    {name:"Məsləhətçi",level:19},
   ],
-  "Milli Məclis aparatı": [
-    {name:"Aparatın rəhbəri",level:4},{name:"Aparatın rəhbərinin müavini",level:5},
-    {name:"Şöbə müdiri",level:6},{name:"Şöbə müdirinin müavini",level:7},
-    {name:"Sektor müdiri",level:9},{name:"Baş məsləhətçi",level:10},
-    {name:"Böyük məsləhətçi",level:11},{name:"Aparıcı məsləhətçi",level:12},{name:"Məsləhətçi",level:13},
+  "Mərkəzi Seçki Komissiyası Katibliyi": [
+    {name:"Katibliyin rəhbəri",level:7},
+    {name:"Rəhbərin müavini",level:9},
+    {name:"Şöbə müdiri",level:11},
+    {name:"Şöbə müdirinin müavini",level:15},
+    {name:"Rəhbərin köməkçisi",level:15},
+    {name:"Sektor müdiri, baş mühasib",level:19},
+    {name:"Baş məsləhətçi",level:20},
+    {name:"Böyük məsləhətçi",level:21},
+    {name:"Aparıcı məsləhətçi",level:22},
+    {name:"Məsləhətçi",level:23},
   ],
-  "Bakı Şəhər İcra Hakimiyyəti": [
-    {name:"Başçının birinci müavini",level:6},{name:"Başçının müavini",level:7},
-    {name:"Aparatın rəhbəri",level:11},{name:"Şöbə müdiri",level:14},
-    {name:"Şöbə müdirinin müavini",level:17},{name:"Sektor müdiri, baş mühasib",level:20},
-    {name:"Baş məsləhətçi",level:21},{name:"Böyük məsləhətçi",level:22},
-    {name:"Aparıcı məsləhətçi",level:23},{name:"Məsləhətçi",level:24},
+  "Korrupsiyaya qarşı mübarizə Komissiyası": [
+    {name:"Katib",level:7},
+    {name:"Baş məsləhətçi",level:20},
+    {name:"Böyük məsləhətçi",level:21},
+    {name:"Aparıcı məsləhətçi",level:22},
+    {name:"Məsləhətçi",level:23},
   ],
-  "Yerli icra hakimiyyəti": [
-    {name:"Başçının birinci müavini",level:16},{name:"Başçının müavini",level:17},
-    {name:"Şöbə müdiri",level:27},{name:"Şöbə müdirinin müavini",level:29},
-    {name:"Sektor müdiri, baş mühasib",level:30},{name:"Baş məsləhətçi",level:31},
-    {name:"Böyük məsləhətçi",level:32},{name:"Aparıcı məsləhətçi",level:33},{name:"Məsləhətçi",level:34},
+  "NMR Ali Məclisi": [
+    {name:"Aparatın rəhbəri",level:6},
+    {name:"Rəhbərin müavini",level:7},
+    {name:"Şöbə müdiri",level:8},
+    {name:"Şöbə müdirinin müavini",level:11},
+    {name:"Sədrin müşaviri, köməkçisi",level:10},
+    {name:"Sektor müdiri, baş mühasib",level:15},
+    {name:"Baş məsləhətçi",level:16},
+    {name:"Böyük məsləhətçi",level:17},
+    {name:"Aparıcı məsləhətçi",level:18},
+    {name:"Məsləhətçi",level:19},
   ],
-  "Apellyasiya məhkəməsi aparatı": [
-    {name:"Aparatın rəhbəri",level:7},{name:"Aparatın rəhbərinin müavini",level:9},
-    {name:"Şöbə müdiri",level:11},{name:"Şöbə müdirinin müavini",level:15},
-    {name:"Sektor müdiri, baş mühasib",level:19},{name:"Baş məsləhətçi",level:20},
-    {name:"Böyük məsləhətçi",level:21},{name:"Aparıcı məsləhətçi",level:22},
+  "NMR Nazirlər Kabineti Aparatı": [
+    {name:"Aparatın rəhbəri",level:6},
+    {name:"Rəhbərin müavini",level:7},
+    {name:"Şöbə müdiri",level:8},
+    {name:"Şöbə müdirinin müavini",level:11},
+    {name:"Baş nazirin müşaviri, köməkçisi",level:10},
+    {name:"Sektor müdiri, baş mühasib",level:15},
+    {name:"Baş məsləhətçi",level:16},
+    {name:"Böyük məsləhətçi",level:17},
+    {name:"Aparıcı məsləhətçi",level:18},
+    {name:"Məsləhətçi",level:19},
+  ],
+  "NMR Ali Məhkəməsi Aparatı": [
+    {name:"Aparatın rəhbəri",level:7},
+    {name:"Rəhbərin müavini",level:9},
+    {name:"Şöbə müdiri",level:11},
+    {name:"Şöbə müdirinin müavini",level:15},
+    {name:"Sədrin köməkçisi",level:19},
+    {name:"Sektor müdiri, baş mühasib",level:19},
+    {name:"Baş məsləhətçi",level:20},
+    {name:"Böyük məsləhətçi",level:21},
+    {name:"Aparıcı məsləhətçi",level:22},
     {name:"Məsləhətçi, hakimin köməkçisi",level:23},
   ],
-  "Rayon/şəhər məhkəməsi aparatı": [
-    {name:"Sektor müdiri, baş mühasib",level:30},{name:"Baş məsləhətçi",level:31},
-    {name:"Böyük məsləhətçi",level:32},{name:"Aparıcı məsləhətçi",level:33},
-    {name:"Məsləhətçi, məhkəmə iclasının katibi",level:34},
+  "Hərbi Prokurorluq": [
+    {name:"Şöbə müdiri",level:14},
+    {name:"Sektor müdiri, baş mühasib",level:20},
+    {name:"Baş məsləhətçi",level:21},
+    {name:"Böyük məsləhətçi",level:22},
+    {name:"Aparıcı məsləhətçi",level:23},
+    {name:"Məsləhətçi",level:24},
   ],
-  "Dövlət agentliyi / xidməti": [
-    {name:"Rəhbər",level:7},{name:"Rəhbərin müavini",level:9},
-    {name:"Şöbə müdiri",level:16},{name:"Şöbə müdirinin müavini",level:19},
-    {name:"Sektor müdiri, baş mühasib",level:21},{name:"Baş məsləhətçi",level:22},
-    {name:"Böyük məsləhətçi",level:23},{name:"Aparıcı məsləhətçi",level:24},{name:"Məsləhətçi",level:25},
+  "NMR Prokurorluğu": [
+    {name:"Şöbə müdiri",level:11},
+    {name:"Sektor müdiri, baş mühasib",level:20},
+    {name:"Baş məsləhətçi",level:21},
+    {name:"Böyük məsləhətçi",level:22},
+    {name:"Aparıcı məsləhətçi",level:23},
+    {name:"Məsləhətçi",level:24},
+  ],
+  "Bakı Şəhər Prokurorluğu": [
+    {name:"Şöbə müdiri",level:20},
+    {name:"Sektor müdiri, baş mühasib",level:25},
+    {name:"Baş məsləhətçi",level:26},
+    {name:"Böyük məsləhətçi",level:27},
+    {name:"Aparıcı məsləhətçi",level:28},
+    {name:"Məsləhətçi",level:29},
+  ],
+  "Bakı Şəhər İcra Hakimiyyəti": [
+    {name:"Başçının birinci müavini",level:6},
+    {name:"Başçının müavini",level:7},
+    {name:"Aparatın rəhbəri",level:11},
+    {name:"Şöbə müdiri",level:14},
+    {name:"Şöbə müdirinin müavini, müşaviri, köməkçisi",level:17},
+    {name:"Sektor müdiri, baş mühasib",level:20},
+    {name:"Baş məsləhətçi",level:21},
+    {name:"Böyük məsləhətçi",level:22},
+    {name:"Aparıcı məsləhətçi",level:23},
+    {name:"Məsləhətçi",level:24},
+  ],
+  "Gəncə / Sumqayıt İcra Hakimiyyəti": [
+    {name:"Başçının birinci müavini",level:15},
+    {name:"Başçının müavini",level:16},
+  ],
+  "Yerli icra hakimiyyəti": [
+    {name:"Başçının birinci müavini",level:16},
+    {name:"Başçının müavini",level:17},
+    {name:"Şöbə müdiri",level:27},
+    {name:"Şöbə müdirinin müavini",level:29},
+    {name:"Sektor müdiri, baş mühasib",level:30},
+    {name:"Baş məsləhətçi, köməkçi",level:31},
+    {name:"Böyük məsləhətçi",level:32},
+    {name:"Aparıcı məsləhətçi",level:33},
+    {name:"Məsləhətçi",level:34},
+    {name:"Nümayəndə (şəhər/sahə dairəsi)",level:33},
+    {name:"Nümayəndə (qəsəbə/kənd dairəsi)",level:33},
+  ],
+  "Apellyasiya məhkəmələri": [
+    {name:"Aparatın rəhbəri",level:7},
+    {name:"Rəhbərin müavini",level:9},
+    {name:"Şöbə müdiri",level:11},
+    {name:"Şöbə müdirinin müavini",level:15},
+    {name:"Sektor müdiri, baş mühasib",level:19},
+    {name:"Baş məsləhətçi",level:20},
+    {name:"Böyük məsləhətçi",level:21},
+    {name:"Aparıcı məsləhətçi",level:22},
+    {name:"Məsləhətçi, hakimin köməkçisi",level:23},
+  ],
+  "Ağır cinayətlər / İnzibati / Kommersiya / Hərbi məhkəmələri": [
+    {name:"Şöbə müdiri",level:20},
+    {name:"Şöbə müdirinin müavini",level:23},
+    {name:"Sektor müdiri, baş mühasib",level:25},
+    {name:"Baş məsləhətçi",level:26},
+    {name:"Böyük məsləhətçi",level:27},
+    {name:"Aparıcı məsləhətçi",level:28},
+    {name:"Məsləhətçi, hakimin köməkçisi",level:29},
+  ],
+  "Rayon / şəhər məhkəməsi": [
+    {name:"Sektor müdiri, baş mühasib",level:30},
+    {name:"Baş məsləhətçi",level:31},
+    {name:"Böyük məsləhətçi",level:32},
+    {name:"Aparıcı məsləhətçi",level:33},
+    {name:"Məsləhətçi, hakimin köməkçisi",level:34},
+  ],
+  "Dövlət agentliyi / xidməti (Prezident təyin edən)": [
+    {name:"Rəhbər",level:7},
+    {name:"Rəhbərin müavini",level:9},
+    {name:"Aparatın rəhbəri",level:11},
+    {name:"Aparatın rəhbərinin müavini",level:14},
+    {name:"Şöbə müdiri",level:15},
+    {name:"Şöbə müdirinin müavini, müşaviri",level:17},
+    {name:"Sektor müdiri, baş mühasib",level:20},
+    {name:"Baş məsləhətçi",level:21},
+    {name:"Böyük məsləhətçi",level:22},
+    {name:"Aparıcı məsləhətçi",level:23},
+    {name:"Məsləhətçi",level:24},
+  ],
+  "Dövlət agentliyi / xidməti (nazirlik yanında)": [
+    {name:"Rəhbər",level:7},
+    {name:"Rəhbərin müavini",level:9},
+    {name:"Şöbə müdiri",level:16},
+    {name:"Şöbə müdirinin müavini",level:19},
+    {name:"Sektor müdiri, baş mühasib",level:21},
+    {name:"Baş məsləhətçi",level:22},
+    {name:"Böyük məsləhətçi",level:23},
+    {name:"Aparıcı məsləhətçi",level:24},
+    {name:"Məsləhətçi",level:25},
+  ],
+  "Digər MİH orqanları (nazirlik istisna)": [
+    {name:"Aparatın rəhbəri",level:7},
+    {name:"Rəhbərin müavini",level:9},
+    {name:"Şöbə müdiri",level:11},
+    {name:"Şöbə müdirinin müavini",level:15},
+    {name:"Rəhbərin müşaviri, köməkçisi",level:15},
+    {name:"Sektor müdiri, baş mühasib",level:19},
+    {name:"Baş məsləhətçi",level:20},
+    {name:"Böyük məsləhətçi",level:21},
+    {name:"Aparıcı məsləhətçi",level:22},
+    {name:"Məsləhətçi",level:23},
+  ],
+  "Digər MİH yanında dövlət agentliyi / xidməti": [
+    {name:"Rəhbər",level:9},
+    {name:"Rəhbərin müavini",level:11},
+    {name:"Şöbə müdiri",level:20},
+    {name:"Şöbə müdirinin müavini",level:23},
+    {name:"Sektor müdiri, baş mühasib",level:25},
+    {name:"Baş məsləhətçi",level:26},
+    {name:"Böyük məsləhətçi",level:27},
+    {name:"Aparıcı məsləhətçi",level:28},
+    {name:"Məsləhətçi",level:29},
+  ],
+  "MİH yanında / tabeliyində orqanlar": [
+    {name:"Rəhbər",level:22},
+    {name:"Rəhbərin müavini",level:27},
+    {name:"Sektor müdiri, baş mühasib",level:30},
+    {name:"Baş məsləhətçi",level:31},
+    {name:"Böyük məsləhətçi",level:32},
+    {name:"Aparıcı məsləhətçi",level:33},
+    {name:"Məsləhətçi",level:34},
+  ],
+  "MİH yerli bölmələri": [
+    {name:"Rəhbər",level:23},
+    {name:"Rəhbərin müavini",level:27},
+    {name:"Sektor müdiri, baş mühasib",level:30},
+    {name:"Baş məsləhətçi",level:31},
+    {name:"Böyük məsləhətçi",level:32},
+    {name:"Aparıcı məsləhətçi",level:33},
+    {name:"Məsləhətçi",level:34},
+  ],
+  "Rayon / şəhər prokurorluğu": [
+    {name:"Sektor müdiri, baş mühasib",level:30},
+    {name:"Baş məsləhətçi",level:31},
+    {name:"Böyük məsləhətçi",level:32},
+    {name:"Aparıcı məsləhətçi",level:33},
+    {name:"Məsləhətçi",level:34},
+  ],
+  "Yerli icra hakimiyyəti nümayəndəlikləri": [
+    {name:"Baş məsləhətçi (şəhər/sahə dairəsi)",level:34},
+    {name:"Baş məsləhətçi (qəsəbə/kənd dairəsi)",level:34},
+    {name:"Məsləhətçi - mühəndis (şəhər/sahə dairəsi)",level:35},
+    {name:"Məsləhətçi (qəsəbə/kənd dairəsi)",level:35},
+  ],
+  "Agentlik / xidmət yerli bölmələri": [
+    {name:"Rəhbər",level:28},
+    {name:"Rəhbərin müavini",level:29},
+    {name:"Sektor müdiri, baş mühasib",level:31},
+    {name:"Baş məsləhətçi",level:32},
+    {name:"Böyük məsləhətçi",level:33},
+    {name:"Aparıcı məsləhətçi",level:34},
+    {name:"Məsləhətçi",level:35},
   ],
 };
 
 const supportOrgs: Record<string, Position[]> = {
-  "Prezident Administrasiyası": [
+  "Prezident Administrasiyası / İşlər İdarəsi / Xüsusi Tibb / Protokol Xidməti": [
     {name:"Baş mütəxəssis",level:1},{name:"Böyük mütəxəssis",level:2},
     {name:"Aparıcı mütəxəssis",level:3},{name:"Mütəxəssis",level:4},
   ],
-  "Nazirlər Kabineti": [
+  "Nazirlər Kabineti Aparatı və İşlər İdarəsi": [
     {name:"Baş mütəxəssis",level:2},{name:"Böyük mütəxəssis",level:3},
     {name:"Aparıcı mütəxəssis",level:4},{name:"Mütəxəssis",level:5},
+  ],
+  "Milli Məclis / Konstitusiya Məhkəməsi / Ali Məhkəmə Aparatı": [
+    {name:"Baş mütəxəssis",level:2},{name:"Böyük mütəxəssis",level:3},
+    {name:"Aparıcı mütəxəssis",level:4},{name:"Mütəxəssis",level:5},
+  ],
+  "Hesablama Palatası / Məhkəmə-Hüquq Şurası / Ombudsman / Baş Prokurorluq": [
+    {name:"Baş mütəxəssis",level:6},{name:"Böyük mütəxəssis",level:7},
+    {name:"Aparıcı mütəxəssis",level:8},{name:"Mütəxəssis",level:9},
   ],
   "Nazirlik aparatı": [
     {name:"Baş mütəxəssis",level:6},{name:"Böyük mütəxəssis",level:7},
     {name:"Aparıcı mütəxəssis",level:8},{name:"Mütəxəssis",level:9},
   ],
-  "Milli Məclis aparatı": [
-    {name:"Baş mütəxəssis",level:2},{name:"Böyük mütəxəssis",level:3},
-    {name:"Aparıcı mütəxəssis",level:4},{name:"Mütəxəssis",level:5},
+  "NMR Nazirlər Kabineti Aparatı": [
+    {name:"Baş mütəxəssis",level:6},{name:"Böyük mütəxəssis",level:7},
+    {name:"Aparıcı mütəxəssis",level:8},{name:"Mütəxəssis",level:9},
   ],
-  "Bakı Şəhər İcra Hakimiyyəti": [
+  "Digər MİH / Audiovizual Şura / Mərkəzi Seçki Komissiyası": [
     {name:"Baş mütəxəssis",level:10},{name:"Böyük mütəxəssis",level:11},
     {name:"Aparıcı mütəxəssis",level:12},{name:"Mütəxəssis",level:13},
   ],
-  "Yerli icra hakimiyyəti": [
-    {name:"Baş mütəxəssis",level:14},{name:"Böyük mütəxəssis",level:15},
-    {name:"Aparıcı mütəxəssis",level:16},{name:"Mütəxəssis",level:17},
+  "Dövlət agentliyi / xidməti / Bakı Şəhər İcra Hakimiyyəti / Məhkəmələr / Prokurorluqlar": [
+    {name:"Baş mütəxəssis",level:10},{name:"Böyük mütəxəssis",level:11},
+    {name:"Aparıcı mütəxəssis",level:12},{name:"Mütəxəssis",level:13},
   ],
-  "Apellyasiya / Rayon məhkəməsi / Dövlət agentliyi": [
+  "MİH yerli bölmələri / Rayon-şəhər məhkəmələri / Yerli icra hakimiyyəti": [
     {name:"Baş mütəxəssis",level:14},{name:"Böyük mütəxəssis",level:15},
     {name:"Aparıcı mütəxəssis",level:16},{name:"Mütəxəssis",level:17},
   ],
 };
+
+// ═══════════════════════════════════════════════
+// İxtisas dərəcəsi əlavəsi (17 dərəcə)
+// ═══════════════════════════════════════════════
+const specialtyGrades: { name: string; amount: number }[] = [
+  { name: "Həqiqi dövlət müşaviri", amount: 600 },
+  { name: "1-ci dərəcə dövlət müşaviri", amount: 550 },
+  { name: "2-ci dərəcə dövlət müşaviri", amount: 500 },
+  { name: "3-cü dərəcə dövlət müşaviri", amount: 450 },
+  { name: "Dövlət qulluğunun baş müşaviri", amount: 400 },
+  { name: "Dövlət qulluğunun müşaviri", amount: 350 },
+  { name: "Dövlət qulluğunun kiçik müşaviri", amount: 300 },
+  { name: "1-ci dərəcə dövlət qulluqçusu", amount: 275 },
+  { name: "2-ci dərəcə dövlət qulluqçusu", amount: 250 },
+  { name: "3-cü dərəcə dövlət qulluqçusu", amount: 225 },
+  { name: "Kiçik dövlət qulluqçusu", amount: 200 },
+  { name: "Dövlət qulluğunun baş referenti", amount: 175 },
+  { name: "Dövlət qulluğunun böyük referenti", amount: 150 },
+  { name: "Dövlət qulluğunun 1-ci dərəcə referenti", amount: 125 },
+  { name: "Dövlət qulluğunun 2-ci dərəcə referenti", amount: 100 },
+  { name: "Dövlət qulluğunun 3-cü dərəcə referenti", amount: 75 },
+  { name: "Dövlət qulluğunun kiçik referenti", amount: 50 },
+];
 
 // ═══════════════════════════════════════════════
 // Pillə-staj cədvəli
@@ -174,13 +578,15 @@ const stepInfo = [
 // ═══════════════════════════════════════════════
 // Vergi hesablaması (Dövlət sektoru)
 // ═══════════════════════════════════════════════
-function calcStateIncomeTax(gross: number): number {
-  const taxFree = 200;
-  if (gross <= taxFree) return 0;
-  const taxable = gross - taxFree;
-  const b1 = 2300; // 2500 - 200
-  if (taxable <= b1) return taxable * 0.14;
-  return b1 * 0.14 + (taxable - b1) * 0.25;
+// Gəlir vergisi hesablaması
+// taxable = Vergiyə cəlb olunan məbləğ (gross - güzəşt)
+// ≤200: 0%
+// 200-2500: (taxable - 200) × 14%
+// >2500: 350 + (taxable - 2500) × 25%
+function calcIncomeTax(taxable: number): number {
+  if (taxable <= 200) return 0;
+  if (taxable <= 2500) return (taxable - 200) * 0.14;
+  return 350 + (taxable - 2500) * 0.25;
 }
 
 function calcStateMedical(gross: number): number {
@@ -188,13 +594,25 @@ function calcStateMedical(gross: number): number {
   return 8000 * 0.02 + (gross - 8000) * 0.005;
 }
 
-function calcNet(gross: number) {
-  const incomeTax = calcStateIncomeTax(gross);
-  const dsmf = gross * 0.03;
-  const unemployment = gross * 0.005;
-  const medical = calcStateMedical(gross);
-  const totalDeductions = incomeTax + dsmf + unemployment + medical;
-  return { net: Math.max(0, gross - totalDeductions), incomeTax, dsmf, unemployment, medical, totalDeductions };
+interface CalcNetParams {
+  gross: number;
+  baseSalary: number;
+  guzesht: number; // 0 for güzəştsiz, V.M. amount for güzəştlə
+  unionMember: boolean;
+  yapaMember: boolean;
+}
+
+function calcNet(p: CalcNetParams) {
+  const taxable = Math.max(0, p.gross - p.guzesht);
+  const incomeTax = calcIncomeTax(taxable);
+  const dsmf = p.gross * 0.03;
+  const unemployment = p.gross * 0.005;
+  const medical = calcStateMedical(p.gross);
+  const union = p.unionMember ? p.gross * 0.02 : 0;
+  // YAP: baseSalary-dan (ixtisas dərəcəsi əlavəsi daxil deyil)
+  const yapa = p.yapaMember ? p.baseSalary * 0.01 : 0;
+  const totalDeductions = incomeTax + dsmf + unemployment + medical + union + yapa;
+  return { net: Math.max(0, p.gross - totalDeductions), incomeTax, dsmf, unemployment, medical, union, yapa, totalDeductions, taxable, guzesht: p.guzesht };
 }
 
 function formatMoney(n: number): string {
@@ -219,12 +637,13 @@ Dövlət sektoru üzrə tutulmalar (işçidən):
 • Gəlir vergisi:
   0–200₼: 0%
   200–2500₼: (maaş − 200) × 14%
-  2500₼+: 322 + (maaş − 2500) × 25%
+  2500₼+: 350 + (maaş − 2500) × 25%
 • DSMF: 3%
 • İşsizlik sığortası: 0,5%
 • İcbari tibbi sığorta: 8000₼-dək 2%, üstü 0,5%
+• Həmkarlar təşkilatına üzvlük haqqı: 2%
 
-Net maaş = Gross − Gəlir vergisi − DSMF − İşsizlik − Tibbi sığorta
+Net maaş = Gross − Gəlir vergisi − DSMF − İşsizlik − Tibbi sığorta − Həmkarlar üzvlük haqqı
 
 Pillə sistemi (vəzifədəki staj müddəti):
 • I pillə: 1 ilədək staj
@@ -278,6 +697,33 @@ Qeyd: Pillə həmin vəzifədəki staj müddətinə görə müəyyən edilir.`,
     supportLabel: "Yardımçı",
     payLevel: "Ödəniş səviyyəsi",
     stepLabel: "Pillə",
+    specialtyGrade: "İxtisas dərəcəsi (əlavə haqq)",
+    selectGrade: "Yoxdur / Seçin...",
+    gradeBonus: "İxtisas dərəcəsi əlavəsi",
+    totalWithGrade: "Ümumi gross (maaş + ixtisas əlavəsi)",
+    // Güzəşt system
+    taxMode: "Vergi güzəşti",
+    noExemption: "Güzəştsiz",
+    withExemption: "Güzəştlə",
+    selectExemption: "Güzəşti seçin:",
+    vm1021_1: "V.M. 102.1-1 (800 AZN)",
+    vm1021_1Desc: "Şəhid statusu almış şəxslərin valideyinlərinin, dul arvadlarının (ərlərinin) və övladlarının",
+    vm1022: "V.M. 102.2 (400 AZN)",
+    vm1022Desc: "Vətən Müharibəsi Qəhrəmanları, Milli Qəhrəmanlar, Sovet İttifaqı və Sosialist Əməyi Qəhrəmanları, müharibə əlilləri, şəhid dul arvadları/övladları, 1941-1945 arxa cəbhə fədakarları, Çernobıl qəzası zərərçəkmişləri",
+    vm1023: "V.M. 102.3 (200 AZN)",
+    vm1023Desc: "Orqanizmin funksiyalarının 61-100% pozulmasına görə əlilliyi müəyyən edilmiş şəxslər, əlilli uşaqlar, daimi qulluq tələb edən əlilli uşağa baxan valideynlər",
+    vm1024: "V.M. 102.4 (100 AZN)",
+    vm1024Desc: "Şəhid valideynləri və arvadları (ərləri), Əfqanıstan və döyüş əməliyyatlarına göndərilmiş hərbçilər, məcburi köçkünlər",
+    vm1025: "V.M. 102.5 (əlavə 50 AZN)",
+    vm1025Desc: "Himayəsində 3+ nəfər olan (23 yaşınadək şagird/tələbə, ər/arvad) — hər biri üçün 50 AZN əlavə",
+    dependentCount: "Himayədə olanların sayı",
+    taxableAmount: "Vergiyə cəlb olunan məbləğ",
+    exemptionAmount: "Güzəşt məbləği",
+    // Memberships
+    unionLabel: "Həmkarlar İttifaqı üzvüyəm",
+    yapaMember: "YAP üzvü",
+    yapaDesc: "Vəzifə maaşının 1%-i (ixtisas dərəcəsi əlavəsi daxil deyil)",
+    memberships: "Üzvlüklər",
     emptyStateText: "Nəticəni görmək üçün qurum, vəzifə və pilləni seçin.",
   },
   en: {
@@ -295,12 +741,13 @@ Government sector deductions (from employee):
 • Income tax:
   0–200₼: 0%
   200–2500₼: (salary − 200) × 14%
-  2500₼+: 322 + (salary − 2500) × 25%
+  2500₼+: 350 + (salary − 2500) × 25%
 • SSPF: 3%
 • Unemployment insurance: 0.5%
 • Compulsory medical insurance: up to 8000₼ 2%, above 0.5%
+• Trade union membership fee: 2%
 
-Net salary = Gross − Income tax − SSPF − Unemployment − Medical insurance
+Net salary = Gross − Income tax − SSPF − Unemployment − Medical insurance − Trade union fee
 
 Step system (tenure in position):
 • Step I: up to 1 year
@@ -354,6 +801,31 @@ Note: Step is determined by tenure in the position.`,
     supportLabel: "Support",
     payLevel: "Pay level",
     stepLabel: "Step",
+    specialtyGrade: "Specialty grade (bonus)",
+    selectGrade: "None / Select...",
+    gradeBonus: "Specialty grade bonus",
+    totalWithGrade: "Total gross (salary + specialty bonus)",
+    taxMode: "Tax exemption",
+    noExemption: "No exemption",
+    withExemption: "With exemption",
+    selectExemption: "Select exemption:",
+    vm1021_1: "V.M. 102.1-1 (800 AZN)",
+    vm1021_1Desc: "Parents, widows and children of martyrs",
+    vm1022: "V.M. 102.2 (400 AZN)",
+    vm1022Desc: "National Heroes, war veterans, war disabled, Chernobyl victims",
+    vm1023: "V.M. 102.3 (200 AZN)",
+    vm1023Desc: "Persons with 61-100% disability, disabled children, caregivers",
+    vm1024: "V.M. 102.4 (100 AZN)",
+    vm1024Desc: "Parents/spouses of martyrs, Afghan war veterans, IDPs",
+    vm1025: "V.M. 102.5 (additional 50 AZN)",
+    vm1025Desc: "3+ dependents (students under 23, spouse) — 50 AZN each additional",
+    dependentCount: "Number of dependents",
+    taxableAmount: "Taxable amount",
+    exemptionAmount: "Exemption amount",
+    unionLabel: "Trade union member",
+    yapaMember: "YAP member",
+    yapaDesc: "1% of base salary (excl. specialty bonus)",
+    memberships: "Memberships",
     emptyStateText: "Select institution, position, and step to see the result.",
   },
   ru: {
@@ -371,12 +843,13 @@ Note: Step is determined by tenure in the position.`,
 • Подоходный налог:
   0–200₼: 0%
   200–2500₼: (оклад − 200) × 14%
-  2500₼+: 322 + (оклад − 2500) × 25%
+  2500₼+: 350 + (оклад − 2500) × 25%
 • ГФСЗ: 3%
 • Страхование от безработицы: 0,5%
 • Обяз. медстрахование: до 8000₼ 2%, свыше 0,5%
+• Членский взнос профсоюза: 2%
 
-Нетто = Брутто − Подоходный налог − ГФСЗ − Безработица − Медстрахование
+Нетто = Брутто − Подоходный налог − ГФСЗ − Безработица − Медстрахование − Профсоюз
 
 Система ступеней (стаж на должности):
 • Ступень I: до 1 года
@@ -430,6 +903,31 @@ Note: Step is determined by tenure in the position.`,
     supportLabel: "Вспомогательная",
     payLevel: "Уровень оплаты",
     stepLabel: "Ступень",
+    specialtyGrade: "Квалификационный разряд (надбавка)",
+    selectGrade: "Нет / Выберите...",
+    gradeBonus: "Надбавка за квалификационный разряд",
+    totalWithGrade: "Общий брутто (оклад + надбавка)",
+    taxMode: "Налоговая льгота",
+    noExemption: "Без льготы",
+    withExemption: "Со льготой",
+    selectExemption: "Выберите льготу:",
+    vm1021_1: "V.M. 102.1-1 (800 AZN)",
+    vm1021_1Desc: "Родители, вдовы и дети шехидов",
+    vm1022: "V.M. 102.2 (400 AZN)",
+    vm1022Desc: "Национальные герои, ветераны, инвалиды войны, жертвы Чернобыля",
+    vm1023: "V.M. 102.3 (200 AZN)",
+    vm1023Desc: "Лица с инвалидностью 61-100%, дети-инвалиды, опекуны",
+    vm1024: "V.M. 102.4 (100 AZN)",
+    vm1024Desc: "Родители/супруги шехидов, ветераны Афганистана, вынужденные переселенцы",
+    vm1025: "V.M. 102.5 (доп. 50 AZN)",
+    vm1025Desc: "3+ иждивенца (студенты до 23, супруг) — 50 AZN за каждого",
+    dependentCount: "Количество иждивенцев",
+    taxableAmount: "Налогооблагаемая сумма",
+    exemptionAmount: "Сумма льготы",
+    unionLabel: "Член профсоюза",
+    yapaMember: "Член ПНА",
+    yapaDesc: "1% от должностного оклада (без надбавки)",
+    memberships: "Членство",
     emptyStateText: "Выберите учреждение, должность и ступень, чтобы увидеть результат.",
   },
 };
@@ -442,14 +940,40 @@ export default function CivilServantSalary() {
   const [org, setOrg] = useState("");
   const [posIdx, setPosIdx] = useState<number | null>(null);
   const [step, setStep] = useState<number | null>(null);
+  const [gradeIdx, setGradeIdx] = useState<number | null>(null);
+  const [exemptionMode, setExemptionMode] = useState<"none" | "exempt">("none");
+  const [selectedExemption, setSelectedExemption] = useState<number>(200); // default 200 AZN
+  const [vm1025Enabled, setVm1025Enabled] = useState(false);
+  const [dependentCount, setDependentCount] = useState("3");
+  const [unionMember, setUnionMember] = useState(false);
+  const [yapaMember, setYapaMember] = useState(false);
 
   const orgs = jobType === "admin" ? adminOrgs : jobType === "support" ? supportOrgs : null;
   const grid = jobType === "admin" ? adminGrid : supportGrid;
   const positions = orgs && org ? orgs[org] : null;
 
   const pos = positions && posIdx !== null ? positions[posIdx] : null;
-  const gross = pos && step !== null ? grid[pos.level]?.[step] ?? null : null;
-  const result = gross !== null ? calcNet(gross) : null;
+  const baseSalary = pos && step !== null ? grid[pos.level]?.[step] ?? null : null;
+  const gradeBonus = gradeIdx !== null ? specialtyGrades[gradeIdx].amount : 0;
+  const gross = baseSalary !== null ? baseSalary + gradeBonus : null;
+  // Güzəşt məbləği: güzəştsiz = 0, güzəştlə = V.M. məbləği
+  const guzesht = (() => {
+    if (exemptionMode === "none") return 0;
+    let amount = selectedExemption;
+    if (vm1025Enabled) {
+      const deps = parseInt(dependentCount) || 0;
+      amount += deps * 50;
+    }
+    return amount;
+  })();
+
+  const result = gross !== null && baseSalary !== null ? calcNet({
+    gross,
+    baseSalary,
+    guzesht,
+    unionMember,
+    yapaMember,
+  }) : null;
 
   function handleJobType(type: JobType) {
     setJobType(type);
@@ -564,6 +1088,149 @@ export default function CivilServantSalary() {
         <p className="text-[11px] text-muted mt-2">{pt.stepNote}</p>
       </div>
 
+      {/* İxtisas dərəcəsi */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-foreground mb-2">🎓 {pt.specialtyGrade}</label>
+        <select
+          value={gradeIdx !== null ? String(gradeIdx) : ""}
+          onChange={(e) => setGradeIdx(e.target.value ? parseInt(e.target.value) : null)}
+          className="w-full px-4 py-3 rounded-xl border border-border bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+        >
+          <option value="">{pt.selectGrade}</option>
+          {specialtyGrades.map((g, i) => (
+            <option key={i} value={i}>{g.name} (+{g.amount} AZN)</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Həmkarlar + YAP */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-foreground mb-3">🏛️ {pt.memberships}</label>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={unionMember}
+              onChange={(e) => setUnionMember(e.target.checked)}
+              className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+            />
+            <span className="text-sm text-foreground">{pt.unionLabel}</span>
+            <span className="text-[11px] text-muted">(2%)</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={yapaMember}
+              onChange={(e) => setYapaMember(e.target.checked)}
+              className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+            />
+            <span className="text-sm text-foreground">{pt.yapaMember}</span>
+            <span className="text-[11px] text-muted">(1%)</span>
+          </label>
+        </div>
+      </div>
+
+      {/* Güzəştsiz / Güzəştlə */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-foreground mb-2">⚖️ {pt.taxMode}</label>
+        <div className="flex gap-4 mb-3">
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="radio"
+              name="exemption"
+              checked={exemptionMode === "none"}
+              onChange={() => setExemptionMode("none")}
+              className="w-4 h-4 text-primary focus:ring-primary"
+            />
+            <span className="text-sm text-foreground">{pt.noExemption}</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="radio"
+              name="exemption"
+              checked={exemptionMode === "exempt"}
+              onChange={() => setExemptionMode("exempt")}
+              className="w-4 h-4 text-primary focus:ring-primary"
+            />
+            <span className="text-sm text-foreground">{pt.withExemption}</span>
+          </label>
+        </div>
+
+        {exemptionMode === "exempt" && (
+          <div className="space-y-3 pl-1">
+            <p className="text-sm font-medium text-foreground">{pt.selectExemption}</p>
+
+            {/* V.M. 102.1-1 */}
+            <label className={`block p-3 rounded-xl border cursor-pointer transition-all ${selectedExemption === 800 ? "border-primary bg-primary-light ring-1 ring-primary" : "border-border bg-white hover:border-primary/30"}`}>
+              <div className="flex items-start gap-2">
+                <input type="radio" name="vm" checked={selectedExemption === 800} onChange={() => setSelectedExemption(800)} className="w-4 h-4 mt-0.5 text-primary focus:ring-primary" />
+                <div>
+                  <p className="text-sm font-medium text-foreground">{pt.vm1021_1}</p>
+                  <p className="text-xs text-muted mt-0.5">{pt.vm1021_1Desc}</p>
+                </div>
+              </div>
+            </label>
+
+            {/* V.M. 102.2 */}
+            <label className={`block p-3 rounded-xl border cursor-pointer transition-all ${selectedExemption === 400 ? "border-primary bg-primary-light ring-1 ring-primary" : "border-border bg-white hover:border-primary/30"}`}>
+              <div className="flex items-start gap-2">
+                <input type="radio" name="vm" checked={selectedExemption === 400} onChange={() => setSelectedExemption(400)} className="w-4 h-4 mt-0.5 text-primary focus:ring-primary" />
+                <div>
+                  <p className="text-sm font-medium text-foreground">{pt.vm1022}</p>
+                  <p className="text-xs text-muted mt-0.5">{pt.vm1022Desc}</p>
+                </div>
+              </div>
+            </label>
+
+            {/* V.M. 102.3 */}
+            <label className={`block p-3 rounded-xl border cursor-pointer transition-all ${selectedExemption === 200 ? "border-primary bg-primary-light ring-1 ring-primary" : "border-border bg-white hover:border-primary/30"}`}>
+              <div className="flex items-start gap-2">
+                <input type="radio" name="vm" checked={selectedExemption === 200} onChange={() => setSelectedExemption(200)} className="w-4 h-4 mt-0.5 text-primary focus:ring-primary" />
+                <div>
+                  <p className="text-sm font-medium text-foreground">{pt.vm1023}</p>
+                  <p className="text-xs text-muted mt-0.5">{pt.vm1023Desc}</p>
+                </div>
+              </div>
+            </label>
+
+            {/* V.M. 102.4 */}
+            <label className={`block p-3 rounded-xl border cursor-pointer transition-all ${selectedExemption === 100 ? "border-primary bg-primary-light ring-1 ring-primary" : "border-border bg-white hover:border-primary/30"}`}>
+              <div className="flex items-start gap-2">
+                <input type="radio" name="vm" checked={selectedExemption === 100} onChange={() => setSelectedExemption(100)} className="w-4 h-4 mt-0.5 text-primary focus:ring-primary" />
+                <div>
+                  <p className="text-sm font-medium text-foreground">{pt.vm1024}</p>
+                  <p className="text-xs text-muted mt-0.5">{pt.vm1024Desc}</p>
+                </div>
+              </div>
+            </label>
+
+            {/* V.M. 102.5 */}
+            <div className={`p-3 rounded-xl border transition-all ${vm1025Enabled ? "border-primary bg-primary-light ring-1 ring-primary" : "border-border bg-white"}`}>
+              <label className="flex items-start gap-2 cursor-pointer">
+                <input type="checkbox" checked={vm1025Enabled} onChange={(e) => setVm1025Enabled(e.target.checked)} className="w-4 h-4 mt-0.5 rounded text-primary focus:ring-primary" />
+                <div>
+                  <p className="text-sm font-medium text-foreground">{pt.vm1025}</p>
+                  <p className="text-xs text-muted mt-0.5">{pt.vm1025Desc}</p>
+                </div>
+              </label>
+              {vm1025Enabled && (
+                <div className="mt-2 ml-6">
+                  <label className="text-xs text-muted">{pt.dependentCount}</label>
+                  <input
+                    type="number"
+                    value={dependentCount}
+                    onChange={(e) => setDependentCount(e.target.value)}
+                    min="3"
+                    max="10"
+                    className="w-20 ml-2 px-3 py-1.5 rounded-lg border border-border bg-white text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Pillə-Staj cədvəli */}
       <div className="mb-8 bg-blue-50 rounded-xl border border-blue-200 p-4">
         <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2 text-sm">
@@ -588,10 +1255,10 @@ export default function CivilServantSalary() {
       </div>
 
       {/* Nəticə */}
-      {result && gross !== null && pos ? (
+      {result && gross !== null && baseSalary !== null && pos ? (
         <div className="space-y-6">
           {/* Əsas kartlar */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className={`grid grid-cols-1 ${gradeBonus > 0 ? "sm:grid-cols-3" : "sm:grid-cols-2"} gap-4`}>
             <div className="bg-gradient-to-br from-primary to-primary-dark rounded-2xl p-6 text-center text-white">
               <p className="text-sm text-blue-200 mb-1">{pt.netSalary}</p>
               <p className="text-3xl font-bold">{formatMoney(result.net)}</p>
@@ -599,9 +1266,16 @@ export default function CivilServantSalary() {
             </div>
             <div className="bg-gray-50 rounded-2xl border border-border p-6 text-center">
               <p className="text-sm text-muted mb-1">{pt.grossSalary}</p>
-              <p className="text-3xl font-bold text-foreground">{formatMoney(gross)}</p>
+              <p className="text-3xl font-bold text-foreground">{formatMoney(baseSalary)}</p>
               <p className="text-xs text-muted mt-1">{pt.perMonth}</p>
             </div>
+            {gradeBonus > 0 && (
+              <div className="bg-green-50 rounded-2xl border border-green-200 p-6 text-center">
+                <p className="text-sm text-green-600 mb-1">{pt.gradeBonus}</p>
+                <p className="text-2xl font-bold text-green-700">+{formatMoney(gradeBonus)}</p>
+                <p className="text-xs text-green-600 mt-1">{pt.totalWithGrade}: {formatMoney(gross)} AZN</p>
+              </div>
+            )}
           </div>
 
           {/* Badge */}
@@ -620,13 +1294,19 @@ export default function CivilServantSalary() {
               </h3>
             </div>
             <div className="divide-y divide-border">
-              {/* Gəlir vergisi */}
+              {/* Vergiyə cəlb olunan + Gəlir vergisi */}
               <div className="px-5 py-3">
+                <div className="flex justify-between mb-1">
+                  <span className="text-sm text-muted">{pt.taxableAmount}</span>
+                  <span className="text-sm font-medium text-foreground">{formatMoney(result.taxable)} AZN</span>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-2 mb-2">
+                  <p className="text-xs text-muted">{formatMoney(gross!)} − {formatMoney(result.guzesht)} ({pt.exemptionAmount}) = <span className="font-medium text-foreground">{formatMoney(result.taxable)} AZN</span></p>
+                </div>
                 <div className="flex justify-between mb-1">
                   <span className="text-sm font-medium text-foreground">{pt.incomeTax}</span>
                   <span className="text-sm font-bold text-foreground">{formatMoney(result.incomeTax)} AZN</span>
                 </div>
-                <p className="text-[11px] text-muted mb-1.5">{pt.incomeTaxDesc}</p>
                 {result.incomeTax === 0 ? (
                   <div className="bg-green-50 rounded-lg p-2.5">
                     <p className="text-xs text-green-600">{pt.noTaxNote}</p>
@@ -634,16 +1314,15 @@ export default function CivilServantSalary() {
                 ) : (
                   <div className="bg-gray-50 rounded-lg p-2.5 space-y-1">
                     {(() => {
-                      const taxable = gross - 200;
-                      const b1 = 2300;
-                      if (taxable <= b1) {
-                        return <p className="text-xs text-muted">({gross} − 200) × 14% → {taxable}₼ × 14% = <span className="font-medium text-foreground">{formatMoney(taxable * 0.14)} AZN</span></p>;
+                      const taxable = result.taxable;
+                      if (taxable <= 2500) {
+                        return <p className="text-xs text-muted">({formatMoney(taxable)} − 200) × 14% = <span className="font-medium text-foreground">{formatMoney(result.incomeTax)} AZN</span></p>;
                       }
                       return (
                         <>
-                          <p className="text-xs text-muted">{b1}₼ × 14% = <span className="font-medium text-foreground">{formatMoney(b1 * 0.14)} AZN</span></p>
-                          <p className="text-xs text-muted">{taxable - b1}₼ × 25% = <span className="font-medium text-foreground">{formatMoney((taxable - b1) * 0.25)} AZN</span></p>
-                          <p className="text-xs font-medium text-foreground border-t border-border pt-1">{pt.totalLabel}: {formatMoney(result.incomeTax)} AZN</p>
+                          <p className="text-xs text-muted">350 + ({formatMoney(taxable)} − 2.500) × 25%</p>
+                          <p className="text-xs text-muted">= 350 + {formatMoney((taxable - 2500) * 0.25)}</p>
+                          <p className="text-xs font-medium text-foreground border-t border-border pt-1">= {formatMoney(result.incomeTax)} AZN</p>
                         </>
                       );
                     })()}
@@ -693,6 +1372,33 @@ export default function CivilServantSalary() {
                   )}
                 </div>
               </div>
+
+              {/* Həmkarlar */}
+              {unionMember && (
+                <div className="px-5 py-3">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm font-medium text-foreground">{pt.unionLabel}</span>
+                    <span className="text-sm font-bold text-foreground">{formatMoney(result.union)} AZN</span>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-2.5 mt-1.5">
+                    <p className="text-xs text-muted">{formatMoney(gross!)}₼ × 2% = <span className="font-medium text-foreground">{formatMoney(result.union)} AZN</span></p>
+                  </div>
+                </div>
+              )}
+
+              {/* YAP */}
+              {yapaMember && (
+                <div className="px-5 py-3">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm font-medium text-foreground">{pt.yapaMember}</span>
+                    <span className="text-sm font-bold text-foreground">{formatMoney(result.yapa)} AZN</span>
+                  </div>
+                  <p className="text-[11px] text-muted">{pt.yapaDesc}</p>
+                  <div className="bg-gray-50 rounded-lg p-2.5 mt-1.5">
+                    <p className="text-xs text-muted">{formatMoney(baseSalary)}₼ × 1% = <span className="font-medium text-foreground">{formatMoney(result.yapa)} AZN</span></p>
+                  </div>
+                </div>
+              )}
 
               {/* Cəmi */}
               <div className="flex justify-between px-5 py-3 bg-red-50">

@@ -217,6 +217,15 @@ export const calculators: Calculator[] = [
     icon: "🌍",
     path: "/hesablayici/xaricde-tehsil",
   },
+  {
+    id: "tehsil-krediti",
+    name: "Təhsil tələbə krediti (TTK)",
+    description: "Sosial və standart TTK hesablanması — faiz, güzəşt, qaytarma qrafiki",
+    category: "education",
+    icon: "🎓",
+    path: "/hesablayici/tehsil-krediti",
+    popular: true,
+  },
 
   // 🏠 Real Estate
   {

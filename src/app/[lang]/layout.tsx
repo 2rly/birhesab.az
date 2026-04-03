@@ -9,14 +9,15 @@ export function generateStaticParams() {
   return SUPPORTED_LANGS.map((lang) => ({ lang }));
 }
 
-export default function LangLayout({
+export default async function LangLayout({
   children,
   params,
 }: {
   children: React.ReactNode;
-  params: { lang: string };
+  params: Promise<{ lang: string }>;
 }) {
-  const lang = (SUPPORTED_LANGS.includes(params.lang as Lang) ? params.lang : "az") as Lang;
+  const { lang: rawLang } = await params;
+  const lang = (SUPPORTED_LANGS.includes(rawLang as Lang) ? rawLang : "az") as Lang;
 
   return (
     <ClientProvider initialLang={lang}>

@@ -27,7 +27,7 @@ interface ZodiacSign {
 }
 
 const zodiacSigns: ZodiacSign[] = [
-  { name: { az: "Oqtay (Qoç)", en: "Aries", ru: "Овен" }, symbol: "♈", startMonth: 3, startDay: 21, endMonth: 4, endDay: 19 },
+  { name: { az: "Qoç", en: "Aries", ru: "Овен" }, symbol: "♈", startMonth: 3, startDay: 21, endMonth: 4, endDay: 19 },
   { name: { az: "Buğa", en: "Taurus", ru: "Телец" }, symbol: "♉", startMonth: 4, startDay: 20, endMonth: 5, endDay: 20 },
   { name: { az: "Əkizlər", en: "Gemini", ru: "Близнецы" }, symbol: "♊", startMonth: 5, startDay: 21, endMonth: 6, endDay: 20 },
   { name: { az: "Xərçəng", en: "Cancer", ru: "Рак" }, symbol: "♋", startMonth: 6, startDay: 21, endMonth: 7, endDay: 22 },
@@ -69,7 +69,7 @@ const pageTranslations = {
 
 Hesablamaya il, ay və gün daxildir. Keçən günlər, həftələr və saatlar avtomatik hesablanır.
 
-Bürcləer (zodiak) doğum tarixinə görə müəyyən edilir.
+Bürclər (zodiak) doğum tarixinə görə müəyyən edilir.
 Azərbaycanda ən çox istifadə olunan bürc sistemi Qərb zodiak sistemidir.`,
     birthDateLabel: "Doğum tarixiniz",
     yourAge: "Sizin yaşınız",
