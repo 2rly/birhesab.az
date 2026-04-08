@@ -7,7 +7,9 @@ import type { Lang } from "@/i18n";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
-type GroupId = "1" | "2" | "3dt" | "3tc" | "4" | "5";
+type ExamType = "buraxilis" | "blok";
+type GradeLevel = "9" | "11";
+type GroupId = "1rk" | "1ri" | "2" | "3dt" | "3tc" | "4" | "5";
 
 interface GroupDef {
   id: GroupId;
@@ -18,7 +20,8 @@ interface GroupDef {
 // ── Constants ──────────────────────────────────────────────────────────────────
 
 const GROUP_DEFS: GroupDef[] = [
-  { id: "1", name: "I qrup", subjects: [["Riyaziyyat", 1.5], ["Fizika", 1.5], ["Kimya", 1]] },
+  { id: "1rk", name: "I qrup (RK)", subjects: [["Riyaziyyat", 1.5], ["Fizika", 1.5], ["Kimya", 1]] },
+  { id: "1ri", name: "I qrup (Rİ)", subjects: [["Riyaziyyat", 1.5], ["İnformatika", 1.5], ["Fizika", 1]] },
   { id: "2", name: "II qrup", subjects: [["Riyaziyyat", 1.5], ["Coğrafiya", 1.5], ["Tarix", 1]] },
   { id: "3dt", name: "III qrup (DT)", subjects: [["Azərbaycan dili", 1.5], ["Tarix", 1.5], ["Ədəbiyyat", 1]] },
   { id: "3tc", name: "III qrup (TC)", subjects: [["Azərbaycan dili", 1.5], ["Tarix", 1.5], ["Coğrafiya", 1]] },
@@ -119,6 +122,44 @@ function calcStage1Riya(closed: number, openCoded: number, openWritten: number):
   return round1(clamp(raw, 0, 100));
 }
 
+// ── 9-cu sinif buraxılış imtahanı (PDF qaydaları) ──────────────────────────────
+
+interface Stage9Inputs {
+  // Tədris dili — 30 tapşırıq (26 qapalı, 4 açıq yazılı)
+  tdQapali: number;
+  tdYazili: number[]; // 4 task scores (each 0, 1/3, 1/2, 2/3, 1)
+  // Riyaziyyat — 25 tapşırıq (15 qapalı, 6 kod, 4 açıq yazılı)
+  riyaQapali: number;
+  riyaKod: number;
+  riyaYazili: number[]; // 4 task scores
+  // Xarici dil — 26 tapşırıq (22 qapalı, 2 kod, 1 doğru/yanlış, 1 esse)
+  xdQapali: number;
+  xdKod: number;
+  xdDY: number; // 0, 0.5, or 1
+  xdEsse: number; // 0..5
+}
+
+function calc9Tedris(qapali: number, yazili: number[]): number {
+  const y = yazili.reduce((s, v) => s + v, 0);
+  const raw = (2 * y + qapali) * 100 / 34;
+  return round1(clamp(raw, 0, 100));
+}
+function calc9Riya(qapali: number, kod: number, yazili: number[]): number {
+  const y = yazili.reduce((s, v) => s + v, 0);
+  const raw = (2 * y + kod + qapali) * 100 / 29;
+  return round1(clamp(raw, 0, 100));
+}
+function calc9Xarici(qapali: number, kod: number, dy: number, esse: number): number {
+  const raw = (esse + dy + kod + qapali) * 100 / 30;
+  return round1(clamp(raw, 0, 100));
+}
+
+const DY_OPTIONS = [
+  { label: "0", value: 0 },
+  { label: "0.5", value: 0.5 },
+  { label: "1", value: 1 },
+];
+
 // ── Stage 2 calculations ───────────────────────────────────────────────────────
 
 interface Stage2SubjectInputs {
@@ -171,7 +212,8 @@ Fənn balı = NBq + NBa (0.1-ə yuvarlaqlaşdırılır)
 Sonra çəki əmsalı ilə vurulur.
 
 Çəki əmsalları:
-I qrup: Riyaziyyat ×1.5, Fizika ×1.5, Kimya ×1
+I qrup (RK): Riyaziyyat ×1.5, Fizika ×1.5, Kimya ×1
+I qrup (Rİ): Riyaziyyat ×1.5, İnformatika ×1.5, Fizika ×1
 II qrup: Riyaziyyat ×1.5, Coğrafiya ×1.5, Tarix ×1
 III qrup (DT): Azərbaycan dili ×1.5, Tarix ×1.5, Ədəbiyyat ×1
 III qrup (TC): Azərbaycan dili ×1.5, Tarix ×1.5, Coğrafiya ×1
@@ -221,6 +263,22 @@ IV qrup: Biologiya ×1.5, Kimya ×1.5, Fizika ×1
     minScoresNote: "Minimum ballar təxminidir və hər il dəyişə bilər.",
     disclaimer: "Bu hesablama DİM-in rəsmi bal hesablama qaydalarına əsaslanır. Lakin universitetlərin minimum keçid balları hər il dəyişir. Ən dəqiq məlumat üçün DİM-in rəsmi saytına (dim.gov.az) müraciət edin.",
     disclaimerLabel: "Diqqət:",
+    examTypeTitle: "İmtahan növünü seçin",
+    buraxilis: "Buraxılış imtahanı",
+    blok: "Blok imtahanı",
+    gradeTitle: "Sinifi seçin",
+    grade9: "9-cu sinif",
+    grade11: "11-ci sinif",
+    nativeLang: "Azərbaycan (rus) dili",
+    nativeLangShort: "Az. dili",
+    closedAnswers: "Qapalı tipli düzgün cavablar",
+    openCodedAnswers: "Açıq (kodlaşdırılma) düzgün cavablar",
+    openWrittenAnswers: "Açıq (yazılı) tapşırıqlar",
+    truefalseTask: "Doğru/yanlış tapşırığı",
+    essayTask: "Esse balı (0–5)",
+    grade9Note: "9-cu sinif buraxılış imtahanı 3 fənn üzrə hesablanır: tədris dili, riyaziyyat və xarici dil. Hər fənn 100 baldır, ümumi 300 bal.",
+    grade11Note: "11-ci sinif buraxılış imtahanı DİM-in birinci mərhələ qaydalarına əsasən hesablanır.",
+    blokNote: "Blok imtahanı seçilmiş ixtisas qrupuna uyğun 3 fənn üzrə hesablanır (max 400 bal).",
   },
   en: {
     title: "DIM Score Calculator",
@@ -244,7 +302,8 @@ Subject score = NBq + NBa (rounded to 0.1)
 Then multiplied by weight coefficient.
 
 Weight coefficients:
-Group I: Mathematics ×1.5, Physics ×1.5, Chemistry ×1
+Group I (RK): Mathematics ×1.5, Physics ×1.5, Chemistry ×1
+Group I (Rİ): Mathematics ×1.5, Informatics ×1.5, Physics ×1
 Group II: Mathematics ×1.5, Geography ×1.5, History ×1
 Group III (DT): Azerbaijani ×1.5, History ×1.5, Literature ×1
 Group III (TC): Azerbaijani ×1.5, History ×1.5, Geography ×1
@@ -294,6 +353,22 @@ Total score = First stage + Second stage (max 700)`,
     minScoresNote: "Minimum scores are approximate and change every year.",
     disclaimer: "This calculation is based on DIM's official score calculation rules. However, universities' minimum passing scores change every year. For the most accurate information, refer to DIM's official website (dim.gov.az).",
     disclaimerLabel: "Note:",
+    examTypeTitle: "Select exam type",
+    buraxilis: "Graduation exam",
+    blok: "Block exam",
+    gradeTitle: "Select grade",
+    grade9: "9th grade",
+    grade11: "11th grade",
+    nativeLang: "Azerbaijani (Russian) language",
+    nativeLangShort: "Az. lang.",
+    closedAnswers: "Closed-type correct answers",
+    openCodedAnswers: "Open (coded) correct answers",
+    openWrittenAnswers: "Open (written) tasks",
+    truefalseTask: "True/false task",
+    essayTask: "Essay score (0–5)",
+    grade9Note: "9th grade graduation exam covers 3 subjects: native language, mathematics, and foreign language. Each subject is worth 100 points (300 total).",
+    grade11Note: "11th grade graduation exam is calculated according to DIM's first stage rules.",
+    blokNote: "Block exam covers 3 subjects depending on the chosen specialty group (max 400 points).",
   },
   ru: {
     title: "Калькулятор баллов ГЭЦ",
@@ -317,7 +392,8 @@ Total score = First stage + Second stage (max 700)`,
 Затем умножается на весовой коэффициент.
 
 Весовые коэффициенты:
-Группа I: Математика ×1.5, Физика ×1.5, Химия ×1
+Группа I (RK): Математика ×1.5, Физика ×1.5, Химия ×1
+Группа I (Rİ): Математика ×1.5, Информатика ×1.5, Физика ×1
 Группа II: Математика ×1.5, География ×1.5, История ×1
 Группа III (ДТ): Азерб. язык ×1.5, История ×1.5, Литература ×1
 Группа III (ТС): Азерб. язык ×1.5, История ×1.5, География ×1
@@ -367,6 +443,22 @@ Total score = First stage + Second stage (max 700)`,
     minScoresNote: "Минимальные баллы приблизительны и меняются каждый год.",
     disclaimer: "Этот расчёт основан на официальных правилах расчёта баллов ГЭЦ. Однако минимальные проходные баллы университетов меняются каждый год. Для наиболее точной информации обращайтесь на официальный сайт ГЭЦ (dim.gov.az).",
     disclaimerLabel: "Внимание:",
+    examTypeTitle: "Выберите тип экзамена",
+    buraxilis: "Выпускной экзамен",
+    blok: "Блочный экзамен",
+    gradeTitle: "Выберите класс",
+    grade9: "9-й класс",
+    grade11: "11-й класс",
+    nativeLang: "Азербайджанский (русский) язык",
+    nativeLangShort: "Аз. язык",
+    closedAnswers: "Правильные ответы (закрытые)",
+    openCodedAnswers: "Правильные открытые (кодированные)",
+    openWrittenAnswers: "Открытые (письменные) задания",
+    truefalseTask: "Задание «верно/неверно»",
+    essayTask: "Балл за эссе (0–5)",
+    grade9Note: "Выпускной экзамен 9-го класса включает 3 предмета: язык обучения, математика и иностранный язык. Каждый — 100 баллов (всего 300).",
+    grade11Note: "Выпускной экзамен 11-го класса рассчитывается по правилам первого этапа ГЭЦ.",
+    blokNote: "Блочный экзамен охватывает 3 предмета выбранной группы специальностей (макс. 400 баллов).",
   },
 };
 
@@ -382,13 +474,28 @@ const defaultStage2Subject: Stage2SubjectInputs = {
   dq: 0, yq: 0, dkod: 0, writtenScores: [0, 0, 0],
 };
 
+const defaultStage9: Stage9Inputs = {
+  tdQapali: 0,
+  tdYazili: [0, 0, 0, 0],
+  riyaQapali: 0,
+  riyaKod: 0,
+  riyaYazili: [0, 0, 0, 0],
+  xdQapali: 0,
+  xdKod: 0,
+  xdDY: 0,
+  xdEsse: 0,
+};
+
 export default function UniversitetQebulCalculator() {
   const { lang } = useLanguage();
   const pt = pageTranslations[lang];
   const universities = UNIVERSITIES_TR[lang];
 
-  const [selectedGroup, setSelectedGroup] = useState<GroupId>("1");
+  const [examType, setExamType] = useState<ExamType>("buraxilis");
+  const [gradeLevel, setGradeLevel] = useState<GradeLevel>("11");
+  const [selectedGroup, setSelectedGroup] = useState<GroupId>("1rk");
   const [s1, setS1] = useState<Stage1Inputs>({ ...defaultStage1 });
+  const [s9, setS9] = useState<Stage9Inputs>({ ...defaultStage9, tdYazili: [0, 0, 0, 0], riyaYazili: [0, 0, 0, 0] });
   const [s2, setS2] = useState<Stage2SubjectInputs[]>([
     { ...defaultStage2Subject, writtenScores: [0, 0, 0] },
     { ...defaultStage2Subject, writtenScores: [0, 0, 0] },
@@ -397,6 +504,10 @@ export default function UniversitetQebulCalculator() {
 
   const group = GROUP_DEFS.find((g) => g.id === selectedGroup)!;
   const isVGroup = selectedGroup === "5";
+  const isBuraxilis = examType === "buraxilis";
+  const isBlok = examType === "blok";
+  const is9 = isBuraxilis && gradeLevel === "9";
+  const is11 = isBuraxilis && gradeLevel === "11";
 
   const resetAll = useCallback(() => {
     setS1({ ...defaultStage1 });
@@ -419,6 +530,21 @@ export default function UniversitetQebulCalculator() {
     setS2((prev) => {
       const next = prev.map((s, i) => (i === subjectIdx ? { ...s, [field]: num } : s));
       return next;
+    });
+  };
+
+  const updateS9 = (field: keyof Omit<Stage9Inputs, "tdYazili" | "riyaYazili">, val: string) => {
+    const num = val === "" ? 0 : parseFloat(val);
+    if (isNaN(num) || num < 0) return;
+    setS9((prev) => ({ ...prev, [field]: num }));
+  };
+
+  const updateS9Yazili = (group: "td" | "riya", taskIdx: number, val: number) => {
+    setS9((prev) => {
+      const key = group === "td" ? "tdYazili" : "riyaYazili";
+      const arr = [...prev[key]];
+      arr[taskIdx] = val;
+      return { ...prev, [key]: arr };
     });
   };
 
@@ -454,6 +580,14 @@ export default function UniversitetQebulCalculator() {
     return { xarici, az, riya, total };
   }, [s1]);
 
+  const stage9Results = useMemo(() => {
+    const td = calc9Tedris(clamp(s9.tdQapali, 0, 26), s9.tdYazili);
+    const riya = calc9Riya(clamp(s9.riyaQapali, 0, 15), clamp(s9.riyaKod, 0, 6), s9.riyaYazili);
+    const xd = calc9Xarici(clamp(s9.xdQapali, 0, 22), clamp(s9.xdKod, 0, 2), clamp(s9.xdDY, 0, 1), clamp(s9.xdEsse, 0, 5));
+    const total = round1(td + riya + xd);
+    return { td, riya, xd, total };
+  }, [s9]);
+
   const stage2Results = useMemo(() => {
     if (isVGroup) return null;
     const results = group.subjects.map((_, i) => {
@@ -472,9 +606,13 @@ export default function UniversitetQebulCalculator() {
     return { results, total };
   }, [s2, group, isVGroup]);
 
-  const grandTotal = round1(stage1Results.total + (stage2Results?.total ?? 0));
-  const maxTotal = isVGroup ? 300 : 700;
-  const scoreColor = getScoreColor(isVGroup ? grandTotal * 700 / 300 : grandTotal, lang);
+  const grandTotal = isBlok
+    ? round1(stage2Results?.total ?? 0)
+    : is9
+    ? stage9Results.total
+    : stage1Results.total;
+  const maxTotal = isBlok ? 400 : 300;
+  const scoreColor = getScoreColor(grandTotal * 700 / maxTotal, lang);
 
   // ── Render helpers ──
 
@@ -533,29 +671,162 @@ export default function UniversitetQebulCalculator() {
       formulaContent={pt.formulaContent}
       relatedIds={["gpa", "ielts", "sat"]}
     >
-      {/* ── Step 1: Group Selection ── */}
-      <div className="mb-8">
-        <h2 className="text-lg font-semibold text-foreground mb-3">{pt.selectGroup}</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {GROUP_DEFS.map((g) => (
+      {/* ── Step 0: Exam type ── */}
+      <div className="mb-6">
+        <h2 className="text-lg font-semibold text-foreground mb-3">{pt.examTypeTitle}</h2>
+        <div className="grid grid-cols-2 gap-3">
+          {([
+            { id: "buraxilis" as ExamType, label: pt.buraxilis, icon: "🎓" },
+            { id: "blok" as ExamType, label: pt.blok, icon: "📚" },
+          ]).map((opt) => (
             <button
-              key={g.id}
-              onClick={() => { setSelectedGroup(g.id); resetAll(); }}
-              className={`p-3 rounded-xl border text-center transition-all text-sm font-medium ${
-                selectedGroup === g.id
+              key={opt.id}
+              onClick={() => setExamType(opt.id)}
+              className={`p-4 rounded-xl border text-center transition-all text-sm font-medium ${
+                examType === opt.id
                   ? "border-primary bg-primary/5 ring-2 ring-primary text-primary"
                   : "border-border bg-white hover:border-primary/30 text-foreground"
               }`}
             >
-              {g.name}
+              <div className="text-2xl mb-1">{opt.icon}</div>
+              {opt.label}
             </button>
           ))}
         </div>
       </div>
 
-      {/* ── Step 2: Stage 1 ── */}
+      {/* ── Buraxılış: grade selector ── */}
+      {isBuraxilis && (
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-foreground mb-3">{pt.gradeTitle}</h2>
+          <div className="grid grid-cols-2 gap-3">
+            {([
+              { id: "9" as GradeLevel, label: pt.grade9 },
+              { id: "11" as GradeLevel, label: pt.grade11 },
+            ]).map((opt) => (
+              <button
+                key={opt.id}
+                onClick={() => setGradeLevel(opt.id)}
+                className={`p-3 rounded-xl border text-center transition-all text-sm font-medium ${
+                  gradeLevel === opt.id
+                    ? "border-primary bg-primary/5 ring-2 ring-primary text-primary"
+                    : "border-border bg-white hover:border-primary/30 text-foreground"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-muted mt-2">{is9 ? pt.grade9Note : pt.grade11Note}</p>
+        </div>
+      )}
+
+      {/* ── Blok: Group Selection ── */}
+      {isBlok && (
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold text-foreground mb-3">{pt.selectGroup}</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {GROUP_DEFS.filter((g) => g.id !== "5").map((g) => (
+              <button
+                key={g.id}
+                onClick={() => { setSelectedGroup(g.id); resetAll(); }}
+                className={`p-3 rounded-xl border text-center transition-all text-sm font-medium ${
+                  selectedGroup === g.id
+                    ? "border-primary bg-primary/5 ring-2 ring-primary text-primary"
+                    : "border-border bg-white hover:border-primary/30 text-foreground"
+                }`}
+              >
+                {g.name}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-muted mt-2">{pt.blokNote}</p>
+        </div>
+      )}
+
+      {/* ── 9-cu sinif buraxılış inputs ── */}
+      {is9 && (
+        <div className="mb-8">
+          {/* Tədris dili */}
+          <div className="bg-gray-50 rounded-xl p-4 mb-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-medium text-foreground">{pt.nativeLang} <span className="text-xs text-muted">(30 {pt.tasks})</span></h3>
+              <span className="text-sm font-semibold text-primary">{stage9Results.td} {pt.score}</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+              {numberInput(pt.closedAnswers, s9.tdQapali, (v) => updateS9("tdQapali", v), 26, "max 26")}
+            </div>
+            <p className="text-xs font-medium text-muted mb-2 uppercase tracking-wide">{pt.openWrittenAnswers} (4)</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {s9.tdYazili.map((v, i) => (
+                <div key={`td-${i}`}>
+                  {writtenSelect(`${pt.writtenTask} ${i + 1}`, v, (val) => updateS9Yazili("td", i, val))}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Riyaziyyat */}
+          <div className="bg-gray-50 rounded-xl p-4 mb-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-medium text-foreground">{pt.math} <span className="text-xs text-muted">(25 {pt.tasks})</span></h3>
+              <span className="text-sm font-semibold text-primary">{stage9Results.riya} {pt.score}</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+              {numberInput(pt.closedAnswers, s9.riyaQapali, (v) => updateS9("riyaQapali", v), 15, "max 15")}
+              {numberInput(pt.openCodedAnswers, s9.riyaKod, (v) => updateS9("riyaKod", v), 6, "max 6")}
+            </div>
+            <p className="text-xs font-medium text-muted mb-2 uppercase tracking-wide">{pt.openWrittenAnswers} (4)</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {s9.riyaYazili.map((v, i) => (
+                <div key={`riya-${i}`}>
+                  {writtenSelect(`${pt.writtenTask} ${i + 1}`, v, (val) => updateS9Yazili("riya", i, val))}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Xarici dil */}
+          <div className="bg-gray-50 rounded-xl p-4 mb-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-medium text-foreground">{pt.foreignLang} <span className="text-xs text-muted">(26 {pt.tasks})</span></h3>
+              <span className="text-sm font-semibold text-primary">{stage9Results.xd} {pt.score}</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+              {numberInput(pt.closedAnswers, s9.xdQapali, (v) => updateS9("xdQapali", v), 22, "max 22")}
+              {numberInput(pt.openCodedAnswers, s9.xdKod, (v) => updateS9("xdKod", v), 2, "max 2")}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">{pt.truefalseTask}</label>
+                <select
+                  value={s9.xdDY}
+                  onChange={(e) => updateS9("xdDY", e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-border bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                >
+                  {DY_OPTIONS.map((opt) => (
+                    <option key={opt.label} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+              {numberInput(pt.essayTask, s9.xdEsse, (v) => updateS9("xdEsse", v), 5, "0–5")}
+            </div>
+          </div>
+
+          {/* 9th total */}
+          <div className="bg-blue-50 rounded-xl border border-blue-200 p-4 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-blue-800">{pt.stage1Total}</p>
+              <p className="text-xs text-blue-600 mt-0.5">{pt.nativeLangShort} ({stage9Results.td}) + {pt.mathShort} ({stage9Results.riya}) + {pt.foreignLangShort} ({stage9Results.xd})</p>
+            </div>
+            <p className="text-2xl font-bold text-blue-800">{stage9Results.total} <span className="text-sm font-normal">/ 300</span></p>
+          </div>
+        </div>
+      )}
+
+      {/* ── 11-ci sinif buraxılış / Stage 1 ── */}
+      {is11 && (
       <div className="mb-8">
-        <h2 className="text-lg font-semibold text-foreground mb-1">{pt.stage1Title}</h2>
         <p className="text-sm text-muted mb-4">{pt.stage1Desc}</p>
 
         {/* Xarici dil */}
@@ -604,9 +875,10 @@ export default function UniversitetQebulCalculator() {
           <p className="text-2xl font-bold text-blue-800">{stage1Results.total} <span className="text-sm font-normal">/ 300</span></p>
         </div>
       </div>
+      )}
 
-      {/* ── Step 3: Stage 2 (not for V qrup) ── */}
-      {!isVGroup && (
+      {/* ── Blok: Stage 2 ── */}
+      {isBlok && !isVGroup && (
         <div className="mb-8">
           <h2 className="text-lg font-semibold text-foreground mb-1">{pt.stage2Title}</h2>
           <p className="text-sm text-muted mb-4">{group.name} {pt.stage2Subjects}</p>
@@ -692,39 +964,15 @@ export default function UniversitetQebulCalculator() {
         </div>
       )}
 
-      {isVGroup && (
-        <div className="mb-8 bg-yellow-50 rounded-xl border border-yellow-200 p-4">
-          <p className="text-sm text-yellow-800">
-            {pt.vGroupNote}
-          </p>
-        </div>
-      )}
-
       {/* ── Results ── */}
       <div className="space-y-4">
         {/* Grand Total */}
         <div className="bg-gradient-to-br from-primary to-primary-dark rounded-2xl p-8 text-center text-white">
           <p className="text-sm font-medium text-blue-200 mb-1">
-            {isVGroup ? pt.stage1Score : pt.totalScore}
+            {isBuraxilis ? pt.buraxilis : pt.blok}
           </p>
           <p className="text-6xl font-bold mb-2">{grandTotal}</p>
           <p className="text-sm text-blue-200">{maxTotal} {pt.outOf}</p>
-        </div>
-
-        {/* Score breakdown cards */}
-        <div className={`grid ${isVGroup ? "grid-cols-1" : "grid-cols-2"} gap-4`}>
-          <div className="bg-blue-50 rounded-xl p-4 text-center">
-            <p className="text-xs text-muted mb-1">{pt.stage1Label}</p>
-            <p className="text-2xl font-bold text-blue-800">{stage1Results.total}</p>
-            <p className="text-xs text-muted">/ 300</p>
-          </div>
-          {!isVGroup && (
-            <div className="bg-purple-50 rounded-xl p-4 text-center">
-              <p className="text-xs text-muted mb-1">{pt.stage2Label}</p>
-              <p className="text-2xl font-bold text-purple-800">{stage2Results?.total ?? 0}</p>
-              <p className="text-xs text-muted">/ 400</p>
-            </div>
-          )}
         </div>
 
         {/* Score range indicator */}
@@ -745,7 +993,7 @@ export default function UniversitetQebulCalculator() {
         </div>
 
         {/* University comparison */}
-        {!isVGroup && grandTotal > 0 && (
+        {isBlok && grandTotal > 0 && (
           <div className="bg-white rounded-xl border border-border overflow-hidden">
             <div className="bg-gray-50 px-5 py-3 border-b border-border">
               <h3 className="font-semibold text-foreground">

@@ -165,13 +165,9 @@ const pageTranslations = {
     certification: "Sertifikatlaşma",
     yes: "Bəli",
     no: "Xeyr",
-    specialtyScore: "İxtisas balı (0-40)",
-    methodologyScore: "Metodika balı (0-20)",
+    specialtyScore: "İxtisas balı",
+    methodologyScore: "Metodika balı",
     interviewScore: "Müsahibə balı",
-    avgScore: "Orta bal",
-    certBonus35: "Əlavə: +35%",
-    certBonus10: "Əlavə: +10%",
-    certNotMet: "Sertifikatlaşma şərtləri ödənilməmişdir",
     institutionType: "Müəssisə tipi",
     hasCharter: "Nizamnamə var",
     charterNote: "Lisey saatlarına +15% əlavə olunur",
@@ -275,13 +271,9 @@ const pageTranslations = {
     certification: "Certification",
     yes: "Yes",
     no: "No",
-    specialtyScore: "Specialty score (0-40)",
-    methodologyScore: "Methodology score (0-20)",
+    specialtyScore: "Specialty score",
+    methodologyScore: "Methodology score",
     interviewScore: "Interview score",
-    avgScore: "Average score",
-    certBonus35: "Bonus: +35%",
-    certBonus10: "Bonus: +10%",
-    certNotMet: "Certification requirements not met",
     institutionType: "Institution type",
     hasCharter: "Has charter",
     charterNote: "+15% added to lycee hours",
@@ -385,13 +377,9 @@ const pageTranslations = {
     certification: "Сертификация",
     yes: "Да",
     no: "Нет",
-    specialtyScore: "Балл по специальности (0-40)",
-    methodologyScore: "Балл по методике (0-20)",
+    specialtyScore: "Балл по специальности",
+    methodologyScore: "Балл по методике",
     interviewScore: "Балл собеседования",
-    avgScore: "Средний балл",
-    certBonus35: "Надбавка: +35%",
-    certBonus10: "Надбавка: +10%",
-    certNotMet: "Условия сертификации не выполнены",
     institutionType: "Тип учреждения",
     hasCharter: "Есть устав",
     charterNote: "+15% к лицейским часам",
@@ -641,10 +629,12 @@ export default function TeacherSalaryCalculator() {
       const ix = parseFloat(ixtisasBal) || 0;
       const met = parseFloat(metodikaBal) || 0;
       const mus = parseFloat(musahibeBal) || 0;
-      const avg = (ix + met) / 2;
+      const totalCertScore = ix + met + mus;
       const certBase = dersYukuWithInst + militaryBaseSalary + militaryExtraHoursSalary;
-      if (avg >= 30 && mus >= 20) {
-        certBonus = avg >= 51 ? certBase * 0.35 : certBase * 0.10;
+      if (totalCertScore >= 80) {
+        certBonus = certBase * 0.35;
+      } else if (totalCertScore >= 60) {
+        certBonus = certBase * 0.10;
       }
     }
 
@@ -807,36 +797,18 @@ export default function TeacherSalaryCalculator() {
               <div>
                 <label className={subLabel}>{pt.specialtyScore}</label>
                 <input type="number" value={ixtisasBal} onChange={(e) => setIxtisasBal(e.target.value)}
-                  min="0" max="40" placeholder="0" className={inputCls} />
+                  min="0" placeholder="0" className={inputCls} />
               </div>
               <div>
                 <label className={subLabel}>{pt.methodologyScore}</label>
                 <input type="number" value={metodikaBal} onChange={(e) => setMetodikaBal(e.target.value)}
-                  min="0" max="20" placeholder="0" className={inputCls} />
+                  min="0" placeholder="0" className={inputCls} />
               </div>
               <div>
                 <label className={subLabel}>{pt.interviewScore}</label>
                 <input type="number" value={musahibeBal} onChange={(e) => setMusahibeBal(e.target.value)}
                   min="0" placeholder="0" className={inputCls} />
               </div>
-              {(() => {
-                const ix = parseFloat(ixtisasBal) || 0;
-                const met = parseFloat(metodikaBal) || 0;
-                const mus = parseFloat(musahibeBal) || 0;
-                const avg = (ix + met) / 2;
-                if (ix === 0 && met === 0 && mus === 0) return null;
-                const qualified = avg >= 30 && mus >= 20;
-                return (
-                  <div className="col-span-full">
-                    <p className={`text-xs font-medium ${qualified ? "text-green-700" : "text-red-600"}`}>
-                      {pt.avgScore}: {avg.toFixed(1)}
-                      {qualified
-                        ? avg >= 51 ? ` — ${pt.certBonus35}` : ` — ${pt.certBonus10}`
-                        : ` — ${pt.certNotMet}`}
-                    </p>
-                  </div>
-                );
-              })()}
             </div>
           )}
         </div>
