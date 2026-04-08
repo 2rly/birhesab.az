@@ -620,6 +620,7 @@ export default function SalaryCalculator() {
   const [empAmount, setEmpAmount] = useState("");
   const [empSector, setEmpSector] = useState<Sector>("private");
 
+
   const activeExemption = hasExemption ? exemptionAmount : 0;
 
   const result = useMemo(() => {

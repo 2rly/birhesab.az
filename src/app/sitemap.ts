@@ -1,6 +1,8 @@
 import { MetadataRoute } from "next";
 import { calculators } from "@/data/calculators";
 
+export const dynamic = "force-static";
+
 const LANGS = ["az", "en", "ru"];
 
 export default function sitemap(): MetadataRoute.Sitemap {

@@ -141,6 +141,14 @@ export const calculators: Calculator[] = [
     path: "/hesablayici/elave-is-saati",
   },
   {
+    id: "education-leave",
+    name: "Təhsil məzuniyyəti hesablayıcısı",
+    description: "Təhsil məzuniyyəti haqqının hesablanması — Əmək Məcəlləsi maddə 123-124",
+    category: "finance",
+    icon: "🎓",
+    path: "/hesablayici/tehsil-mezuniyyeti",
+  },
+  {
     id: "teacher-salary",
     name: "Müəllim maaşı hesablayıcısı",
     description: "Dərs saatı, kateqoriya, staj və əlavələrə görə müəllim maaşı",

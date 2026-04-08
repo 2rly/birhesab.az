@@ -55,6 +55,30 @@ function getZodiac(month: number, day: number): ZodiacSign {
   return zodiacSigns[0];
 }
 
+interface ChineseZodiac {
+  name: Record<Lang, string>;
+  emoji: string;
+}
+
+const chineseZodiacAnimals: ChineseZodiac[] = [
+  { name: { az: "Siçan", en: "Rat", ru: "Крыса" }, emoji: "🐀" },
+  { name: { az: "Öküz", en: "Ox", ru: "Бык" }, emoji: "🐂" },
+  { name: { az: "Pələng", en: "Tiger", ru: "Тигр" }, emoji: "🐅" },
+  { name: { az: "Dovşan", en: "Rabbit", ru: "Кролик" }, emoji: "🐇" },
+  { name: { az: "Əjdaha", en: "Dragon", ru: "Дракон" }, emoji: "🐉" },
+  { name: { az: "İlan", en: "Snake", ru: "Змея" }, emoji: "🐍" },
+  { name: { az: "At", en: "Horse", ru: "Лошадь" }, emoji: "🐎" },
+  { name: { az: "Qoyun", en: "Goat", ru: "Коза" }, emoji: "🐐" },
+  { name: { az: "Meymun", en: "Monkey", ru: "Обезьяна" }, emoji: "🐒" },
+  { name: { az: "Xoruz", en: "Rooster", ru: "Петух" }, emoji: "🐓" },
+  { name: { az: "İt", en: "Dog", ru: "Собака" }, emoji: "🐕" },
+  { name: { az: "Donuz", en: "Pig", ru: "Свинья" }, emoji: "🐖" },
+];
+
+function getChineseZodiac(year: number): ChineseZodiac {
+  return chineseZodiacAnimals[(year - 1900) % 12];
+}
+
 function fmt(n: number): string {
   return n.toLocaleString("az-AZ");
 }
@@ -90,6 +114,8 @@ Azərbaycanda ən çox istifadə olunan bürc sistemi Qərb zodiak sistemidir.`,
     ageYears: "Yaş (il)",
     ageMonths: "Yaş (ay)",
     zodiac: "Bürc",
+    chineseZodiac: "Şərq təqvimi",
+    chineseZodiacYear: "ili",
     emptyStateText: "Nəticəni görmək üçün doğum tarixinizi daxil edin.",
   },
   en: {
@@ -122,6 +148,8 @@ The most commonly used zodiac system in Azerbaijan is the Western zodiac system.
     ageYears: "Age (years)",
     ageMonths: "Age (months)",
     zodiac: "Zodiac sign",
+    chineseZodiac: "Chinese zodiac",
+    chineseZodiacYear: "year",
     emptyStateText: "Enter your date of birth to see the result.",
   },
   ru: {
@@ -154,6 +182,8 @@ The most commonly used zodiac system in Azerbaijan is the Western zodiac system.
     ageYears: "Возраст (лет)",
     ageMonths: "Возраст (мес.)",
     zodiac: "Знак зодиака",
+    chineseZodiac: "Восточный календарь",
+    chineseZodiacYear: "год",
     emptyStateText: "Введите дату рождения, чтобы увидеть результат.",
   },
 };
@@ -164,11 +194,22 @@ export default function AgeCalculator() {
   const weekdays = AZ_WEEKDAYS_TR[lang];
   const months = AZ_MONTHS_TR[lang];
 
-  const [birthDate, setBirthDate] = useState("");
+  const currentYear = new Date().getFullYear();
+  const [birthDay, setBirthDay] = useState<number>(0);
+  const [birthMonth, setBirthMonth] = useState<number>(0);
+  const [birthYear, setBirthYear] = useState<number>(0);
+
+  const daysInMonth = useMemo(() => {
+    if (!birthMonth || !birthYear) return 31;
+    return new Date(birthYear, birthMonth, 0).getDate();
+  }, [birthMonth, birthYear]);
+
+  // Reset day if it exceeds days in selected month
+  const effectiveDay = birthDay > daysInMonth ? 0 : birthDay;
 
   const result = useMemo(() => {
-    if (!birthDate) return null;
-    const birth = new Date(birthDate);
+    if (!effectiveDay || !birthMonth || !birthYear) return null;
+    const birth = new Date(birthYear, birthMonth - 1, effectiveDay);
     const today = new Date();
 
     if (birth >= today || isNaN(birth.getTime())) return null;
@@ -207,6 +248,7 @@ export default function AgeCalculator() {
 
     // Zodiac
     const zodiac = getZodiac(birth.getMonth() + 1, birth.getDate());
+    const cZodiac = getChineseZodiac(birth.getFullYear());
 
     return {
       years,
@@ -220,11 +262,12 @@ export default function AgeCalculator() {
       nextAge: years + 1,
       birthWeekdayIdx,
       zodiac,
+      chineseZodiac: cZodiac,
       birthMonth: birth.getMonth(),
       birthDay: birth.getDate(),
       birthYear: birth.getFullYear(),
     };
-  }, [birthDate]);
+  }, [effectiveDay, birthMonth, birthYear]);
 
   return (
     <CalculatorLayout
@@ -243,13 +286,38 @@ export default function AgeCalculator() {
         <label className="block text-sm font-medium text-foreground mb-2">
           {pt.birthDateLabel}
         </label>
-        <input
-          type="date"
-          value={birthDate}
-          onChange={(e) => setBirthDate(e.target.value)}
-          max={new Date().toISOString().split("T")[0]}
-          className="w-full px-4 py-3 rounded-xl border border-border bg-white text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-base"
-        />
+        <div className="grid grid-cols-3 gap-3">
+          <select
+            value={birthDay}
+            onChange={(e) => setBirthDay(Number(e.target.value))}
+            className="px-3 py-3 rounded-xl border border-border bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-base"
+          >
+            <option value={0}>{pt.day}</option>
+            {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => (
+              <option key={d} value={d}>{d}</option>
+            ))}
+          </select>
+          <select
+            value={birthMonth}
+            onChange={(e) => setBirthMonth(Number(e.target.value))}
+            className="px-3 py-3 rounded-xl border border-border bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-base"
+          >
+            <option value={0}>{pt.month}</option>
+            {months.map((m, i) => (
+              <option key={i} value={i + 1}>{m}</option>
+            ))}
+          </select>
+          <select
+            value={birthYear}
+            onChange={(e) => setBirthYear(Number(e.target.value))}
+            className="px-3 py-3 rounded-xl border border-border bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-base"
+          >
+            <option value={0}>{pt.year}</option>
+            {Array.from({ length: currentYear - 1920 + 1 }, (_, i) => currentYear - i).map((y) => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Results */}
@@ -285,7 +353,7 @@ export default function AgeCalculator() {
           </div>
 
           {/* Birthday & Zodiac */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-amber-50 rounded-2xl border border-amber-200 p-6 text-center">
               <p className="text-sm text-amber-600 mb-1">{pt.nextBirthday}</p>
               <p className="text-3xl font-bold text-amber-700">{result.daysUntilBirthday}</p>
@@ -295,6 +363,11 @@ export default function AgeCalculator() {
               <p className="text-sm text-purple-600 mb-1">{pt.yourZodiac}</p>
               <p className="text-4xl mb-1">{result.zodiac.symbol}</p>
               <p className="text-xl font-bold text-purple-700">{result.zodiac.name[lang]}</p>
+            </div>
+            <div className="bg-red-50 rounded-2xl border border-red-200 p-6 text-center">
+              <p className="text-sm text-red-600 mb-1">{pt.chineseZodiac}</p>
+              <p className="text-4xl mb-1">{result.chineseZodiac.emoji}</p>
+              <p className="text-xl font-bold text-red-700">{result.chineseZodiac.name[lang]} {pt.chineseZodiacYear}</p>
             </div>
           </div>
 
@@ -323,6 +396,10 @@ export default function AgeCalculator() {
               <div className="flex justify-between px-5 py-3">
                 <span className="text-sm text-muted">{pt.zodiac}</span>
                 <span className="text-sm font-medium text-foreground">{result.zodiac.symbol} {result.zodiac.name[lang]}</span>
+              </div>
+              <div className="flex justify-between px-5 py-3">
+                <span className="text-sm text-muted">{pt.chineseZodiac}</span>
+                <span className="text-sm font-medium text-foreground">{result.chineseZodiac.emoji} {result.chineseZodiac.name[lang]} {pt.chineseZodiacYear}</span>
               </div>
             </div>
           </div>

@@ -172,14 +172,28 @@ export default function CurrencyConverter() {
   const [isLive, setIsLive] = useState(false);
 
   useEffect(() => {
-    fetch("/api/rates")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.rates) {
-          setRates((prev) => ({ ...prev, ...data.rates }));
-          setRateDate(data.date || "");
-          setIsLive(true);
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, "0");
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const yyyy = today.getFullYear();
+    const url = `https://www.cbar.az/currencies/${dd}.${mm}.${yyyy}.xml`;
+
+    fetch(url)
+      .then((r) => r.text())
+      .then((xml) => {
+        const parsed: Record<string, number> = { AZN: 1 };
+        const regex = /<Valute Code="([^"]+)">\s*<Nominal>([^<]+)<\/Nominal>\s*<Name>[^<]*<\/Name>\s*<Value>([^<]+)<\/Value>/g;
+        let m;
+        while ((m = regex.exec(xml)) !== null) {
+          const code = m[1];
+          const nominal = parseFloat(m[2]);
+          const value = parseFloat(m[3]);
+          if (nominal > 0 && value > 0) parsed[code] = value / nominal;
         }
+        const dateMatch = xml.match(/Date="([^"]+)"/);
+        setRates((prev) => ({ ...prev, ...parsed }));
+        setRateDate(dateMatch ? dateMatch[1] : `${dd}.${mm}.${yyyy}`);
+        setIsLive(true);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
