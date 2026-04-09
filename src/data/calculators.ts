@@ -210,6 +210,14 @@ export const calculators: Calculator[] = [
     path: "/hesablayici/gpa",
   },
   {
+    id: "uomg",
+    name: "ÜOMG hesablayıcısı",
+    description: "Ümumi orta müvəffəqiyyət göstəricisi (semestr, kurs və 4 illik üzrə)",
+    category: "education",
+    icon: "🎓",
+    path: "/hesablayici/uomg",
+  },
+  {
     id: "school-grade",
     name: "Məktəb qiymət ortalaması",
     description: "Azərbaycan 2-5 qiymətləndirmə sistemi üzrə ortalama",

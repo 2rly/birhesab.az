@@ -216,10 +216,16 @@ const pageTranslations = {
     selected: "Seçilib",
     taxExemptions: "Vergi güzəştləri",
     tradeUnion: "Həmkarlar ittifaqı",
-    unionMember: "Üzvdür (1% tutulma)",
+    unionMember: "Üzvdür (2% tutulma)",
     notMember: "Üzv deyil",
     mainJob: "Əsas iş yeri",
     mainJobNote: "Əsas iş yeri olduqda 200 AZN vergi güzəşti tətbiq olunur",
+    youngSpecTitle: "Gənc mütəxəssis stimullaşdırması",
+    youngSpecDesc: "Pedaqoji profilli ali və orta ixtisas təhsilini bitirmiş yaşı 35-dək olan gənc mütəxəssislərin kənd rayonlarında yerləşən ümumi təhsil müəssisələrinə işə cəlb olunması (90 manatdan vergi tutulmur)",
+    youngSpecNone: "Yoxdur",
+    youngSpecH1: "H1 — 90 manat",
+    youngSpecH2: "H2 — 190 manat",
+    youngSpecBonus: "Gənc mütəxəssis stimullaşdırması",
     otherDeductions: "Digər tutulmalar",
     amountAZN: "Məbləğ (AZN)",
     percentage: "Faiz (%)",
@@ -249,7 +255,7 @@ const pageTranslations = {
     dsmf: "DSMF (3%)",
     unemploymentIns: "İşsizlik sığortası (0.5%)",
     medicalIns: "Tibbi sığorta (2%)",
-    tradeUnionFee: "Həmkarlar ittifaqı (1%)",
+    tradeUnionFee: "Həmkarlar ittifaqı (2%)",
     otherDeductionsLabel: "Digər tutulmalar",
     totalDeductions: "Cəmi tutulmalar",
     annualNetSalary: "İllik net maaş",
@@ -322,10 +328,16 @@ const pageTranslations = {
     selected: "Selected",
     taxExemptions: "Tax exemptions",
     tradeUnion: "Trade union",
-    unionMember: "Member (1% deduction)",
+    unionMember: "Member (2% deduction)",
     notMember: "Not a member",
     mainJob: "Main workplace",
     mainJobNote: "200 AZN tax exemption applies if this is the main workplace",
+    youngSpecTitle: "Young specialist incentive",
+    youngSpecDesc: "Incentive for young specialists (under 35) with pedagogical higher/secondary specialized education working in general education institutions in rural areas (first 90 AZN tax-exempt)",
+    youngSpecNone: "None",
+    youngSpecH1: "H1 — 90 AZN",
+    youngSpecH2: "H2 — 190 AZN",
+    youngSpecBonus: "Young specialist incentive",
     otherDeductions: "Other deductions",
     amountAZN: "Amount (AZN)",
     percentage: "Percentage (%)",
@@ -355,7 +367,7 @@ const pageTranslations = {
     dsmf: "SSPF (3%)",
     unemploymentIns: "Unemployment insurance (0.5%)",
     medicalIns: "Medical insurance (2%)",
-    tradeUnionFee: "Trade union (1%)",
+    tradeUnionFee: "Trade union (2%)",
     otherDeductionsLabel: "Other deductions",
     totalDeductions: "Total deductions",
     annualNetSalary: "Annual net salary",
@@ -428,10 +440,16 @@ const pageTranslations = {
     selected: "Выбрано",
     taxExemptions: "Налоговые льготы",
     tradeUnion: "Профсоюз",
-    unionMember: "Член (удержание 1%)",
+    unionMember: "Член (удержание 2%)",
     notMember: "Не член",
     mainJob: "Основное место работы",
     mainJobNote: "Налоговая льгота 200 AZN при основном месте работы",
+    youngSpecTitle: "Стимулирование молодого специалиста",
+    youngSpecDesc: "Привлечение молодых специалистов (до 35 лет) с пед. высшим или средним спец. образованием в общеобразовательные учреждения в сельских районах (первые 90 AZN не облагаются налогом)",
+    youngSpecNone: "Нет",
+    youngSpecH1: "H1 — 90 AZN",
+    youngSpecH2: "H2 — 190 AZN",
+    youngSpecBonus: "Стимулирование молодого специалиста",
     otherDeductions: "Прочие удержания",
     amountAZN: "Сумма (AZN)",
     percentage: "Процент (%)",
@@ -461,7 +479,7 @@ const pageTranslations = {
     dsmf: "ГФСЗ (3%)",
     unemploymentIns: "Страхование от безработицы (0.5%)",
     medicalIns: "Медицинское страхование (2%)",
-    tradeUnionFee: "Профсоюз (1%)",
+    tradeUnionFee: "Профсоюз (2%)",
     otherDeductionsLabel: "Прочие удержания",
     totalDeductions: "Итого удержания",
     annualNetSalary: "Годовая чистая зарплата",
@@ -527,7 +545,9 @@ export default function TeacherSalaryCalculator() {
   const [isUnionMember, setIsUnionMember] = useState(false);
   // 13. Əsas iş yeri
   const [isMainJob, setIsMainJob] = useState(true);
-  // 14. Digər tutulmalar
+  // 14. Gənc mütəxəssis stimullaşdırma (kənd rayonları, yaş ≤35, pedaqoji ali/orta ixtisas)
+  const [youngSpecialist, setYoungSpecialist] = useState<"none" | "h1" | "h2">("none");
+  // 15. Digər tutulmalar
   const [otherDeductionAZN, setOtherDeductionAZN] = useState("");
   const [otherDeductionPct, setOtherDeductionPct] = useState("");
 
@@ -629,12 +649,14 @@ export default function TeacherSalaryCalculator() {
       const ix = parseFloat(ixtisasBal) || 0;
       const met = parseFloat(metodikaBal) || 0;
       const mus = parseFloat(musahibeBal) || 0;
-      const totalCertScore = ix + met + mus;
+      const ixMetSum = ix + met;
       const certBase = dersYukuWithInst + militaryBaseSalary + militaryExtraHoursSalary;
-      if (totalCertScore >= 80) {
-        certBonus = certBase * 0.35;
-      } else if (totalCertScore >= 60) {
-        certBonus = certBase * 0.10;
+      if (mus >= 20) {
+        if (ixMetSum >= 51) {
+          certBonus = certBase * 0.35;
+        } else if (ixMetSum >= 30) {
+          certBonus = certBase * 0.10;
+        }
       }
     }
 
@@ -658,10 +680,17 @@ export default function TeacherSalaryCalculator() {
       workConditionTotal = baseForConditions * (totalCondPct / 100);
     }
 
-    const grossSalary = dersYukuWithInst + militaryBaseSalary + militaryExtraHoursSalary
-      + certBonus + taxableFixed + workConditionTotal + gymExtraSalary + dernekSalary;
+    const youngSpecAmount = youngSpecialist === "h1" ? 90 : youngSpecialist === "h2" ? 190 : 0;
+    // H1 (90₼) — 90 manatın hamısı vergidən və bütün tutulmalardan azaddır.
+    // H2 (190₼) — 90 manatı tam azaddır, 100 manatı isə vergi/tutulmalara cəlbdir.
+    const youngSpecExempt = youngSpecialist === "none" ? 0 : 90;
+    const youngSpecTaxable = youngSpecialist === "h2" ? 100 : 0;
 
-    if (grossSalary <= 0) return null;
+    const grossSalary = dersYukuWithInst + militaryBaseSalary + militaryExtraHoursSalary
+      + certBonus + taxableFixed + workConditionTotal + gymExtraSalary + dernekSalary
+      + youngSpecTaxable;
+
+    if (grossSalary <= 0 && youngSpecExempt <= 0) return null;
 
     let totalTaxExemption = isMainJob ? 200 : 0;
     let isFullExempt = false;
@@ -681,20 +710,21 @@ export default function TeacherSalaryCalculator() {
     const dsmf = grossSalary * 0.03;
     const unemployment = grossSalary * 0.005;
     const medical = grossSalary * 0.02;
-    const unionDue = isUnionMember ? grossSalary * 0.01 : 0;
+    const unionDue = isUnionMember ? grossSalary * 0.02 : 0;
 
     const otherAZN = parseFloat(otherDeductionAZN) || 0;
     const otherPct = parseFloat(otherDeductionPct) || 0;
     const otherDeduction = otherAZN + (grossSalary * otherPct / 100);
 
     const totalDeductions = incomeTax + dsmf + unemployment + medical + unionDue + otherDeduction;
-    const netSalary = grossSalary - totalDeductions;
+    const netSalary = grossSalary - totalDeductions + youngSpecExempt;
+    const finalGross = grossSalary + youngSpecExempt;
 
     return {
       stavka, totalHours, dersYukuSalary, institutionBonus, dersYukuWithInst,
       militaryBaseSalary, militaryExtraHoursSalary, gymExtraSalary, dernekSalary,
-      certBonus, taxableFixed, workConditionTotal, totalCondPct,
-      grossSalary, totalTaxExemption, isFullExempt,
+      certBonus, taxableFixed, workConditionTotal, totalCondPct, youngSpecAmount,
+      grossSalary: finalGross, totalTaxExemption, isFullExempt,
       incomeTax, dsmf, unemployment, medical, unionDue, otherDeduction, totalDeductions, netSalary,
     };
   }, [
@@ -709,6 +739,7 @@ export default function TeacherSalaryCalculator() {
     hasElmiDerece, hasFelsefe, hasElmler,
     workConditions,
     taxExemptions, isUnionMember, isMainJob,
+    youngSpecialist,
     otherDeductionAZN, otherDeductionPct,
   ]);
 
@@ -1168,7 +1199,18 @@ export default function TeacherSalaryCalculator() {
         <p className="text-xs text-muted mt-1">{pt.mainJobNote}</p>
       </div>
 
-      {/* ===================== 14. Digər tutulmalar ===================== */}
+      {/* ===================== 14. Gənc mütəxəssis stimullaşdırması ===================== */}
+      <div className="mb-6">
+        <label className={sectionTitle}>{pt.youngSpecTitle}</label>
+        <div className="flex gap-3 flex-wrap">
+          <button onClick={() => setYoungSpecialist("none")} className={toggleBtn(youngSpecialist === "none")}>{pt.youngSpecNone}</button>
+          <button onClick={() => setYoungSpecialist("h1")} className={toggleBtn(youngSpecialist === "h1")}>{pt.youngSpecH1}</button>
+          <button onClick={() => setYoungSpecialist("h2")} className={toggleBtn(youngSpecialist === "h2")}>{pt.youngSpecH2}</button>
+        </div>
+        <p className="text-xs text-muted mt-1">{pt.youngSpecDesc}</p>
+      </div>
+
+      {/* ===================== 15. Digər tutulmalar ===================== */}
       <div className="mb-8">
         <label className={sectionTitle}>{pt.otherDeductions}</label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1298,6 +1340,13 @@ export default function TeacherSalaryCalculator() {
                     {hasElmler ? ` (${pt.scienceDoctorShort})` : ""}
                   </span>
                   <span className="text-sm font-medium text-green-600">+{fmt(result.taxableFixed)} AZN</span>
+                </div>
+              )}
+
+              {result.youngSpecAmount > 0 && (
+                <div className="flex justify-between px-5 py-3">
+                  <span className="text-sm text-muted">{pt.youngSpecBonus} ({youngSpecialist === "h1" ? "H1" : "H2"})</span>
+                  <span className="text-sm font-medium text-green-600">+{fmt(result.youngSpecAmount)} AZN</span>
                 </div>
               )}
 

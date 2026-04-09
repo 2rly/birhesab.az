@@ -14,52 +14,173 @@ type Sector = "private" | "oilgas";
 type PaymentForm = "monthly" | "lump";
 type Currency = "AZN" | "USD";
 
-// ── Vergi hesablamaları ──
+// ── Vergi hesablamaları (emek-haqqi/page.tsx ilə eyni rəsmi qaydalar) ──
 
-// Özəl sektor: DSMF İşəgötürən
-function calcPrivateDSMFEmployer(gross: number): number {
-  if (gross <= 200) return gross * 0.22;
-  return 200 * 0.22 + (gross - 200) * 0.15;
-}
-
-// Özəl sektor: Gəlir vergisi
+// Özəl sektor: Gəlir vergisi (taxes.gov.az 2026)
 function calcPrivateIncomeTax(gross: number): number {
   const taxFree = 200;
   if (gross <= taxFree) return 0;
-  const taxable = gross - taxFree;
-  const b1 = 2300; // 2500 - 200
-  const b2 = 7800; // 8000 - 200
-  if (taxable <= b1) return taxable * 0.03;
-  if (taxable <= b2) return b1 * 0.03 + (taxable - b1) * 0.10;
-  return b1 * 0.03 + (b2 - b1) * 0.10 + (taxable - b2) * 0.14;
+  if (gross <= 2500) return (gross - taxFree) * 0.03;
+  const baseTax = 75; // rəsmi sabit
+  if (gross <= 8000) return baseTax + (gross - 2500) * 0.10;
+  return baseTax + (8000 - 2500) * 0.10 + (gross - 8000) * 0.14;
 }
 
 // Özəl sektor: DSMF işçi
+// ≤200: gross × 3%; 200–8000: 6 + (gross−200)×10%; 8000+: 786 + (gross−8000)×10%
 function calcPrivateDSMFEmployee(gross: number): number {
   if (gross <= 200) return gross * 0.03;
-  return 200 * 0.03 + (gross - 200) * 0.10;
+  if (gross <= 8000) return 6 + (gross - 200) * 0.10;
+  return 786 + (gross - 8000) * 0.10;
 }
 
 // Özəl sektor: İcbari tibbi sığorta
+// ≤2500: gross × 2%; 2500+: 50 + (gross−2500)×0,5%
 function calcPrivateMedical(gross: number): number {
   if (gross <= 2500) return gross * 0.02;
-  return 2500 * 0.02 + (gross - 2500) * 0.005;
+  return 50 + (gross - 2500) * 0.005;
 }
 
-// Neft-qaz: Gəlir vergisi
+// Özəl sektor: DSMF işəgötürən
+// ≤200: 22%; 200–8000: 44 + (gross−200)×15%; 8000+: 1214 + (gross−8000)×11%
+function calcPrivateDSMFEmployer(gross: number): number {
+  if (gross <= 200) return gross * 0.22;
+  if (gross <= 8000) return 44 + (gross - 200) * 0.15;
+  return 1214 + (gross - 8000) * 0.11;
+}
+
+// Dövlət / Neft-qaz: Gəlir vergisi
+// VCM ≤ 2500: (VCM − 200) × 14%
+// VCM > 2500: 350 + (VCM − 2500) × 25%
 function calcOilGasIncomeTax(gross: number): number {
   const taxFree = 200;
   if (gross <= taxFree) return 0;
-  const taxable = gross - taxFree;
-  const b1 = 2300;
-  if (taxable <= b1) return taxable * 0.14;
-  return b1 * 0.14 + (taxable - b1) * 0.25;
+  if (gross <= 2500) return (gross - taxFree) * 0.14;
+  return 350 + (gross - 2500) * 0.25;
 }
 
-// Neft-qaz: İcbari tibbi sığorta
+// Dövlət / Neft-qaz: İcbari tibbi sığorta
+// ≤8000: gross × 2%; 8000+: 160 + (gross−8000)×0,5%
 function calcOilGasMedical(gross: number): number {
   if (gross <= 8000) return gross * 0.02;
-  return 8000 * 0.02 + (gross - 8000) * 0.005;
+  return 160 + (gross - 8000) * 0.005;
+}
+
+// ── PAŞA Həyat aktuar hesablama (rəsmi qaydalar 30.11.2020, bənd 20) ──
+// Sabit xərc əmsalları (Əlavə 2):
+const ACT_alpha = 0.005;  // Müqavilə bağlama xərci
+const ACT_beta = 0.003;   // Yığım dövrü xərci (AZN: 0.30%-2%)
+const ACT_gamma = 0.0025; // İllik inzibati xərc
+const ACT_rho1 = 0.03;    // Ölüm hadisəsi tənzimləmə
+const ACT_rho2 = 0.015;   // Yaşam hadisəsi tənzimləmə
+const ACT_m = 12;         // Aylıq ödəniş tezliyi
+// İstifadəçi birbaşa illik gəlirlilik normasını (i) daxil edir.
+// PAŞA Həyatın faktiki istifadə etdiyi dərəcəni cbar.az və ya öz kalkulyatorundan götürmək lazımdır.
+
+// Ölüm cədvəli (Əlavə 1) — q_x dəyərləri
+const MORTALITY_Q: Record<number, number> = {
+  0: 0.0129, 1: 0.0019, 2: 0.0011, 3: 0.0007, 4: 0.0005,
+  5: 0.0005, 6: 0.0005, 7: 0.0004, 8: 0.0004, 9: 0.0004,
+  10: 0.0004, 11: 0.0004, 12: 0.0003, 13: 0.0004, 14: 0.0004,
+  15: 0.0004, 16: 0.0005, 17: 0.0005, 18: 0.0006, 19: 0.0006,
+  20: 0.0007, 21: 0.0007, 22: 0.0007, 23: 0.0008, 24: 0.0009,
+  25: 0.0009, 26: 0.0010, 27: 0.0010, 28: 0.0011, 29: 0.0012,
+  30: 0.0013, 31: 0.0013, 32: 0.0016, 33: 0.0016, 34: 0.0017,
+  35: 0.0018, 36: 0.0019, 37: 0.0021, 38: 0.0024, 39: 0.0024,
+  40: 0.0027, 41: 0.0030, 42: 0.0032, 43: 0.0035, 44: 0.0038,
+  45: 0.0043, 46: 0.0046, 47: 0.0052, 48: 0.0058, 49: 0.0064,
+  50: 0.0073, 51: 0.0081, 52: 0.0088, 53: 0.0099, 54: 0.0111,
+  55: 0.0124, 56: 0.0131, 57: 0.0144, 58: 0.0157, 59: 0.0176,
+  60: 0.0191, 61: 0.0202, 62: 0.0227, 63: 0.0245, 64: 0.0275,
+  65: 0.0305, 66: 0.0336, 67: 0.0371, 68: 0.0405, 69: 0.0456,
+  70: 0.0498, 71: 0.0558, 72: 0.0604, 73: 0.0662, 74: 0.0714,
+  75: 0.0793, 76: 0.0850, 77: 0.0904, 78: 0.0984, 79: 0.1055,
+  80: 0.1138, 81: 0.1144, 82: 0.1209, 83: 0.1303, 84: 0.1380,
+  85: 0.1406, 86: 0.1481, 87: 0.1573, 88: 0.1746, 89: 0.1922,
+  90: 0.2119, 91: 0.2337, 92: 0.2580, 93: 0.2851, 94: 0.3153,
+  95: 0.3310, 96: 0.3476, 97: 0.3650, 98: 0.3832, 99: 0.4025,
+  100: 0.4225, 101: 0.4431, 102: 0.4647, 103: 0.4909, 104: 0.5179,
+  105: 1.0000,
+};
+
+function qx(x: number): number {
+  if (x < 0) return 0;
+  if (x >= 105) return 1;
+  return MORTALITY_Q[Math.floor(x)] ?? 0;
+}
+
+// k il yaşama ehtimalı: kp_x = ∏ (1 - q_{x+j})
+function kPx(x: number, k: number): number {
+  let p = 1;
+  for (let j = 0; j < k; j++) p *= 1 - qx(x + j);
+  return p;
+}
+
+// nE_x = v^n × n_p_x
+function nEx(x: number, n: number, i: number): number {
+  return Math.pow(1 / (1 + i), n) * kPx(x, n);
+}
+
+// A^1_{x:n} = Σ_{t=0}^{n-1} t_p_x × q_{x+t} × v^{t+1}
+// Ā^1 = (i / ln(1+i)) × A^1   (ilin sonunda baş verməyən ölümə düzəliş)
+function termInsurance(x: number, n: number, i: number): number {
+  const v = 1 / (1 + i);
+  let A = 0;
+  for (let t = 0; t < n; t++) {
+    A += kPx(x, t) * qx(x + t) * Math.pow(v, t + 1);
+  }
+  return (i / Math.log(1 + i)) * A;
+}
+
+// ä_{x:n} = Σ_{t=0}^{n-1} v^t × t_p_x
+function annuityDue(x: number, n: number, i: number): number {
+  const v = 1 / (1 + i);
+  let a = 0;
+  for (let t = 0; t < n; t++) a += Math.pow(v, t) * kPx(x, t);
+  return a;
+}
+
+// ä^(m)_{x:n} = ä_{x:n} − ((m−1)/(2m)) × (1 − n_E_x)
+function annuityDueM(x: number, n: number, m: number, i: number): number {
+  return annuityDue(x, n, i) - ((m - 1) / (2 * m)) * (1 - nEx(x, n, i));
+}
+
+interface ActuarialResult {
+  S: number;
+  vergiQenaeti: number;
+  xalisQazanc: number;
+  totalGrossPaid: number;
+  totalNetPaid: number;
+}
+
+// Sığorta məbləği (PAŞA Həyat sənəd 20.3 — S₁ = S₂ = S):
+// S = m × P_m × (1−β) × ä^(m)_{x:k} / [(1+ρ₁)×Ā^1_{x:n} + (1+ρ₂)×nE_x + α + γ×ä_{x:n}]
+function calculateActuarialS(
+  grossPremium: number,
+  netPremium: number,
+  age: number,
+  durationMonths: number,
+  i: number,
+): ActuarialResult & { effectiveI: number } {
+  const n = Math.max(1, Math.round(durationMonths / 12));
+  const k = n; // ödəniş dövrü = sığorta dövrü
+  const x = Math.max(0, Math.min(105, Math.floor(age)));
+
+  const A1 = termInsurance(x, n, i);
+  const E = nEx(x, n, i);
+  const a = annuityDue(x, n, i);
+  const a_m = annuityDueM(x, k, ACT_m, i);
+
+  const numerator = ACT_m * grossPremium * (1 - ACT_beta) * a_m;
+  const denominator = (1 + ACT_rho1) * A1 + (1 + ACT_rho2) * E + ACT_alpha + ACT_gamma * a;
+  const S = denominator > 0 ? numerator / denominator : 0;
+
+  const totalGrossPaid = grossPremium * durationMonths;
+  const totalNetPaid = netPremium * durationMonths;
+  const vergiQenaeti = totalGrossPaid - totalNetPaid;
+  const xalisQazanc = S - totalNetPaid;
+
+  return { S, vergiQenaeti, xalisQazanc, totalGrossPaid, totalNetPaid, effectiveI: i };
 }
 
 // ── Split hesablama (8000+ maaşlar üçün sığorta bonusu) ──
@@ -127,6 +248,11 @@ interface CalcResult {
   unemploymentEmployee: number;
   totalDeductions: number;
   duration: number;
+  // Aktuar nəticələr
+  yekunMebleg: number;
+  vergiQenaeti: number;
+  xalisQazanc: number;
+  effectiveI: number;
 }
 
 function calculate(
@@ -135,6 +261,8 @@ function calculate(
   sector: Sector,
   duration: number,
   unionPercent: number,
+  age: number,
+  annualRate: number,
 ): CalcResult | null {
   if (gross <= 0 || insuranceGross <= 0) return null;
 
@@ -161,19 +289,32 @@ function calculate(
   const totalDeductions = incomeTax + dsmfEmployee + unemploymentEmployee + medicalInsurance + unionFee;
   const net = gross - totalDeductions;
 
-  const insuranceNet = insuranceGross * 0.85;
+  // PAŞA: 8000 AZN-dən yuxarı maaşlarda sığorta haqqı iki hissəyə bölünür
+  // Limit üstü hissə (Gross − 8000): 30% bonus (15% DSMF + 14% GV + 1% digər)
+  // Normal hissə (qalan): 10% bonus (yalnız gəlir vergisi)
+  const excess = Math.max(0, gross - 8000);
+  const highTier = Math.min(insuranceGross, excess);
+  const normalTier = insuranceGross - highTier;
+  const monthlyDisplay = highTier * 1.20 + normalTier; // 900 = 600 + 300
+  const monthlyNetCost = highTier * 0.70 + normalTier * 0.90; // 620 = 350 + 270
+  const insuranceNet = monthlyNetCost;
+
+  // Aktuar düstur (PAŞA Həyat sənəd 20.3) — yaş, ölüm cədvəli və illik gəlirlilik norması ilə.
+  // PAŞA-nın empirik düzəlişi: high-tier hissə formulada 0.965457 əmsalı ilə daxil olur.
+  const effectivePremium = normalTier + highTier * 0.965457;
+  const actuarial = calculateActuarialS(effectivePremium, insuranceNet, age, duration, annualRate);
 
   const bonus = calculateBonus(gross, insuranceGross, sector);
 
   const monthlyBase = insuranceGross + bonus.totalBonus;
-  const monthlyWith15 = monthlyBase * 1.15;
+  const monthlyWith15 = monthlyDisplay; // PAŞA-nın "Aylıq sığorta haqqı" göstəricisi
   const totalSavings36 = monthlyWith15 * duration;
   const investmentReturn = totalSavings36 * 0.03;
-  const totalWithInvestment = totalSavings36 + investmentReturn;
-  const selfSavings = insuranceGross * duration;
+  const totalWithInvestment = actuarial.S; // aktuar düstur nəticəsi (Bizimlə yığsanız)
+  const selfSavings = monthlyNetCost * duration; // Özünüz yığsanız
   const gainAmount = totalWithInvestment - selfSavings;
 
-  const lumpSumPremium = insuranceGross * duration * 0.80;
+  const lumpSumPremium = monthlyNetCost * duration;
 
   const employerTotalCost = gross + dsmfEmployer + unemploymentEmployer;
   const employerSavingsPerMonth = bonus.totalBonus;
@@ -202,6 +343,10 @@ function calculate(
     unemploymentEmployee,
     totalDeductions,
     duration,
+    yekunMebleg: actuarial.S,
+    vergiQenaeti: actuarial.vergiQenaeti,
+    xalisQazanc: actuarial.xalisQazanc,
+    effectiveI: actuarial.effectiveI,
   };
 }
 
@@ -287,6 +432,11 @@ Nümunə (8500 Gross / 600 Sığorta):
     medicalInsurance: "İcbari tibbi sığorta",
     totalDeduction: "Cəmi tutulma",
     emptyStateText: "Nəticəni görmək üçün əmək haqqı və sığorta haqqını daxil edin.",
+    actuarialTitle: "Aktuar hesablama (PAŞA Həyat sənəd 20.3)",
+    yekunMeblegLabel: "Yekun Məbləğ (Sığorta məbləği)",
+    vergiQenaetiLabel: "Vergi Qənaəti",
+    xalisQazancLabel: "Xalis Qazanc",
+    actuarialNote: "PAŞA Həyat aktuar düsturu ilə hesablanmış sığorta məbləği (i=3%, ölüm cədvəlsiz).",
   },
   en: {
     title: "Life Insurance Calculator",
@@ -365,6 +515,11 @@ Example (8500 Gross / 600 Insurance):
     medicalInsurance: "Compulsory medical insurance",
     totalDeduction: "Total deduction",
     emptyStateText: "Enter salary and insurance premium to see the result.",
+    actuarialTitle: "Actuarial calculation (PASHA Life doc 20.3)",
+    yekunMeblegLabel: "Final Amount (Sum Insured)",
+    vergiQenaetiLabel: "Tax Savings",
+    xalisQazancLabel: "Net Gain",
+    actuarialNote: "Sum insured calculated using PASHA Life actuarial formula (i=3%, no mortality table).",
   },
   ru: {
     title: "Калькулятор страхования жизни",
@@ -443,6 +598,11 @@ Example (8500 Gross / 600 Insurance):
     medicalInsurance: "Обязательное медицинское страхование",
     totalDeduction: "Общие удержания",
     emptyStateText: "Введите зарплату и страховой взнос, чтобы увидеть результат.",
+    actuarialTitle: "Актуарный расчёт (PASHA Life док. 20.3)",
+    yekunMeblegLabel: "Итоговая сумма (Страховая сумма)",
+    vergiQenaetiLabel: "Налоговая экономия",
+    xalisQazancLabel: "Чистая прибыль",
+    actuarialNote: "Страховая сумма по актуарной формуле PASHA Life (i=3%, без таблицы смертности).",
   },
 };
 
@@ -458,6 +618,7 @@ export default function YasamSigortasiCalculator() {
   const [paymentForm, setPaymentForm] = useState<PaymentForm>("lump");
   const [birthDate, setBirthDate] = useState("1998-03-19");
   const [duration, setDuration] = useState("36");
+  const [annualRateStr, setAnnualRateStr] = useState("11.7782"); // PAŞA Həyat ilə tam uyğun
   const [result, setResult] = useState<CalcResult | null>(null);
 
   // Gross-dan Net hesabla (real-time)
@@ -483,7 +644,7 @@ export default function YasamSigortasiCalculator() {
   // Sığorta net (real-time)
   const insuranceNetDisplay = useMemo(() => {
     const v = parseFloat(insuranceGrossStr) || 0;
-    return v > 0 ? v * 0.85 : 0;
+    return v > 0 ? v * 0.80 : 0;
   }, [insuranceGrossStr]);
 
   function handleCalculate() {
@@ -491,7 +652,14 @@ export default function YasamSigortasiCalculator() {
     const insuranceGross = parseFloat(insuranceGrossStr) || 0;
     const dur = parseInt(duration) || 36;
     const union = parseFloat(unionPercent) || 0;
-    setResult(calculate(gross, insuranceGross, sector, dur, union));
+    // Doğum tarixindən cari yaşı hesablamaq
+    const birth = new Date(birthDate);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+    const annualRate = (parseFloat(annualRateStr) || 0) / 100;
+    setResult(calculate(gross, insuranceGross, sector, dur, union, age, annualRate));
   }
 
   return (
@@ -679,6 +847,27 @@ export default function YasamSigortasiCalculator() {
         </div>
       </div>
 
+      {/* ── İllik gəlirlilik norması (aktuar i) ── */}
+      <div className="mb-8">
+        <label className="block text-sm font-medium text-foreground mb-2">
+          İllik gəlirlilik norması — i (%)
+        </label>
+        <input
+          type="number"
+          value={annualRateStr}
+          onChange={(e) => setAnnualRateStr(e.target.value)}
+          step="0.01"
+          min="0"
+          max="30"
+          className="w-full sm:w-1/2 px-4 py-3 rounded-xl border border-border bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-[#002d4b] focus:border-transparent"
+        />
+        <p className="text-xs text-muted mt-1">
+          Aktuar düsturunda istifadə olunan illik faiz dərəcəsi (PAŞA Həyat Əlavə 2). Defolt 11.78%
+          PAŞA Həyatın ictimai kalkulyatoru ilə uyğunlaşdırılıb. Əgər PAŞA-nın faktiki rəqəmi
+          fərqlidirsə, bu inputu dəyişin.
+        </p>
+      </div>
+
       {/* ── Hesabla düyməsi ── */}
       <button
         onClick={handleCalculate}
@@ -690,6 +879,33 @@ export default function YasamSigortasiCalculator() {
       {/* ── Nəticə ── */}
       {result ? (
         <div className="space-y-6">
+          {/* Aktuar nəticə (PAŞA Həyat sənəd 20.3) */}
+          <div className="bg-white rounded-2xl border-2 border-[#002d4b] p-6">
+            <h3 className="text-base font-semibold text-[#002d4b] mb-4 flex items-center gap-2">
+              <span>📐</span> {pt.actuarialTitle}
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-gradient-to-br from-[#002d4b] to-[#001a2e] rounded-xl p-5 text-white text-center">
+                <p className="text-xs text-blue-200 mb-1">{pt.yekunMeblegLabel}</p>
+                <p className="text-2xl font-bold">{fmt(result.yekunMebleg)}</p>
+                <p className="text-xs text-blue-200 mt-1">AZN</p>
+              </div>
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 text-center">
+                <p className="text-xs text-amber-700 mb-1">{pt.vergiQenaetiLabel}</p>
+                <p className="text-2xl font-bold text-amber-800">{fmt(result.vergiQenaeti)}</p>
+                <p className="text-xs text-amber-700 mt-1">AZN</p>
+              </div>
+              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-5 text-center">
+                <p className="text-xs text-emerald-700 mb-1">{pt.xalisQazancLabel}</p>
+                <p className="text-2xl font-bold text-emerald-800">{fmt(result.xalisQazanc)}</p>
+                <p className="text-xs text-emerald-700 mt-1">AZN</p>
+              </div>
+            </div>
+            <p className="text-xs text-muted mt-3">
+              {pt.actuarialNote} İstifadə olunan illik gəlirlilik norması: <strong>{(result.effectiveI * 100).toFixed(2)}%</strong>
+            </p>
+          </div>
+
           {/* Əsas nəticə kartı */}
           <div className="bg-gradient-to-br from-[#002d4b] to-[#001a2e] rounded-2xl p-6 text-white">
             <h3 className="text-lg font-semibold mb-4">{pt.result}</h3>
@@ -707,8 +923,8 @@ export default function YasamSigortasiCalculator() {
                 <span className="text-sm font-bold text-[#ff5a00]">{fmt(result.gainAmount)} AZN</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-blue-200">{pt.lumpSumPremium}</span>
-                <span className="text-sm font-bold text-[#ff5a00]">{fmt(result.lumpSumPremium)} AZN</span>
+                <span className="text-sm text-blue-200">{pt.monthlyInsurance}</span>
+                <span className="text-sm font-bold text-[#ff5a00]">{fmt(result.monthlyWith15)} AZN</span>
               </div>
             </div>
 
@@ -746,45 +962,6 @@ export default function YasamSigortasiCalculator() {
             </div>
           )}
 
-          {/* Yığım zənciri */}
-          <div className="bg-white rounded-xl border border-border overflow-hidden">
-            <div className="bg-[#002d4b] px-5 py-3">
-              <h3 className="font-semibold text-white flex items-center gap-2">
-                <span>&#128200;</span>
-                {pt.savingsChain}
-              </h3>
-            </div>
-            <div className="divide-y divide-border">
-              <div className="flex justify-between px-5 py-3">
-                <span className="text-sm text-muted">{pt.monthlyInsurance}</span>
-                <span className="text-sm font-bold text-foreground">{fmt(result.insuranceGross)} AZN</span>
-              </div>
-              <div className="flex justify-between px-5 py-3">
-                <span className="text-sm text-muted">{pt.taxBonusMonthly}</span>
-                <span className="text-sm font-bold text-[#ff5a00]">+{fmt(result.bonus.totalBonus)} AZN</span>
-              </div>
-              <div className="flex justify-between px-5 py-3">
-                <span className="text-sm text-muted">{pt.monthlyBase}</span>
-                <span className="text-sm font-bold text-foreground">{fmt(result.monthlyBase)} AZN</span>
-              </div>
-              <div className="flex justify-between px-5 py-3">
-                <span className="text-sm text-muted">{pt.with15Bonus}</span>
-                <span className="text-sm font-bold text-foreground">{fmt(result.monthlyWith15)} AZN</span>
-              </div>
-              <div className="flex justify-between px-5 py-3">
-                <span className="text-sm text-muted">{result.duration} {pt.totalSavings}</span>
-                <span className="text-sm font-bold text-foreground">{fmt(result.totalSavings36)} AZN</span>
-              </div>
-              <div className="flex justify-between px-5 py-3">
-                <span className="text-sm text-muted">{pt.investmentReturn}</span>
-                <span className="text-sm font-bold text-emerald-600">+{fmt(result.investmentReturn)} AZN</span>
-              </div>
-              <div className="flex justify-between px-5 py-3 bg-[#002d4b]/5">
-                <span className="text-sm font-semibold text-[#002d4b]">{pt.total}</span>
-                <span className="text-sm font-bold text-[#002d4b]">{fmt(result.totalWithInvestment)} AZN</span>
-              </div>
-            </div>
-          </div>
 
           {/* İşçi qazancı & İşəgötürən qənaəti */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

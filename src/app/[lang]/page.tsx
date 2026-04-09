@@ -14,6 +14,21 @@ function azLower(s: string): string {
     .toLowerCase();
 }
 
+// İngilis klaviaturasında yazılmış axtarış üçün AZ hərflərini sadə Latın hərflərinə çevirir.
+// Məs: "müəllim maaşı" → "muellim maasi", "yaşam" → "yasam", "ödəniş" → "odenis"
+function normalizeLatin(s: string): string {
+  return azLower(s)
+    .replace(/ə/g, "e")
+    .replace(/ü/g, "u")
+    .replace(/ö/g, "o")
+    .replace(/ı/g, "i")
+    .replace(/ç/g, "c")
+    .replace(/ş/g, "s")
+    .replace(/ğ/g, "g")
+    .replace(/й/g, "i")
+    .replace(/ё/g, "e");
+}
+
 export default function Home() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<Category>("all");
@@ -33,16 +48,23 @@ export default function Home() {
 
     if (search.trim()) {
       const query = azLower(search.trim());
+      const queryLatin = normalizeLatin(search.trim());
       results = results.filter(
         (c) => {
           const name = t.calculatorNames[c.id as keyof typeof t.calculatorNames] || c.name;
           const desc = t.calculatorDescriptions[c.id as keyof typeof t.calculatorDescriptions] || c.description;
           return (
+            // AZ hərfləri ilə axtarış
             azLower(name).includes(query) ||
             azLower(desc).includes(query) ||
             azLower(c.id).includes(query) ||
             azLower(c.name).includes(query) ||
-            azLower(c.description).includes(query)
+            azLower(c.description).includes(query) ||
+            // İngilis klaviaturası ilə axtarış (AZ hərflərini sadə latına çevirib)
+            normalizeLatin(name).includes(queryLatin) ||
+            normalizeLatin(desc).includes(queryLatin) ||
+            normalizeLatin(c.name).includes(queryLatin) ||
+            normalizeLatin(c.description).includes(queryLatin)
           );
         }
       );
