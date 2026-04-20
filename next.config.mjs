@@ -4,10 +4,8 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   devIndicators: false,
-  experimental: {
-    cpus: 1,
-    workerThreads: false,
-  },
 };
 
 export default nextConfig;
+
+import('@opennextjs/cloudflare').then(m => m.initOpenNextCloudflareForDev());
