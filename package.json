@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "cross-env NODE_OPTIONS=--no-experimental-webstorage next dev -p 3245",
     "build": "next build",
+    "build:static": "node scripts/build-static.mjs",
     "build:cloudflare": "npx @opennextjs/cloudflare build",
     "preview": "npx wrangler dev",
     "deploy": "npx wrangler deploy",
