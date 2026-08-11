@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import SearchBar from "@/components/SearchBar";
 import CategoryTabs from "@/components/CategoryTabs";
 import CalculatorCard from "@/components/CalculatorCard";
@@ -34,6 +34,18 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState<Category>("all");
   const { t } = useLanguage();
 
+  // URL-dən ?category= parametrini oxu və seçilmiş kateqoriyaya keç
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const cat = params.get("category");
+    if (cat) {
+      setActiveCategory(cat as Category);
+      setTimeout(() => {
+        document.getElementById("calculators")?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  }, []);
+
   const popularCalculators = useMemo(
     () => calculators.filter((c) => c.popular),
     []
@@ -53,6 +65,7 @@ export default function Home() {
         (c) => {
           const name = t.calculatorNames[c.id as keyof typeof t.calculatorNames] || c.name;
           const desc = t.calculatorDescriptions[c.id as keyof typeof t.calculatorDescriptions] || c.description;
+          const kw = c.keywords ?? [];
           return (
             // AZ hərfləri ilə axtarış
             azLower(name).includes(query) ||
@@ -60,11 +73,13 @@ export default function Home() {
             azLower(c.id).includes(query) ||
             azLower(c.name).includes(query) ||
             azLower(c.description).includes(query) ||
+            kw.some((k) => azLower(k).includes(query)) ||
             // İngilis klaviaturası ilə axtarış (AZ hərflərini sadə latına çevirib)
             normalizeLatin(name).includes(queryLatin) ||
             normalizeLatin(desc).includes(queryLatin) ||
             normalizeLatin(c.name).includes(queryLatin) ||
-            normalizeLatin(c.description).includes(queryLatin)
+            normalizeLatin(c.description).includes(queryLatin) ||
+            kw.some((k) => normalizeLatin(k).includes(queryLatin))
           );
         }
       );
@@ -108,7 +123,9 @@ export default function Home() {
       {!search && activeCategory === "all" && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex items-center gap-2 mb-6">
-            <span className="text-2xl">🔥</span>
+            <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" strokeWidth={2.25} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
             <h2 className="text-2xl font-bold text-foreground">{t.mostPopular}</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

@@ -45,6 +45,66 @@ const adminGrid: Record<number, number[]> = {
   35:[1170,1200,1230,1260,1285,1315,1345],
 };
 
+// İnzibati vəzifələr üzrə 4 pilləli cədvəl (sekildeki qurumlar üçün)
+const adminGrid4: Record<number, number[]> = {
+  1:[13680,14020,14365,14705],
+  2:[12725,13045,13360,13680],
+  3:[11835,12135,12430,12725],
+  4:[11010,11285,11560,11835],
+  5:[10245,10500,10755,11010],
+  6:[9530,9765,10005,10245],
+  7:[8865,9085,9305,9530],
+  8:[8245,8450,8660,8865],
+  9:[7670,7860,8055,8245],
+  10:[7135,7315,7490,7670],
+  11:[6635,6805,6970,7135],
+  12:[6175,6330,6485,6635],
+  13:[5745,5885,6030,6175],
+  14:[5340,5475,5610,5745],
+  15:[4970,5095,5220,5340],
+  16:[4625,4740,4855,4970],
+  17:[4300,4410,4515,4625],
+  18:[4000,4100,4200,4300],
+  19:[3720,3815,3910,4000],
+  20:[3460,3550,3635,3720],
+  21:[3220,3300,3380,3460],
+  22:[2995,3070,3145,3220],
+  23:[2785,2855,2925,2995],
+  24:[2590,2655,2720,2785],
+  25:[2410,2470,2530,2595],
+  26:[2245,2300,2355,2410],
+  27:[2085,2140,2190,2245],
+  28:[1940,1990,2040,2085],
+  29:[1805,1850,1895,1940],
+  30:[1680,1720,1765,1805],
+  31:[1560,1600,1640,1680],
+  32:[1455,1490,1525,1560],
+  33:[1355,1385,1420,1455],
+  34:[1260,1290,1320,1355],
+  35:[1170,1200,1230,1260],
+};
+
+// Yardımçı vəzifələr üzrə 4 pilləli cədvəl
+const supportGrid4: Record<number, number[]> = {
+  1:[1165,1195,1220,1250],
+  2:[1135,1160,1190,1220],
+  3:[1105,1130,1160,1185],
+  4:[1075,1100,1130,1155],
+  5:[1045,1070,1100,1125],
+  6:[1020,1045,1070,1095],
+  7:[990,1015,1040,1065],
+  8:[965,990,1015,1040],
+  9:[940,965,985,1010],
+  10:[915,940,960,985],
+  11:[890,915,935,960],
+  12:[870,890,910,935],
+  13:[845,865,890,910],
+  14:[825,845,865,885],
+  15:[800,820,840,860],
+  16:[780,800,820,840],
+  17:[760,780,800,815],
+};
+
 // Yardımçı vəzifələr (17 səviyyə × 7 pillə)
 const supportGrid: Record<number, number[]> = {
   1:[1165,1195,1220,1250,1280,1310,1340],
@@ -575,6 +635,28 @@ const stepInfo = [
   { label: "VII", range: "25+ il" },
 ];
 
+// Sadələşdirilmiş 4 pillə — hər biri grid-dəki müvafiq sütuna uyğunlaşır
+const simpleSteps = [
+  { label: "1-ci", range: "1 ilədək", gridIndex: 0 },
+  { label: "2-ci", range: "1–5 il", gridIndex: 1 },
+  { label: "3-cü", range: "5–15 il", gridIndex: 2 },
+  { label: "4-cü", range: "15+ il", gridIndex: 3 },
+];
+
+// Yuxarı səviyyəli qurumlar — 7 pillə saxlayır. Qalanları 4 pillə göstərir.
+const fullStepOrgs = new Set([
+  "Prezident Administrasiyası",
+  "Birinci vitse-prezidentin Katibliyi",
+  "Prezidentin İşlər İdarəsi",
+  "Xüsusi Tibb Xidməti",
+  "Prezidentin Protokol Xidməti",
+  "Təhlükəsizlik Şurası katibinin xidməti",
+  "Nazirlər Kabineti Aparatı",
+  "Milli Məclis Aparatı",
+  "Konstitusiya Məhkəməsi Aparatı",
+  "Ali Məhkəmə Aparatı",
+]);
+
 // ═══════════════════════════════════════════════
 // Vergi hesablaması (Dövlət sektoru)
 // ═══════════════════════════════════════════════
@@ -598,7 +680,7 @@ interface CalcNetParams {
   gross: number;
   baseSalary: number;
   guzesht: number; // 0 for güzəştsiz, V.M. amount for güzəştlə
-  unionMember: boolean;
+  unionRate: 0 | 1 | 2; // faiz
   yapaMember: boolean;
 }
 
@@ -608,7 +690,7 @@ function calcNet(p: CalcNetParams) {
   const dsmf = p.gross * 0.03;
   const unemployment = p.gross * 0.005;
   const medical = calcStateMedical(p.gross);
-  const union = p.unionMember ? p.gross * 0.02 : 0;
+  const union = p.gross * (p.unionRate / 100);
   // YAP: baseSalary-dan (ixtisas dərəcəsi əlavəsi daxil deyil)
   const yapa = p.yapaMember ? p.baseSalary * 0.01 : 0;
   const totalDeductions = incomeTax + dsmf + unemployment + medical + union + yapa;
@@ -945,12 +1027,15 @@ export default function CivilServantSalary() {
   const [selectedExemption, setSelectedExemption] = useState<number>(200); // default 200 AZN
   const [vm1025Enabled, setVm1025Enabled] = useState(false);
   const [dependentCount, setDependentCount] = useState("3");
-  const [unionMember, setUnionMember] = useState(false);
+  const [unionRate, setUnionRate] = useState<0 | 1 | 2>(0);
   const [yapaMember, setYapaMember] = useState(false);
 
   const orgs = jobType === "admin" ? adminOrgs : jobType === "support" ? supportOrgs : null;
-  const grid = jobType === "admin" ? adminGrid : supportGrid;
   const positions = orgs && org ? orgs[org] : null;
+  const useSimpleSteps = org !== "" && !fullStepOrgs.has(org);
+  const grid = useSimpleSteps
+    ? (jobType === "admin" ? adminGrid4 : supportGrid4)
+    : (jobType === "admin" ? adminGrid : supportGrid);
 
   const pos = positions && posIdx !== null ? positions[posIdx] : null;
   const baseSalary = pos && step !== null ? grid[pos.level]?.[step] ?? null : null;
@@ -971,7 +1056,7 @@ export default function CivilServantSalary() {
     gross,
     baseSalary,
     guzesht,
-    unionMember,
+    unionRate,
     yapaMember,
   }) : null;
 
@@ -1069,22 +1154,43 @@ export default function CivilServantSalary() {
       {/* Ödəniş pilləsi */}
       <div className="mb-8">
         <label className="block text-sm font-medium text-foreground mb-2">{pt.payStep}</label>
-        <div className="flex gap-2">
-          {stepInfo.map((s, i) => (
-            <button
-              key={i}
-              onClick={() => setStep(i)}
-              disabled={posIdx === null}
-              className={`flex-1 py-2.5 rounded-xl border text-sm font-semibold transition-all ${
-                step === i
-                  ? "border-primary bg-primary-light ring-2 ring-primary text-primary-dark"
-                  : "border-border bg-white hover:border-primary/30 text-foreground"
-              } disabled:opacity-30 disabled:cursor-not-allowed`}
-            >
-              {s.label}
-            </button>
-          ))}
-        </div>
+
+        {useSimpleSteps ? (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {simpleSteps.map((s) => (
+              <button
+                key={s.gridIndex}
+                onClick={() => setStep(s.gridIndex)}
+                disabled={posIdx === null}
+                className={`py-3 rounded-xl border text-center transition-all ${
+                  step === s.gridIndex
+                    ? "border-primary bg-primary-light ring-2 ring-primary text-primary-dark"
+                    : "border-border bg-white hover:border-primary/30 text-foreground"
+                } disabled:opacity-30 disabled:cursor-not-allowed`}
+              >
+                <span className="block text-sm font-bold">{s.label} pillə</span>
+                <span className="block text-[11px] text-muted mt-0.5">{s.range}</span>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            {stepInfo.map((s, i) => (
+              <button
+                key={i}
+                onClick={() => setStep(i)}
+                disabled={posIdx === null}
+                className={`flex-1 py-2.5 rounded-xl border text-sm font-semibold transition-all ${
+                  step === i
+                    ? "border-primary bg-primary-light ring-2 ring-primary text-primary-dark"
+                    : "border-border bg-white hover:border-primary/30 text-foreground"
+                } disabled:opacity-30 disabled:cursor-not-allowed`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        )}
         <p className="text-[11px] text-muted mt-2">{pt.stepNote}</p>
       </div>
 
@@ -1106,17 +1212,24 @@ export default function CivilServantSalary() {
       {/* Həmkarlar + YAP */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-foreground mb-3">🏛️ {pt.memberships}</label>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <label className="flex items-center gap-2 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={unionMember}
-              onChange={(e) => setUnionMember(e.target.checked)}
-              className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
-            />
-            <span className="text-sm text-foreground">{pt.unionLabel}</span>
-            <span className="text-[11px] text-muted">(2%)</span>
-          </label>
+        <div className="space-y-3">
+          <div>
+            <p className="text-sm text-foreground mb-1.5">{pt.unionLabel}</p>
+            <div className="inline-flex flex-wrap gap-1 p-1 bg-gray-100 rounded-xl">
+              {([0, 1, 2] as const).map((rate) => (
+                <button
+                  key={rate}
+                  type="button"
+                  onClick={() => setUnionRate(rate)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                    unionRate === rate ? "bg-white text-foreground shadow-sm" : "text-muted hover:text-foreground"
+                  }`}
+                >
+                  {rate === 0 ? "Üzv deyil" : `${rate}%`}
+                </button>
+              ))}
+            </div>
+          </div>
           <label className="flex items-center gap-2 cursor-pointer select-none">
             <input
               type="checkbox"
@@ -1238,16 +1351,16 @@ export default function CivilServantSalary() {
           {pt.stepTableTitle}
         </h4>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          {stepInfo.map((s, i) => (
+          {(useSimpleSteps ? simpleSteps : stepInfo.map((s, i) => ({ label: s.label, range: s.range, gridIndex: i }))).map((s) => (
             <div
-              key={i}
+              key={s.gridIndex}
               className={`rounded-lg border p-2.5 text-center transition-all ${
-                step === i
+                step === s.gridIndex
                   ? "border-primary bg-primary-light"
                   : "border-blue-200 bg-white"
               }`}
             >
-              <p className={`text-lg font-bold ${step === i ? "text-primary" : "text-foreground"}`}>{s.label} {pt.step}</p>
+              <p className={`text-lg font-bold ${step === s.gridIndex ? "text-primary" : "text-foreground"}`}>{s.label} {pt.step}</p>
               <p className="text-xs text-muted">{s.range}</p>
             </div>
           ))}
@@ -1374,14 +1487,14 @@ export default function CivilServantSalary() {
               </div>
 
               {/* Həmkarlar */}
-              {unionMember && (
+              {unionRate > 0 && (
                 <div className="px-5 py-3">
                   <div className="flex justify-between mb-1">
                     <span className="text-sm font-medium text-foreground">{pt.unionLabel}</span>
                     <span className="text-sm font-bold text-foreground">{formatMoney(result.union)} AZN</span>
                   </div>
                   <div className="bg-gray-50 rounded-lg p-2.5 mt-1.5">
-                    <p className="text-xs text-muted">{formatMoney(gross!)}₼ × 2% = <span className="font-medium text-foreground">{formatMoney(result.union)} AZN</span></p>
+                    <p className="text-xs text-muted">{formatMoney(gross!)}₼ × {unionRate}% = <span className="font-medium text-foreground">{formatMoney(result.union)} AZN</span></p>
                   </div>
                 </div>
               )}

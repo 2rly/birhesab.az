@@ -93,6 +93,25 @@ Sonrakı aylarda əksinə — əsas borc payı artır, faiz azalır.`,
     collapse: "Yığ",
     showAll: "Bütün {count} ayı göstər",
     emptyStateText: "Nəticəni görmək üçün məbləğ, faiz və müddət daxil edin.",
+    // Erkən ödəmə
+    scenariosTitle: "Erkən ödəmə ssenariləri",
+    scenarioA: "Ssenari A: Müddətin qısaldılması",
+    scenarioADesc: "Hər ay əlavə ödəniş etsəniz, kredit neçə ay tez bitər?",
+    extraMonthlyLabel: "Aylıq əlavə ödəniş (AZN)",
+    newTerm: "Yeni müddət",
+    timeSaved: "Qazanılan zaman",
+    interestSaved: "Qənaət edilən faiz",
+    scenarioB: "Ssenari B: Birdəfəlik ödəmə",
+    scenarioBDesc: "Bugün birdəfəlik ödəsəniz, yeni aylıq ödəniş nə qədər olar?",
+    lumpSumLabel: "Birdəfəlik ödəniş (AZN)",
+    newMonthlyPayment: "Yeni aylıq ödəniş",
+    monthlySaving: "Aylıq qənaət",
+    year: "il",
+    month: "ay",
+    comparison: "Müqayisə",
+    original: "Standart",
+    withExtra: "Əlavə ödənişlə",
+    totalInterestPaid: "Ümumi faiz",
   },
   en: {
     title: "Loan Calculator",
@@ -126,6 +145,24 @@ In later months, the opposite — the principal portion increases, interest decr
     collapse: "Collapse",
     showAll: "Show all {count} months",
     emptyStateText: "Enter amount, rate and term to see the result.",
+    scenariosTitle: "Early repayment scenarios",
+    scenarioA: "Scenario A: Term reduction",
+    scenarioADesc: "If you pay extra each month, how much sooner will the loan end?",
+    extraMonthlyLabel: "Extra monthly payment (AZN)",
+    newTerm: "New term",
+    timeSaved: "Time saved",
+    interestSaved: "Interest saved",
+    scenarioB: "Scenario B: Lump sum payment",
+    scenarioBDesc: "If you make a lump sum payment today, what will the new monthly payment be?",
+    lumpSumLabel: "Lump sum payment (AZN)",
+    newMonthlyPayment: "New monthly payment",
+    monthlySaving: "Monthly saving",
+    year: "year",
+    month: "mo",
+    comparison: "Comparison",
+    original: "Standard",
+    withExtra: "With extra payment",
+    totalInterestPaid: "Total interest",
   },
   ru: {
     title: "Кредитный калькулятор",
@@ -159,6 +196,24 @@ n — срок кредита (месяцев)
     collapse: "Свернуть",
     showAll: "Показать все {count} месяцев",
     emptyStateText: "Введите сумму, ставку и срок для расчёта.",
+    scenariosTitle: "Сценарии досрочного погашения",
+    scenarioA: "Сценарий A: Сокращение срока",
+    scenarioADesc: "Если платить больше каждый месяц, на сколько быстрее закроется кредит?",
+    extraMonthlyLabel: "Ежемесячная доплата (AZN)",
+    newTerm: "Новый срок",
+    timeSaved: "Сэкономлено времени",
+    interestSaved: "Сэкономлено на процентах",
+    scenarioB: "Сценарий Б: Разовый платёж",
+    scenarioBDesc: "Если сделать разовый платёж, какой будет новый ежемесячный платёж?",
+    lumpSumLabel: "Разовый платёж (AZN)",
+    newMonthlyPayment: "Новый ежемесячный платёж",
+    monthlySaving: "Ежемесячная экономия",
+    year: "г",
+    month: "мес",
+    comparison: "Сравнение",
+    original: "Стандарт",
+    withExtra: "С доплатой",
+    totalInterestPaid: "Всего процентов",
   },
 };
 
@@ -170,6 +225,8 @@ export default function LoanCalculator() {
   const [rate, setRate] = useState("");
   const [months, setMonths] = useState("");
   const [showFullTable, setShowFullTable] = useState(false);
+  const [extraMonthly, setExtraMonthly] = useState("");
+  const [lumpSum, setLumpSum] = useState("");
 
   const result = useMemo(() => {
     const a = parseFloat(amount);
@@ -181,8 +238,47 @@ export default function LoanCalculator() {
     const { payment, totalPayment, totalInterest, monthlyRate } = calculateAnnuity(a, r, m);
     const table = buildAmortizationTable(a, monthlyRate, payment, m);
 
-    return { payment, totalPayment, totalInterest, table };
+    return { payment, totalPayment, totalInterest, table, monthlyRate };
   }, [amount, rate, months]);
+
+  // Ssenari A: Əlavə aylıq ödəniş → müddət qısalır
+  const scenarioA = useMemo(() => {
+    if (!result) return null;
+    const extra = parseFloat(extraMonthly);
+    if (!extra || extra <= 0) return null;
+    const a = parseFloat(amount);
+    const mr = result.monthlyRate;
+    const totalMonthly = result.payment + extra;
+    let balance = a;
+    let newMonths = 0;
+    let totalInterestNew = 0;
+    while (balance > 0.01 && newMonths < 3600) {
+      const interest = balance * mr;
+      totalInterestNew += interest;
+      const principal = Math.min(totalMonthly - interest, balance);
+      balance -= principal;
+      newMonths++;
+    }
+    const originalMonths = parseInt(months);
+    const monthsSaved = originalMonths - newMonths;
+    const interestSaved = result.totalInterest - totalInterestNew;
+    if (monthsSaved <= 0) return null;
+    return { newMonths, monthsSaved, totalInterestNew, interestSaved };
+  }, [result, extraMonthly, amount, months]);
+
+  // Ssenari B: Birdəfəlik ödəniş → aylıq ödəniş azalır
+  const scenarioB = useMemo(() => {
+    if (!result) return null;
+    const lump = parseFloat(lumpSum);
+    const a = parseFloat(amount);
+    if (!lump || lump <= 0 || lump >= a) return null;
+    const r = parseFloat(rate);
+    const m = parseInt(months);
+    const newAmount = a - lump;
+    const { payment: newPayment } = calculateAnnuity(newAmount, r, m);
+    const saving = result.payment - newPayment;
+    return { newPayment, saving, newAmount };
+  }, [result, lumpSum, amount, rate, months]);
 
   const visibleRows = result
     ? showFullTable
@@ -290,6 +386,114 @@ export default function LoanCalculator() {
             <div className="flex justify-between text-sm mt-2">
               <span className="font-medium text-foreground">{formatMoney(parseFloat(amount))} AZN</span>
               <span className="font-medium text-amber-700">{formatMoney(result.totalInterest)} AZN</span>
+            </div>
+          </div>
+
+          {/* Early repayment scenarios */}
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-5 space-y-5">
+            <h3 className="font-bold text-foreground flex items-center gap-2">
+              <span>⚡</span>
+              {pt.scenariosTitle}
+            </h3>
+
+            {/* Scenario A: Extra monthly */}
+            <div>
+              <p className="text-sm font-semibold text-foreground mb-1">{pt.scenarioA}</p>
+              <p className="text-xs text-muted mb-3">{pt.scenarioADesc}</p>
+              <input
+                type="number"
+                value={extraMonthly}
+                onChange={(e) => setExtraMonthly(e.target.value)}
+                placeholder="100"
+                min="0"
+                className="w-full px-4 py-2.5 rounded-lg border border-border bg-white text-foreground text-sm placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mb-3"
+              />
+              {scenarioA && (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="bg-white rounded-xl border border-green-200 p-3 text-center">
+                    <p className="text-[10px] text-muted">{pt.newTerm}</p>
+                    <p className="text-lg font-bold text-foreground">
+                      {Math.floor(scenarioA.newMonths / 12) > 0 && (
+                        <>{Math.floor(scenarioA.newMonths / 12)} {pt.year} </>
+                      )}
+                      {scenarioA.newMonths % 12} {pt.month}
+                    </p>
+                  </div>
+                  <div className="bg-white rounded-xl border border-green-200 p-3 text-center">
+                    <p className="text-[10px] text-muted">{pt.timeSaved}</p>
+                    <p className="text-lg font-bold text-green-700">
+                      −{Math.floor(scenarioA.monthsSaved / 12) > 0 && (
+                        <>{Math.floor(scenarioA.monthsSaved / 12)} {pt.year} </>
+                      )}
+                      {scenarioA.monthsSaved % 12} {pt.month}
+                    </p>
+                  </div>
+                  <div className="bg-white rounded-xl border border-green-200 p-3 text-center">
+                    <p className="text-[10px] text-muted">{pt.interestSaved}</p>
+                    <p className="text-lg font-bold text-green-700">−{formatMoney(scenarioA.interestSaved)} AZN</p>
+                  </div>
+                </div>
+              )}
+              {scenarioA && (
+                <div className="mt-3 overflow-hidden rounded-lg border border-green-200">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="bg-white text-muted">
+                        <th className="px-3 py-2 text-left"></th>
+                        <th className="px-3 py-2 text-right">{pt.term}</th>
+                        <th className="px-3 py-2 text-right">{pt.totalInterestPaid}</th>
+                        <th className="px-3 py-2 text-right">{pt.totalPayment}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-t border-green-100">
+                        <td className="px-3 py-2 font-medium text-muted">{pt.original}</td>
+                        <td className="px-3 py-2 text-right">{months} {pt.month}</td>
+                        <td className="px-3 py-2 text-right text-amber-600">{formatMoney(result.totalInterest)}</td>
+                        <td className="px-3 py-2 text-right">{formatMoney(result.totalPayment)}</td>
+                      </tr>
+                      <tr className="border-t border-green-100 bg-green-50">
+                        <td className="px-3 py-2 font-medium text-green-700">{pt.withExtra}</td>
+                        <td className="px-3 py-2 text-right text-green-700 font-bold">{scenarioA.newMonths} {pt.month}</td>
+                        <td className="px-3 py-2 text-right text-green-700 font-bold">{formatMoney(scenarioA.totalInterestNew)}</td>
+                        <td className="px-3 py-2 text-right text-green-700 font-bold">{formatMoney(parseFloat(amount) + scenarioA.totalInterestNew)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            <hr className="border-green-200" />
+
+            {/* Scenario B: Lump sum */}
+            <div>
+              <p className="text-sm font-semibold text-foreground mb-1">{pt.scenarioB}</p>
+              <p className="text-xs text-muted mb-3">{pt.scenarioBDesc}</p>
+              <input
+                type="number"
+                value={lumpSum}
+                onChange={(e) => setLumpSum(e.target.value)}
+                placeholder="5000"
+                min="0"
+                className="w-full px-4 py-2.5 rounded-lg border border-border bg-white text-foreground text-sm placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mb-3"
+              />
+              {scenarioB && (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="bg-white rounded-xl border border-green-200 p-3 text-center">
+                    <p className="text-[10px] text-muted">{pt.newMonthlyPayment}</p>
+                    <p className="text-lg font-bold text-foreground">{formatMoney(scenarioB.newPayment)} AZN</p>
+                  </div>
+                  <div className="bg-white rounded-xl border border-green-200 p-3 text-center">
+                    <p className="text-[10px] text-muted">{pt.monthlySaving}</p>
+                    <p className="text-lg font-bold text-green-700">−{formatMoney(scenarioB.saving)} AZN</p>
+                  </div>
+                  <div className="bg-white rounded-xl border border-green-200 p-3 text-center">
+                    <p className="text-[10px] text-muted">{pt.loanAmount}</p>
+                    <p className="text-lg font-bold text-foreground">{formatMoney(scenarioB.newAmount)} AZN</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

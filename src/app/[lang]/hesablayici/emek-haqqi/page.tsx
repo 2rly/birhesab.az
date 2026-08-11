@@ -215,27 +215,102 @@ type WorkplaceType = "primary" | "secondary" | "employer";
 // PAGE TRANSLATIONS
 // ══════════════════════════════════════════════════════════════
 
-const exemptionOptions: Record<Lang, { value: number; desc: string }[]> = {
+const exemptionOptions: Record<Lang, { value: number; article: string; title: string; desc: string }[]> = {
   az: [
-    { value: 800, desc: "Şəhid ailə üzvləri, I qrup əlillər, müharibə əlilləri" },
-    { value: 400, desc: "II qrup əlillər, Çernobıl qəzası nəticəsində əlil olanlar" },
-    { value: 200, desc: "Döyüş əməliyyatları veteranları, 3 uşaqlı ailələr" },
-    { value: 100, desc: "Hərbi qulluqçuların ailə üzvləri" },
-    { value: 50, desc: "Digər güzəşt kateqoriyaları" },
+    {
+      value: 800,
+      article: "102.1-1",
+      title: "Şəhidlərin yaxınları",
+      desc: "Şəhid statusu almış şəxslərin valideynləri, dul arvadları (ərləri) və övladları.",
+    },
+    {
+      value: 400,
+      article: "102.2",
+      title: "Qəhrəmanlar və müharibə əlilləri",
+      desc: "Vətən Müharibəsi Qəhrəmanları və Azərbaycanın Milli Qəhrəmanları; Sovet İttifaqı və Sosialist Əməyi Qəhrəmanları; Şöhrət ordeninin hər üç dərəcəsi ilə təltif olunanlar; I və II qrup müharibə ilə əlaqədar əlilliyi olanlar; həlak olmuş döyüşçülərin (şəhidlər istisna) dul arvadları (ərləri) və övladları; 1941-1945 arxa cəbhə fədakarları; müharibə veteranları; Çernobıl və digər radiasiya qəzalarının iştirakçıları; həlak olmuş minatəmizləyənlərin valideynləri, dul arvadları (ərləri) və övladları.",
+    },
+    {
+      value: 200,
+      article: "102.3",
+      title: "Əlillər və əlilə qulluq edənlər",
+      desc: "Orqanizmin funksiyalarının 61-100% pozulmasına görə əlilliyi olanlar (müharibə əlilləri istisna); əlilliyi olan uşaqlar; daimi qulluq tələb edən əlil uşağa və ya 81-100% əlilə baxıb onunla yaşayan valideyndən biri, ər/arvad, himayəçi və ya qəyyum.",
+    },
+    {
+      value: 100,
+      article: "102.4",
+      title: "Şəhid valideynləri, köçkünlər və b.",
+      desc: "Həlak olmuş döyüşçülərin (şəhidlər istisna) və vəzifə icrasında həlak olmuş dövlət qulluqçularının valideynləri və təkrar nikaha girməmiş arvadları (ərləri); 20 Yanvar və ərazi bütövlüyü uğrunda həlak olanların valideynləri, arvadları (ərləri) və övladları; Əfqanıstan və digər döyüş bölgələrindəki hərbçilər; I dərəcə əlilə daimi qulluq edən valideyn, ər/arvad, himayəçi və ya qəyyum; məcburi köçkünlər və onlara bərabər tutulanlar.",
+    },
+    {
+      value: 50,
+      article: "102.5",
+      title: "Himayəsində 3+ nəfər olanlar",
+      desc: "Himayəsində azı üç nəfər, o cümlədən gündüz təhsil alan 23 yaşınadək şagird və tələbələr olan ər və ya arvaddan biri. Güzəşt uşaqların 18, tələbələrin 23 yaşa çatdığı ilin sonunadək saxlanılır.",
+    },
   ],
   en: [
-    { value: 800, desc: "Families of martyrs, Group I disabled, war-disabled persons" },
-    { value: 400, desc: "Group II disabled, Chernobyl disaster disabled persons" },
-    { value: 200, desc: "Combat veterans, families with 3 children" },
-    { value: 100, desc: "Family members of military personnel" },
-    { value: 50, desc: "Other exemption categories" },
+    {
+      value: 800,
+      article: "102.1-1",
+      title: "Relatives of martyrs",
+      desc: "Parents, widows (widowers) and children of persons granted martyr status.",
+    },
+    {
+      value: 400,
+      article: "102.2",
+      title: "Heroes and war-disabled",
+      desc: "Heroes of the Patriotic War and National Heroes of Azerbaijan; Heroes of the Soviet Union and of Socialist Labour; holders of all three degrees of the Order of Glory; Group I and II war-disabled persons; widows (widowers) and children of fallen soldiers (except martyrs); 1941-1945 home-front laborers; war veterans; participants of the Chernobyl and other radiation accidents; parents, widows (widowers) and children of fallen deminers.",
+    },
+    {
+      value: 200,
+      article: "102.3",
+      title: "Disabled persons and their carers",
+      desc: "Persons with 61-100% impairment of bodily functions (except war-disabled); children with disabilities; one parent, spouse, custodian or guardian who lives with and cares for a disabled child requiring permanent care or a person with 81-100% impairment.",
+    },
+    {
+      value: 100,
+      article: "102.4",
+      title: "Parents of the fallen, IDPs, etc.",
+      desc: "Parents and non-remarried spouses of fallen soldiers (except martyrs) and of state officials who died in the line of duty; parents, spouses and children of those killed during the 20 January events and the defense of territorial integrity; servicemen sent to Afghanistan and other combat zones; a parent, spouse, custodian or guardian providing permanent care to a person with Group I disability; internally displaced persons and those treated as such.",
+    },
+    {
+      value: 50,
+      article: "102.5",
+      title: "Three or more dependents",
+      desc: "One spouse who supports at least three dependents, including pupils and students up to age 23 in full-time education. The exemption applies until the end of the year a child turns 18 or a student turns 23.",
+    },
   ],
   ru: [
-    { value: 800, desc: "Семьи шехидов, инвалиды I группы, инвалиды войны" },
-    { value: 400, desc: "Инвалиды II группы, пострадавшие от аварии в Чернобыле" },
-    { value: 200, desc: "Ветераны боевых действий, семьи с 3 детьми" },
-    { value: 100, desc: "Члены семей военнослужащих" },
-    { value: 50, desc: "Другие категории льгот" },
+    {
+      value: 800,
+      article: "102.1-1",
+      title: "Близкие шехидов",
+      desc: "Родители, вдовы (вдовцы) и дети лиц, получивших статус шехида.",
+    },
+    {
+      value: 400,
+      article: "102.2",
+      title: "Герои и инвалиды войны",
+      desc: "Герои Отечественной войны и Национальные герои Азербайджана; Герои Советского Союза и Социалистического Труда; награждённые орденом Славы всех трёх степеней; инвалиды войны I и II групп; вдовы (вдовцы) и дети погибших воинов (кроме шехидов); труженики тыла 1941-1945 гг.; ветераны войны; участники аварии в Чернобыле и других радиационных аварий; родители, вдовы (вдовцы) и дети погибших сапёров-разминировщиков.",
+    },
+    {
+      value: 200,
+      article: "102.3",
+      title: "Инвалиды и ухаживающие за ними",
+      desc: "Лица с нарушением функций организма на 61-100% (кроме инвалидов войны); дети-инвалиды; один из родителей, супруг(а), попечитель или опекун, проживающий с инвалидом и ухаживающий за ребёнком-инвалидом, требующим постоянного ухода, либо за лицом с нарушением функций на 81-100%.",
+    },
+    {
+      value: 100,
+      article: "102.4",
+      title: "Родители погибших, переселенцы и др.",
+      desc: "Родители и не вступившие в повторный брак супруги погибших воинов (кроме шехидов) и госслужащих, погибших при исполнении; родители, супруги и дети погибших в событиях 20 Января и при защите территориальной целостности; военнослужащие, направленные в Афганистан и другие зоны боевых действий; родитель, супруг(а), попечитель или опекун, постоянно ухаживающий за лицом с I группой инвалидности; вынужденные переселенцы и приравненные к ним лица.",
+    },
+    {
+      value: 50,
+      article: "102.5",
+      title: "На иждивении 3+ человек",
+      desc: "Один из супругов, имеющий на иждивении не менее трёх человек, включая учащихся и студентов очной формы до 23 лет. Льгота сохраняется до конца года, в котором ребёнку исполняется 18, а студенту — 23 года.",
+    },
   ],
 };
 
@@ -268,12 +343,31 @@ Dövlət / Neft-qaz sektoru (işçidən):
   > 8000₼: 160 + (gross − 8000) × 0,5%
 • İşəgötürən DSMF: gross × 22%
 
-V.M. 102.1-1 Güzəştlər (vergi tutulan gəlir azaldılır):
-• 800₼: Şəhid ailə üzvləri, I qrup əlillər, müharibə əlilləri
-• 400₼: II qrup əlillər, Çernobıl qəzası əlilləri
-• 200₼: Döyüş veteranları, 3 uşaqlı ailələr
-• 100₼: Hərbi qulluqçuların ailə üzvləri
-• 50₼: Digər güzəşt kateqoriyaları
+Vergi Məcəlləsinin 102-ci maddəsi üzrə güzəştlər (vergi tutulan aylıq gəlir azaldılır):
+
+• 800₼ (V.M. 102.1-1): Şəhid statusu almış şəxslərin valideynləri, dul arvadları (ərləri) və övladları.
+
+• 400₼ (V.M. 102.2):
+  – Vətən Müharibəsi Qəhrəmanları və Azərbaycanın Milli Qəhrəmanları;
+  – Sovet İttifaqı və Sosialist Əməyi Qəhrəmanları;
+  – Şöhrət ordeninin hər üç dərəcəsi ilə təltif edilmiş şəxslər;
+  – I və II qrup müharibə ilə əlaqədar əlilliyi olan şəxslər;
+  – həlak olmuş döyüşçülərin (şəhidlər istisna) dul arvadları (ərləri) və övladları;
+  – 1941-1945-ci illərdə arxa cəbhədə fədakar əməyə görə təltif olunanlar;
+  – müharibə veteranı adı almış şəxslər;
+  – Çernobıl AES və digər radiasiya qəzalarının nəticələrindən zərər çəkənlər;
+  – həlak olmuş minatəmizləyənlərin valideynləri, dul arvadları (ərləri) və övladları.
+
+• 200₼ (V.M. 102.3): Orqanizmin funksiyalarının 61-100% pozulmasına görə əlilliyi olanlar (müharibə əlilləri istisna); əlilliyi olan uşaqlar; daimi qulluq tələb edən əlil uşağa və ya 81-100% əlilə baxıb onunla yaşayan valideyndən biri, ər/arvad, himayəçi və ya qəyyum.
+
+• 100₼ (V.M. 102.4):
+  – həlak olmuş döyüşçülərin (şəhidlər istisna) və vəzifə icrasında həlak olmuş dövlət qulluqçularının valideynləri, təkrar nikaha girməmiş arvadları (ərləri);
+  – 20 Yanvar və ərazi bütövlüyü uğrunda həlak olanların valideynləri, arvadları (ərləri) və övladları;
+  – Əfqanıstan və digər döyüş bölgələrinə göndərilmiş hərbçilər;
+  – I dərəcə əlilə daimi qulluq edən valideyn, ər/arvad, himayəçi və ya qəyyum;
+  – məcburi köçkünlər və onlara bərabər tutulan şəxslər.
+
+• 50₼ (V.M. 102.5): Himayəsində azı üç nəfər, o cümlədən gündüz təhsil alan 23 yaşınadək şagird və tələbələr olan ər və ya arvaddan biri. Güzəşt uşaqların 18, tələbələrin və şagirdlərin 23 yaşa çatdığı ilin sonunadək saxlanılır.
 
 Əlavə tutulmalar (könüllü):
 • Həmkarlar İttifaqı üzvlüyü: 2%
@@ -290,7 +384,7 @@ Minimum əmək haqqı: ${MINIMUM_WAGE} AZN (2026)`,
     sectorState: "Dövlət və neft sektoru",
     // Exemptions
     exemptions: "Güzəştlər",
-    exemptionLabel: (value: number) => `V.M. 102.1-1 Vergi tutulan gəlir ${value} AZN azaldılır`,
+    exemptionLabel: (value: number, article: string) => `V.M. ${article} — vergi tutulan gəlir ${value} AZN azaldılır`,
     // Direction
     grossToNet: "Gross → Net",
     netToGross: "Net → Gross",
@@ -397,12 +491,31 @@ State / Oil-gas sector (from employee):
   > 8000 AZN: 160 + (gross − 8000) × 0.5%
 • Employer SSPF: gross × 22%
 
-Tax Code 102.1-1 Exemptions (taxable income reduced):
-• 800 AZN: Families of martyrs, Group I disabled, war-disabled
-• 400 AZN: Group II disabled, Chernobyl disaster disabled
-• 200 AZN: Combat veterans, families with 3 children
-• 100 AZN: Family members of military personnel
-• 50 AZN: Other exemption categories
+Exemptions under Article 102 of the Tax Code (taxable monthly income is reduced):
+
+• 800 AZN (TC 102.1-1): Parents, widows (widowers) and children of persons granted martyr status.
+
+• 400 AZN (TC 102.2):
+  – Heroes of the Patriotic War and National Heroes of Azerbaijan;
+  – Heroes of the Soviet Union and of Socialist Labour;
+  – holders of all three degrees of the Order of Glory;
+  – Group I and II war-disabled persons;
+  – widows (widowers) and children of fallen soldiers (except martyrs);
+  – home-front laborers decorated in 1941-1945;
+  – persons granted war veteran status;
+  – victims of the Chernobyl and other radiation accidents;
+  – parents, widows (widowers) and children of fallen deminers.
+
+• 200 AZN (TC 102.3): Persons with 61-100% impairment of bodily functions (except war-disabled); children with disabilities; one parent, spouse, custodian or guardian who lives with and cares for a disabled child requiring permanent care or a person with 81-100% impairment.
+
+• 100 AZN (TC 102.4):
+  – parents and non-remarried spouses of fallen soldiers (except martyrs) and of state officials who died in the line of duty;
+  – parents, spouses and children of those killed during the 20 January events and the defense of territorial integrity;
+  – servicemen sent to Afghanistan and other combat zones;
+  – a parent, spouse, custodian or guardian providing permanent care to a person with Group I disability;
+  – internally displaced persons and those treated as such.
+
+• 50 AZN (TC 102.5): One spouse supporting at least three dependents, including pupils and students up to age 23 in full-time education. The exemption applies until the end of the year a child turns 18 or a student turns 23.
 
 Additional deductions (voluntary):
 • Trade union membership: 2%
@@ -416,7 +529,7 @@ Minimum wage: ${MINIMUM_WAGE} AZN (2026)`,
     sectorPrivate: "Non-state and non-oil sector",
     sectorState: "State and oil sector",
     exemptions: "Exemptions",
-    exemptionLabel: (value: number) => `TC 102.1-1 Taxable income reduced by ${value} AZN`,
+    exemptionLabel: (value: number, article: string) => `TC ${article} — taxable income reduced by ${value} AZN`,
     grossToNet: "Gross → Net",
     netToGross: "Net → Gross",
     grossSalary: "Gross salary",
@@ -510,12 +623,31 @@ Minimum wage: ${MINIMUM_WAGE} AZN (2026)`,
   > 8000 AZN: 160 + (брутто − 8000) × 0,5%
 • ГФСЗ работодателя: брутто × 22%
 
-НК 102.1-1 Льготы (налогооблагаемый доход уменьшается):
-• 800 AZN: Семьи шехидов, инвалиды I группы, инвалиды войны
-• 400 AZN: Инвалиды II группы, пострадавшие от Чернобыля
-• 200 AZN: Ветераны боевых действий, семьи с 3 детьми
-• 100 AZN: Члены семей военнослужащих
-• 50 AZN: Другие категории льгот
+Льготы по статье 102 Налогового кодекса (налогооблагаемый месячный доход уменьшается):
+
+• 800 AZN (НК 102.1-1): Родители, вдовы (вдовцы) и дети лиц, получивших статус шехида.
+
+• 400 AZN (НК 102.2):
+  – Герои Отечественной войны и Национальные герои Азербайджана;
+  – Герои Советского Союза и Социалистического Труда;
+  – награждённые орденом Славы всех трёх степеней;
+  – инвалиды войны I и II групп;
+  – вдовы (вдовцы) и дети погибших воинов (кроме шехидов);
+  – труженики тыла, награждённые в 1941-1945 гг.;
+  – лица со статусом ветерана войны;
+  – пострадавшие от аварии в Чернобыле и других радиационных аварий;
+  – родители, вдовы (вдовцы) и дети погибших сапёров-разминировщиков.
+
+• 200 AZN (НК 102.3): Лица с нарушением функций организма на 61-100% (кроме инвалидов войны); дети-инвалиды; один из родителей, супруг(а), попечитель или опекун, проживающий и ухаживающий за ребёнком-инвалидом, требующим постоянного ухода, либо за лицом с нарушением функций на 81-100%.
+
+• 100 AZN (НК 102.4):
+  – родители и не вступившие в повторный брак супруги погибших воинов (кроме шехидов) и госслужащих, погибших при исполнении;
+  – родители, супруги и дети погибших в событиях 20 Января и при защите территориальной целостности;
+  – военнослужащие, направленные в Афганистан и другие зоны боевых действий;
+  – родитель, супруг(а), попечитель или опекун, постоянно ухаживающий за лицом с I группой инвалидности;
+  – вынужденные переселенцы и приравненные к ним лица.
+
+• 50 AZN (НК 102.5): Один из супругов, имеющий на иждивении не менее трёх человек, включая учащихся и студентов очной формы до 23 лет. Льгота сохраняется до конца года, в котором ребёнку исполняется 18, а студенту — 23 года.
 
 Дополнительные удержания (добровольные):
 • Членство в профсоюзе: 2%
@@ -529,7 +661,7 @@ Minimum wage: ${MINIMUM_WAGE} AZN (2026)`,
     sectorPrivate: "Негосударственный и ненефтяной сектор",
     sectorState: "Государственный и нефтяной сектор",
     exemptions: "Льготы",
-    exemptionLabel: (value: number) => `НК 102.1-1 Налогооблагаемый доход уменьшается на ${value} AZN`,
+    exemptionLabel: (value: number, article: string) => `НК ${article} — налогооблагаемый доход уменьшается на ${value} AZN`,
     grossToNet: "Брутто → Нетто",
     netToGross: "Нетто → Брутто",
     grossSalary: "Брутто зарплата",
@@ -811,10 +943,11 @@ export default function SalaryCalculator() {
                   className="w-4 h-4 mt-0.5 border-border text-primary focus:ring-primary"
                 />
                 <div>
-                  <p className="text-sm font-medium text-foreground">
-                    {pt.exemptionLabel(opt.value)}
+                  <p className="text-sm font-semibold text-foreground">{opt.title}</p>
+                  <p className="text-[11px] font-medium text-primary mt-0.5">
+                    {pt.exemptionLabel(opt.value, opt.article)}
                   </p>
-                  <p className="text-[11px] text-muted mt-0.5">{opt.desc}</p>
+                  <p className="text-[11px] text-muted mt-1 leading-relaxed">{opt.desc}</p>
                 </div>
               </label>
             ))}

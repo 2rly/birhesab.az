@@ -21,7 +21,7 @@ interface GroupDef {
 
 const GROUP_DEFS: GroupDef[] = [
   { id: "1rk", name: "I qrup (RK)", subjects: [["Riyaziyyat", 1.5], ["Fizika", 1.5], ["Kimya", 1]] },
-  { id: "1ri", name: "I qrup (Rİ)", subjects: [["Riyaziyyat", 1.5], ["İnformatika", 1.5], ["Fizika", 1]] },
+  { id: "1ri", name: "I qrup (Rİ)", subjects: [["Riyaziyyat", 1.5], ["Fizika", 1.5], ["İnformatika", 1]] },
   { id: "2", name: "II qrup", subjects: [["Riyaziyyat", 1.5], ["Coğrafiya", 1.5], ["Tarix", 1]] },
   { id: "3dt", name: "III qrup (DT)", subjects: [["Azərbaycan dili", 1.5], ["Tarix", 1.5], ["Ədəbiyyat", 1]] },
   { id: "3tc", name: "III qrup (TC)", subjects: [["Azərbaycan dili", 1.5], ["Tarix", 1.5], ["Coğrafiya", 1]] },
@@ -33,6 +33,15 @@ const WRITTEN_OPTIONS = [
   { label: "0", value: 0 },
   { label: "1/3", value: 1 / 3 },
   { label: "1/2", value: 0.5 },
+  { label: "2/3", value: 2 / 3 },
+  { label: "1", value: 1 },
+];
+
+// DİM rəsmi qiymətləndirmə meyarları (11-ci sinif buraxılış imtahanı):
+// açıq tipli yazılı tapşırıq yalnız 0, 1/3, 2/3 və ya 1 bal ala bilər.
+const WRITTEN_OPTIONS_11 = [
+  { label: "0", value: 0 },
+  { label: "1/3", value: 1 / 3 },
   { label: "2/3", value: 2 / 3 },
   { label: "1", value: 1 },
 ];
@@ -99,26 +108,29 @@ function getScoreColor(total: number, lang: Lang): { bg: string; border: string;
 
 interface Stage1Inputs {
   xariciClosed: number;
-  xariciOpenWritten: number;
+  xariciOpenWritten: number[]; // 7 tasks, each 0 | 1/3 | 2/3 | 1
   azClosed: number;
-  azOpenWritten: number;
+  azOpenWritten: number[]; // 10 tasks
   riyaClosed: number;
   riyaOpenCoded: number;
-  riyaOpenWritten: number;
+  riyaOpenWritten: number[]; // 7 tasks
 }
 
-function calcStage1Xarici(closed: number, openWritten: number): number {
-  const raw = (2 * openWritten + closed) * 100 / 37;
+function calcStage1Xarici(closed: number, openWrittenScores: number[]): number {
+  const openSum = openWrittenScores.reduce((s, v) => s + v, 0);
+  const raw = (2 * openSum + closed) * 100 / 37;
   return round1(clamp(raw, 0, 100));
 }
 
-function calcStage1Az(closed: number, openWritten: number): number {
-  const raw = (2 * openWritten + closed) * 5 / 2;
+function calcStage1Az(closed: number, openWrittenScores: number[]): number {
+  const openSum = openWrittenScores.reduce((s, v) => s + v, 0);
+  const raw = (2 * openSum + closed) * 5 / 2;
   return round1(clamp(raw, 0, 100));
 }
 
-function calcStage1Riya(closed: number, openCoded: number, openWritten: number): number {
-  const raw = (2 * openWritten + openCoded + closed) * 25 / 8;
+function calcStage1Riya(closed: number, openCoded: number, openWrittenScores: number[]): number {
+  const openSum = openWrittenScores.reduce((s, v) => s + v, 0);
+  const raw = (2 * openSum + openCoded + closed) * 25 / 8;
   return round1(clamp(raw, 0, 100));
 }
 
@@ -213,7 +225,7 @@ Sonra çəki əmsalı ilə vurulur.
 
 Çəki əmsalları:
 I qrup (RK): Riyaziyyat ×1.5, Fizika ×1.5, Kimya ×1
-I qrup (Rİ): Riyaziyyat ×1.5, İnformatika ×1.5, Fizika ×1
+I qrup (Rİ): Riyaziyyat ×1.5, Fizika ×1.5, İnformatika ×1
 II qrup: Riyaziyyat ×1.5, Coğrafiya ×1.5, Tarix ×1
 III qrup (DT): Azərbaycan dili ×1.5, Tarix ×1.5, Ədəbiyyat ×1
 III qrup (TC): Azərbaycan dili ×1.5, Tarix ×1.5, Coğrafiya ×1
@@ -303,7 +315,7 @@ Then multiplied by weight coefficient.
 
 Weight coefficients:
 Group I (RK): Mathematics ×1.5, Physics ×1.5, Chemistry ×1
-Group I (Rİ): Mathematics ×1.5, Informatics ×1.5, Physics ×1
+Group I (Rİ): Mathematics ×1.5, Physics ×1.5, Informatics ×1
 Group II: Mathematics ×1.5, Geography ×1.5, History ×1
 Group III (DT): Azerbaijani ×1.5, History ×1.5, Literature ×1
 Group III (TC): Azerbaijani ×1.5, History ×1.5, Geography ×1
@@ -393,7 +405,7 @@ Total score = First stage + Second stage (max 700)`,
 
 Весовые коэффициенты:
 Группа I (RK): Математика ×1.5, Физика ×1.5, Химия ×1
-Группа I (Rİ): Математика ×1.5, Информатика ×1.5, Физика ×1
+Группа I (Rİ): Математика ×1.5, Физика ×1.5, Информатика ×1
 Группа II: Математика ×1.5, География ×1.5, История ×1
 Группа III (ДТ): Азерб. язык ×1.5, История ×1.5, Литература ×1
 Группа III (ТС): Азерб. язык ×1.5, История ×1.5, География ×1
@@ -465,9 +477,13 @@ Total score = First stage + Second stage (max 700)`,
 // ── Component ──────────────────────────────────────────────────────────────────
 
 const defaultStage1: Stage1Inputs = {
-  xariciClosed: 0, xariciOpenWritten: 0,
-  azClosed: 0, azOpenWritten: 0,
-  riyaClosed: 0, riyaOpenCoded: 0, riyaOpenWritten: 0,
+  xariciClosed: 0,
+  xariciOpenWritten: [0, 0, 0, 0, 0, 0, 0],
+  azClosed: 0,
+  azOpenWritten: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  riyaClosed: 0,
+  riyaOpenCoded: 0,
+  riyaOpenWritten: [0, 0, 0, 0, 0, 0, 0],
 };
 
 const defaultStage2Subject: Stage2SubjectInputs = {
@@ -518,10 +534,25 @@ export default function UniversitetQebulCalculator() {
     ]);
   }, []);
 
-  const updateS1 = (field: keyof Stage1Inputs, val: string) => {
+  const updateS1 = (
+    field: "xariciClosed" | "azClosed" | "riyaClosed" | "riyaOpenCoded",
+    val: string
+  ) => {
     const num = val === "" ? 0 : parseInt(val, 10);
     if (isNaN(num) || num < 0) return;
     setS1((prev) => ({ ...prev, [field]: num }));
+  };
+
+  const updateS1Written = (
+    group: "xariciOpenWritten" | "azOpenWritten" | "riyaOpenWritten",
+    taskIdx: number,
+    val: number
+  ) => {
+    setS1((prev) => {
+      const arr = [...prev[group]];
+      arr[taskIdx] = val;
+      return { ...prev, [group]: arr };
+    });
   };
 
   const updateS2 = (subjectIdx: number, field: keyof Omit<Stage2SubjectInputs, "writtenScores">, val: string) => {
@@ -565,16 +596,16 @@ export default function UniversitetQebulCalculator() {
   const stage1Results = useMemo(() => {
     const xarici = calcStage1Xarici(
       clamp(s1.xariciClosed, 0, 23),
-      clamp(s1.xariciOpenWritten, 0, 7)
+      s1.xariciOpenWritten
     );
     const az = calcStage1Az(
       clamp(s1.azClosed, 0, 20),
-      clamp(s1.azOpenWritten, 0, 10)
+      s1.azOpenWritten
     );
     const riya = calcStage1Riya(
       clamp(s1.riyaClosed, 0, 13),
       clamp(s1.riyaOpenCoded, 0, 5),
-      clamp(s1.riyaOpenWritten, 0, 7)
+      s1.riyaOpenWritten
     );
     const total = round1(xarici + az + riya);
     return { xarici, az, riya, total };
@@ -643,7 +674,8 @@ export default function UniversitetQebulCalculator() {
   const writtenSelect = (
     label: string,
     value: number,
-    onChange: (val: number) => void
+    onChange: (val: number) => void,
+    options: { label: string; value: number }[] = WRITTEN_OPTIONS
   ) => (
     <div>
       <label className="block text-sm font-medium text-foreground mb-1">{label}</label>
@@ -652,10 +684,23 @@ export default function UniversitetQebulCalculator() {
         onChange={(e) => onChange(parseFloat(e.target.value))}
         className="w-full px-4 py-2.5 rounded-xl border border-border bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
       >
-        {WRITTEN_OPTIONS.map((opt) => (
+        {options.map((opt) => (
           <option key={opt.label} value={opt.value}>{opt.label}</option>
         ))}
       </select>
+    </div>
+  );
+
+  const writtenTaskGrid = (
+    scores: number[],
+    onChange: (idx: number, val: number) => void
+  ) => (
+    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2">
+      {scores.map((v, i) => (
+        <div key={i}>
+          {writtenSelect(`Tapşırıq ${i + 1}`, v, (nv) => onChange(i, nv), WRITTEN_OPTIONS_11)}
+        </div>
+      ))}
     </div>
   );
 
@@ -835,10 +880,11 @@ export default function UniversitetQebulCalculator() {
             <h3 className="font-medium text-foreground">{pt.foreignLang} <span className="text-xs text-muted">(30 {pt.tasks})</span></h3>
             <span className="text-sm font-semibold text-primary">{stage1Results.xarici} {pt.score}</span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="mb-3">
             {numberInput(pt.closedCorrect, s1.xariciClosed, (v) => updateS1("xariciClosed", v), 23, "max 23")}
-            {numberInput(pt.openWrittenCorrect, s1.xariciOpenWritten, (v) => updateS1("xariciOpenWritten", v), 7, "max 7")}
           </div>
+          <div className="text-xs font-medium text-muted mb-2">{pt.openWrittenCorrect} (7 tapşırıq × 0, ⅓, ⅔, 1)</div>
+          {writtenTaskGrid(s1.xariciOpenWritten, (i, v) => updateS1Written("xariciOpenWritten", i, v))}
         </div>
 
         {/* Azərbaycan dili */}
@@ -847,10 +893,11 @@ export default function UniversitetQebulCalculator() {
             <h3 className="font-medium text-foreground">{pt.azLang} <span className="text-xs text-muted">(30 {pt.tasks})</span></h3>
             <span className="text-sm font-semibold text-primary">{stage1Results.az} {pt.score}</span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="mb-3">
             {numberInput(pt.closedCorrect, s1.azClosed, (v) => updateS1("azClosed", v), 20, "max 20")}
-            {numberInput(pt.openWrittenCorrect, s1.azOpenWritten, (v) => updateS1("azOpenWritten", v), 10, "max 10")}
           </div>
+          <div className="text-xs font-medium text-muted mb-2">{pt.openWrittenCorrect} (10 tapşırıq × 0, ⅓, ⅔, 1)</div>
+          {writtenTaskGrid(s1.azOpenWritten, (i, v) => updateS1Written("azOpenWritten", i, v))}
         </div>
 
         {/* Riyaziyyat */}
@@ -859,11 +906,12 @@ export default function UniversitetQebulCalculator() {
             <h3 className="font-medium text-foreground">{pt.math} <span className="text-xs text-muted">(25 {pt.tasks})</span></h3>
             <span className="text-sm font-semibold text-primary">{stage1Results.riya} {pt.score}</span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
             {numberInput(pt.closedCorrect, s1.riyaClosed, (v) => updateS1("riyaClosed", v), 13, "max 13")}
             {numberInput(pt.openCodedCorrect, s1.riyaOpenCoded, (v) => updateS1("riyaOpenCoded", v), 5, "max 5")}
-            {numberInput(pt.openWrittenCorrectMath, s1.riyaOpenWritten, (v) => updateS1("riyaOpenWritten", v), 7, "max 7")}
           </div>
+          <div className="text-xs font-medium text-muted mb-2">{pt.openWrittenCorrectMath} (7 tapşırıq × 0, ⅓, ⅔, 1)</div>
+          {writtenTaskGrid(s1.riyaOpenWritten, (i, v) => updateS1Written("riyaOpenWritten", i, v))}
         </div>
 
         {/* Stage 1 Total */}
@@ -929,13 +977,15 @@ export default function UniversitetQebulCalculator() {
                   )}
                 </div>
                 <div className="grid grid-cols-3 gap-3">
-                  {s2[idx].writtenScores.map((ws, ti) =>
-                    writtenSelect(
-                      `${pt.writtenTask} ${ti + 1}`,
-                      ws,
-                      (val) => updateS2Written(idx, ti, val)
-                    )
-                  )}
+                  {s2[idx].writtenScores.map((ws, ti) => (
+                    <div key={ti}>
+                      {writtenSelect(
+                        `${pt.writtenTask} ${ti + 1}`,
+                        ws,
+                        (val) => updateS2Written(idx, ti, val)
+                      )}
+                    </div>
+                  ))}
                 </div>
 
                 {/* Subject breakdown */}

@@ -39,10 +39,15 @@ function numberToWords(num: number): string {
 
   const parts: string[] = [];
 
-  const milyard = Math.floor(num / 1_000_000_000);
+  const trilyon = Math.floor(num / 1_000_000_000_000);
+  const milyard = Math.floor((num % 1_000_000_000_000) / 1_000_000_000);
   const milyon = Math.floor((num % 1_000_000_000) / 1_000_000);
   const min = Math.floor((num % 1_000_000) / 1_000);
   const yuz = Math.floor(num % 1_000);
+
+  if (trilyon > 0) {
+    parts.push(convertHundreds(trilyon) + " trilyon");
+  }
 
   if (milyard > 0) {
     parts.push(convertHundreds(milyard) + " milyard");
@@ -110,12 +115,12 @@ const pageTranslations = {
     formulaContent: `Azərbaycan dilində məbləğin sözlə yazılışı:
 • Rəqəmlər: bir, iki, üç, dörd, beş, altı, yeddi, səkkiz, doqquz
 • Onluqlar: on, iyirmi, otuz, qırx, əlli, altmış, yetmiş, səksən, doxsan
-• Böyük rəqəmlər: yüz, min, milyon, milyard
+• Böyük rəqəmlər: yüz, min, milyon, milyard, trilyon
 • Valyuta: manat və qəpik
 
 Məsələn: 1 547,32 → Bir min beş yüz qırx yeddi manat otuz iki qəpik`,
     amountLabel: "Məbləğ (AZN)",
-    maxNote: "Maksimum: 999 999 999,99 AZN",
+    maxNote: "Maksimum: 999 999 999 999,99 AZN (1 trilyona qədər)",
     writtenForm: "Sözlə yazılışı",
     copied: "Kopyalandı!",
     copy: "Kopyala",
@@ -130,12 +135,12 @@ Məsələn: 1 547,32 → Bir min beş yüz qırx yeddi manat otuz iki qəpik`,
     formulaContent: `Writing amounts in words in Azerbaijani:
 • Digits: bir, iki, üç, dörd, beş, altı, yeddi, səkkiz, doqquz
 • Tens: on, iyirmi, otuz, qırx, əlli, altmış, yetmiş, səksən, doxsan
-• Large numbers: yüz, min, milyon, milyard
+• Large numbers: yüz, min, milyon, milyard, trilyon
 • Currency: manat and qəpik
 
 Example: 1 547.32 → Bir min beş yüz qırx yeddi manat otuz iki qəpik`,
     amountLabel: "Amount (AZN)",
-    maxNote: "Maximum: 999,999,999.99 AZN",
+    maxNote: "Maximum: 999,999,999,999.99 AZN (up to 1 trillion)",
     writtenForm: "Written form",
     copied: "Copied!",
     copy: "Copy",
@@ -150,12 +155,12 @@ Example: 1 547.32 → Bir min beş yüz qırx yeddi manat otuz iki qəpik`,
     formulaContent: `Написание суммы прописью на азербайджанском языке:
 • Цифры: bir, iki, üç, dörd, beş, altı, yeddi, səkkiz, doqquz
 • Десятки: on, iyirmi, otuz, qırx, əlli, altmış, yetmiş, səksən, doxsan
-• Большие числа: yüz, min, milyon, milyard
+• Большие числа: yüz, min, milyon, milyard, trilyon
 • Валюта: manat и qəpik
 
 Пример: 1 547,32 → Bir min beş yüz qırx yeddi manat otuz iki qəpik`,
     amountLabel: "Сумма (AZN)",
-    maxNote: "Максимум: 999 999 999,99 AZN",
+    maxNote: "Максимум: 999 999 999 999,99 AZN (до 1 триллиона)",
     writtenForm: "Прописью",
     copied: "Скопировано!",
     copy: "Копировать",
@@ -173,7 +178,7 @@ export default function AznSozleCalculator() {
 
   const result = useMemo(() => {
     const value = parseFloat(amount);
-    if (isNaN(value) || value < 0 || value > 999999999.99) return null;
+    if (isNaN(value) || value < 0 || value > 999999999999.99) return null;
     return convertToAznWords(value);
   }, [amount]);
 
@@ -211,7 +216,7 @@ export default function AznSozleCalculator() {
           onChange={(e) => setAmount(e.target.value)}
           placeholder="1547.32"
           min="0"
-          max="999999999.99"
+          max="999999999999.99"
           step="0.01"
           className="w-full px-4 py-4 rounded-xl border border-border bg-white text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-xl"
         />

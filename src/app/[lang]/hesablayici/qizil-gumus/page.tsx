@@ -3,7 +3,6 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import CalculatorLayout from "@/components/CalculatorLayout";
 import { useLanguage } from "@/i18n";
-import type { Lang } from "@/i18n";
 
 type MetalType = "gold" | "silver" | "platinum" | "palladium";
 type Direction = "buy" | "sell";
@@ -45,6 +44,8 @@ const palladiumPurities: PurityOption[] = [
   { value: 999, label: "999", karat: "999" },
 ];
 
+const TROY_OZ_GRAMS = 31.1035;
+
 const FALLBACK_PRICES = {
   gold: 265.15,
   silver: 4.14,
@@ -52,15 +53,27 @@ const FALLBACK_PRICES = {
   palladium: 82.63,
 };
 
-const TROY_OZ_GRAMS = 31.1035;
+// Geriyə fallback troy uns dəyərləri (qram × 31.1035)
+const FALLBACK_PRICES_PER_OUNCE = {
+  gold: FALLBACK_PRICES.gold * TROY_OZ_GRAMS,
+  silver: FALLBACK_PRICES.silver * TROY_OZ_GRAMS,
+  platinum: FALLBACK_PRICES.platinum * TROY_OZ_GRAMS,
+  palladium: FALLBACK_PRICES.palladium * TROY_OZ_GRAMS,
+};
+
 const SELL_SPREAD = 0.96;
 const quickWeights = [1, 5, 10, 50, 100];
 
 interface CbarPrices {
-  gold: number;
+  gold: number;       // AZN/qram
   silver: number;
   platinum: number;
   palladium: number;
+  // CBAR-dan birbaşa AZN/troy uns
+  goldOz: number;
+  silverOz: number;
+  platinumOz: number;
+  palladiumOz: number;
   date: string;
   source: "cbar" | "fallback";
 }
@@ -73,39 +86,6 @@ function formatWeight(n: number): string {
   return n.toFixed(3);
 }
 
-function parseCbarXml(xml: string): Omit<CbarPrices, "source"> | null {
-  try {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(xml, "text/xml");
-    const dateAttr = doc.querySelector("ValCurs")?.getAttribute("Date") || "";
-    const getRate = (code: string): number => {
-      const valutes = doc.querySelectorAll("Valute");
-      for (let i = 0; i < valutes.length; i++) {
-        const v = valutes[i];
-        const codeEl = v.getAttribute("Code");
-        if (codeEl === code) {
-          const val = v.querySelector("Value")?.textContent;
-          return val ? parseFloat(val) : 0;
-        }
-      }
-      return 0;
-    };
-    const xau = getRate("XAU");
-    const xag = getRate("XAG");
-    const xpt = getRate("XPT");
-    const xpd = getRate("XPD");
-    if (xau <= 0) return null;
-    return {
-      gold: xau / TROY_OZ_GRAMS,
-      silver: xag / TROY_OZ_GRAMS,
-      platinum: xpt / TROY_OZ_GRAMS,
-      palladium: xpd / TROY_OZ_GRAMS,
-      date: dateAttr,
-    };
-  } catch {
-    return null;
-  }
-}
 
 const pageTranslations = {
   az: {
@@ -134,6 +114,11 @@ Satış qiyməti alış qiymətindən ~4% aşağıdır (zərgərlik/bank spread)
     silverPerGram: "Gümüş/qr",
     platinumPerGram: "Platin/qr",
     palladiumPerGram: "Palladium/qr",
+    goldPerOz: "Qızıl / 1 troy uns",
+    silverPerOz: "Gümüş / 1 troy uns",
+    platinumPerOz: "Platin / 1 troy uns",
+    palladiumPerOz: "Palladium / 1 troy uns",
+    perOunceTitle: "1 troy uns (≈31.1 qr) qiyməti — CBAR rəsmi məzənnəsi",
     gold: "Qızıl",
     silver: "Gümüş",
     platinum: "Platin",
@@ -198,6 +183,11 @@ Sell price is ~4% lower than buy price (jewelry/bank spread).`,
     silverPerGram: "Silver/g",
     platinumPerGram: "Platinum/g",
     palladiumPerGram: "Palladium/g",
+    goldPerOz: "Gold / 1 troy oz",
+    silverPerOz: "Silver / 1 troy oz",
+    platinumPerOz: "Platinum / 1 troy oz",
+    palladiumPerOz: "Palladium / 1 troy oz",
+    perOunceTitle: "Price per 1 troy oz (≈31.1 g) — official CBAR rate",
     gold: "Gold",
     silver: "Silver",
     platinum: "Platinum",
@@ -262,6 +252,11 @@ CBAR предоставляет цены на банковские металл�
     silverPerGram: "Серебро/г",
     platinumPerGram: "Платина/г",
     palladiumPerGram: "Палладий/г",
+    goldPerOz: "Золото / 1 тр. унц.",
+    silverPerOz: "Серебро / 1 тр. унц.",
+    platinumPerOz: "Платина / 1 тр. унц.",
+    palladiumPerOz: "Палладий / 1 тр. унц.",
+    perOunceTitle: "Цена за 1 тр. унц. (≈31.1 г) — официальный курс CBAR",
     gold: "Золото",
     silver: "Серебро",
     platinum: "Платина",
@@ -312,6 +307,10 @@ export default function GoldSilverCalculator() {
   const [direction, setDirection] = useState<Direction>("buy");
   const [prices, setPrices] = useState<CbarPrices>({
     ...FALLBACK_PRICES,
+    goldOz: FALLBACK_PRICES_PER_OUNCE.gold,
+    silverOz: FALLBACK_PRICES_PER_OUNCE.silver,
+    platinumOz: FALLBACK_PRICES_PER_OUNCE.platinum,
+    palladiumOz: FALLBACK_PRICES_PER_OUNCE.palladium,
     date: "",
     source: "fallback",
   });
@@ -320,20 +319,53 @@ export default function GoldSilverCalculator() {
   const fetchPrices = useCallback(async () => {
     setLoading(true);
     try {
-      const now = new Date();
-      const dd = String(now.getDate()).padStart(2, "0");
-      const mm = String(now.getMonth() + 1).padStart(2, "0");
-      const yyyy = now.getFullYear();
-      const url = `https://www.cbar.az/currencies/${dd}.${mm}.${yyyy}.xml`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("fetch failed");
-      const xml = await res.text();
-      const parsed = parseCbarXml(xml);
-      if (parsed && parsed.gold > 0) {
-        setPrices({ ...parsed, source: "cbar" });
+      // Cloudflare Pages Function proxy — CORS problemsiz
+      const res = await fetch("/api/cbar/");
+      if (!res.ok) throw new Error("proxy failed");
+      const data = await res.json();
+      if (data?.metals?.gold > 0) {
+        setPrices({
+          gold: data.metals.gold,
+          silver: data.metals.silver,
+          platinum: data.metals.platinum,
+          palladium: data.metals.palladium,
+          goldOz: data.metalsPerOunce?.gold ?? data.metals.gold * TROY_OZ_GRAMS,
+          silverOz: data.metalsPerOunce?.silver ?? data.metals.silver * TROY_OZ_GRAMS,
+          platinumOz: data.metalsPerOunce?.platinum ?? data.metals.platinum * TROY_OZ_GRAMS,
+          palladiumOz: data.metalsPerOunce?.palladium ?? data.metals.palladium * TROY_OZ_GRAMS,
+          date: data.date || "",
+          source: "cbar",
+        });
       }
     } catch {
-      // Keep fallback prices
+      // Proxy işləmirsə birbaşa CBAR-dan sına (CORS imkan verirsə)
+      try {
+        const fmt = (d: Date) => `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}`;
+        const today = new Date();
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(today);
+          d.setDate(today.getDate() - i);
+          const res = await fetch(`https://www.cbar.az/currencies/${fmt(d)}.xml`);
+          if (!res.ok) continue;
+          const xml = await res.text();
+          const getVal = (code: string): number => {
+            const re = new RegExp(`<Valute Code="${code}">[\\s\\S]*?<Value>([^<]+)<\\/Value>`);
+            const m = xml.match(re);
+            return m ? parseFloat(m[1]) : 0;
+          };
+          const xau = getVal("XAU");
+          if (xau <= 0) continue;
+          const xag = getVal("XAG"), xpt = getVal("XPT"), xpd = getVal("XPD");
+          const dateMatch = xml.match(/Date="([^"]+)"/);
+          setPrices({
+            gold: xau / TROY_OZ_GRAMS, silver: xag / TROY_OZ_GRAMS,
+            platinum: xpt / TROY_OZ_GRAMS, palladium: xpd / TROY_OZ_GRAMS,
+            goldOz: xau, silverOz: xag, platinumOz: xpt, palladiumOz: xpd,
+            date: dateMatch ? dateMatch[1] : fmt(d), source: "cbar",
+          });
+          break;
+        }
+      } catch { /* fallback qiymətlər saxlanılır */ }
     } finally {
       setLoading(false);
     }
@@ -432,22 +464,31 @@ export default function GoldSilverCalculator() {
             {loading ? "..." : pt.refresh}
           </button>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3 text-center">
-          <div>
-            <p className="text-[10px] text-muted">{pt.goldPerGram}</p>
-            <p className="text-sm font-bold text-foreground">{formatMoney(prices.gold)}</p>
-          </div>
-          <div>
-            <p className="text-[10px] text-muted">{pt.silverPerGram}</p>
-            <p className="text-sm font-bold text-foreground">{formatMoney(prices.silver)}</p>
-          </div>
-          <div>
-            <p className="text-[10px] text-muted">{pt.platinumPerGram}</p>
-            <p className="text-sm font-bold text-foreground">{formatMoney(prices.platinum)}</p>
-          </div>
-          <div>
-            <p className="text-[10px] text-muted">{pt.palladiumPerGram}</p>
-            <p className="text-sm font-bold text-foreground">{formatMoney(prices.palladium)}</p>
+        <div className="mt-3">
+          <p className="text-[10px] text-muted text-center mb-2 uppercase tracking-wide">
+            {pt.perOunceTitle}
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+            <div className="bg-white/60 rounded-lg p-2">
+              <p className="text-[10px] text-muted">🪙 {pt.goldPerOz}</p>
+              <p className="text-base font-bold text-foreground">{formatMoney(prices.goldOz)}</p>
+              <p className="text-[10px] text-muted mt-0.5">{formatMoney(prices.gold)}/{pt.grShort}</p>
+            </div>
+            <div className="bg-white/60 rounded-lg p-2">
+              <p className="text-[10px] text-muted">🥈 {pt.silverPerOz}</p>
+              <p className="text-base font-bold text-foreground">{formatMoney(prices.silverOz)}</p>
+              <p className="text-[10px] text-muted mt-0.5">{formatMoney(prices.silver)}/{pt.grShort}</p>
+            </div>
+            <div className="bg-white/60 rounded-lg p-2">
+              <p className="text-[10px] text-muted">💠 {pt.platinumPerOz}</p>
+              <p className="text-base font-bold text-foreground">{formatMoney(prices.platinumOz)}</p>
+              <p className="text-[10px] text-muted mt-0.5">{formatMoney(prices.platinum)}/{pt.grShort}</p>
+            </div>
+            <div className="bg-white/60 rounded-lg p-2">
+              <p className="text-[10px] text-muted">⚪ {pt.palladiumPerOz}</p>
+              <p className="text-base font-bold text-foreground">{formatMoney(prices.palladiumOz)}</p>
+              <p className="text-[10px] text-muted mt-0.5">{formatMoney(prices.palladium)}/{pt.grShort}</p>
+            </div>
           </div>
         </div>
       </div>

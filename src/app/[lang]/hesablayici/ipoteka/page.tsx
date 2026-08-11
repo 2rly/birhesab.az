@@ -295,6 +295,8 @@ export default function MortgageCalculator() {
   const pt = pageTranslations[lang];
 
   const [mortgageType, setMortgageType] = useState<"internal" | "state">("state");
+  const [stateSubtype, setStateSubtype] = useState<"standard" | "subsidized">("standard");
+  const [showEligibility, setShowEligibility] = useState(false);
   const [propertyPrice, setPropertyPrice] = useState("");
   const [downPayment, setDownPayment] = useState("");
   const [downPercent, setDownPercent] = useState("");
@@ -601,6 +603,127 @@ export default function MortgageCalculator() {
           </button>
         </div>
       </div>
+
+      {/* State mortgage conditions panel */}
+      {mortgageType === "state" && (
+        <div className="mb-6">
+          {/* Sub-type tabs */}
+          <div className="flex gap-2 mb-4">
+            <button
+              onClick={() => { setStateSubtype("standard"); setRate("7"); }}
+              className={`flex-1 py-3 px-4 rounded-xl border text-sm font-medium transition-all ${
+                stateSubtype === "standard"
+                  ? "border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-300"
+                  : "border-border bg-white text-muted hover:border-blue-300"
+              }`}
+            >
+              Adi ipoteka
+            </button>
+            <button
+              onClick={() => { setStateSubtype("subsidized"); setRate("4"); }}
+              className={`flex-1 py-3 px-4 rounded-xl border text-sm font-medium transition-all ${
+                stateSubtype === "subsidized"
+                  ? "border-green-500 bg-green-50 text-green-700 ring-2 ring-green-300"
+                  : "border-border bg-white text-muted hover:border-green-300"
+              }`}
+            >
+              4% — Güzəştli ipoteka
+            </button>
+          </div>
+
+          {/* Info card */}
+          {stateSubtype === "standard" ? (
+            <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-4 text-sm space-y-3">
+              <h4 className="font-semibold text-blue-800">Adi ipoteka şərtləri</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-blue-900">
+                <div className="flex justify-between bg-white/70 rounded-lg px-3 py-2">
+                  <span className="text-muted">Maks. məbləğ</span>
+                  <span className="font-semibold">150 000 AZN</span>
+                </div>
+                <div className="flex justify-between bg-white/70 rounded-lg px-3 py-2">
+                  <span className="text-muted">Maks. müddət</span>
+                  <span className="font-semibold">25 il</span>
+                </div>
+                <div className="flex justify-between bg-white/70 rounded-lg px-3 py-2">
+                  <span className="text-muted">Min. ilkin ödəniş</span>
+                  <span className="font-semibold">15%</span>
+                </div>
+                <div className="flex justify-between bg-white/70 rounded-lg px-3 py-2">
+                  <span className="text-muted">Faiz dərəcəsi</span>
+                  <span className="font-semibold">Zəmanətli 7% / Zəmanətsiz 8%</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-xl border border-green-200 bg-green-50/50 p-4 text-sm space-y-3">
+              <h4 className="font-semibold text-green-800">Güzəştli ipoteka şərtləri (4%)</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-green-900">
+                <div className="flex justify-between bg-white/70 rounded-lg px-3 py-2">
+                  <span className="text-muted">Maks. məbləğ</span>
+                  <span className="font-semibold">100 000 AZN</span>
+                </div>
+                <div className="flex justify-between bg-white/70 rounded-lg px-3 py-2">
+                  <span className="text-muted">Maks. müddət</span>
+                  <span className="font-semibold">30 il</span>
+                </div>
+                <div className="flex justify-between bg-white/70 rounded-lg px-3 py-2">
+                  <span className="text-muted">Min. ilkin ödəniş</span>
+                  <span className="font-semibold">10%</span>
+                </div>
+                <div className="flex justify-between bg-white/70 rounded-lg px-3 py-2">
+                  <span className="text-muted">Faiz dərəcəsi</span>
+                  <span className="font-semibold">Zəmanətli 3.7% / Zəmanətsiz 4%</span>
+                </div>
+              </div>
+
+              {/* Eligibility toggle */}
+              <button
+                onClick={() => setShowEligibility(!showEligibility)}
+                className="w-full text-left text-green-700 font-medium flex items-center gap-1 hover:text-green-900 transition-colors pt-1"
+              >
+                <svg className={`w-4 h-4 transition-transform ${showEligibility ? "rotate-90" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+                Kimlər istifadə edə bilər?
+              </button>
+
+              {showEligibility && (
+                <div className="space-y-3 text-xs text-green-900 leading-relaxed">
+                  <div>
+                    <p className="font-semibold text-green-800 mb-1">Gənc ailənin üzvü olan aşağıdakı şəxslər:</p>
+                    <ul className="list-disc pl-4 space-y-0.5">
+                      <li>Şəhidin övladları</li>
+                      <li>Vətən Müharibəsi Qəhrəmanının övladları</li>
+                      <li>Milli Qəhrəmanın övladları</li>
+                      <li>Məcburi köçkün və ya ona bərabər tutulan şəxs</li>
+                      <li>3+ il dövlət qulluğunda çalışan şəxs (xüsusi növ daxil)</li>
+                      <li>3+ il dövlət ümumtəhsil müəssisəsində müəllim</li>
+                      <li>Fəlsəfə doktoru elmi dərəcəsi olan şəxs</li>
+                      <li>İdman sahəsində xüsusi xidmətləri olan şəxs (fəxri xadim, ölkə yarışı qalibi, beynəlxalq mükafatçı)</li>
+                      <li>5+ il jurnalist, Media Reyestrinə daxil edilmiş</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-green-800 mb-1">Digər hüququ olan şəxslər:</p>
+                    <ul className="list-disc pl-4 space-y-0.5">
+                      <li>Elmlər doktoru elmi dərəcəsi olan şəxs</li>
+                      <li>15+ il dövlət qulluğunda çalışan şəxs</li>
+                      <li>3+ il hərbi xidmətdə olan hərbi qulluqçular (müddətli həqiqi xidmət istisna)</li>
+                      <li>3+ il daxili işlər orqanlarında xüsusi rütbəli şəxs</li>
+                      <li>3+ il elmi vəzifədə işləyən elmi işçilər</li>
+                      <li>15+ il dövlət ümumtəhsil müəssisəsində müəllim</li>
+                      <li>15+ il jurnalist, Media Reyestrinə daxil edilmiş</li>
+                      <li>Şəhid ailəsinin üzvü (əri/arvadı)</li>
+                      <li>Vətən Müharibəsi Qəhrəmanı (özü, əri/arvadı)</li>
+                      <li>Milli Qəhrəman (özü, əri/arvadı)</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Inputs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
@@ -1154,6 +1277,93 @@ export default function MortgageCalculator() {
           <p>{pt.emptyStateText}</p>
         </div>
       )}
+      {/* ═══ Adi və güzəştli ipoteka şərtləri ═══ */}
+      <div className="mt-10 pt-8 border-t-2 border-border">
+        <h2 className="text-xl font-bold text-foreground mb-4">Adi və güzəştli ipoteka şərtləri</h2>
+        <p className="text-sm text-muted mb-6">
+          Azərbaycan Respublikası İpoteka və Kredit Zəmanət Fondu tərəfindən təqdim olunan ipoteka kreditləri və güzəştli ipoteka kreditləri arasında müəyyən fərqlər mövcuddur.
+        </p>
+
+        {/* Müqayisə cədvəli */}
+        <div className="overflow-x-auto rounded-xl border border-border mb-6">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 text-left">
+                <th className="px-4 py-3 font-medium text-muted">Şərt</th>
+                <th className="px-4 py-3 font-medium text-blue-700">Adi ipoteka</th>
+                <th className="px-4 py-3 font-medium text-green-700">Güzəştli ipoteka</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              <tr>
+                <td className="px-4 py-3 text-muted">Maks. məbləğ</td>
+                <td className="px-4 py-3 font-semibold">150 000 AZN</td>
+                <td className="px-4 py-3 font-semibold">100 000 AZN</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3 text-muted">Maks. müddət</td>
+                <td className="px-4 py-3 font-semibold">25 il</td>
+                <td className="px-4 py-3 font-semibold">30 il</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3 text-muted">Min. ilkin ödəniş</td>
+                <td className="px-4 py-3 font-semibold">15%</td>
+                <td className="px-4 py-3 font-semibold">10%</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3 text-muted">Faiz (zəmanətli)</td>
+                <td className="px-4 py-3 font-semibold">7%</td>
+                <td className="px-4 py-3 font-semibold">3.7%</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3 text-muted">Faiz (zəmanətsiz)</td>
+                <td className="px-4 py-3 font-semibold">8%</td>
+                <td className="px-4 py-3 font-semibold">4%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p className="text-xs text-muted mb-6">
+          Bu faizlər maksimal hədd olaraq müəyyən edilib. Bəzi banklar rəqabətli bazar şəraitində daha aşağı faiz dərəcələri də təklif edə bilərlər. Lakin belə hallarda mütləq İpoteka və Kredit Zəmanət Fondunun təsdiqi tələb olunur.
+        </p>
+
+        {/* Güzəştli ipotekadan kimlərin istifadə hüququ var */}
+        <div className="rounded-xl border border-green-200 bg-green-50/50 p-5">
+          <h3 className="font-semibold text-green-800 mb-3">Güzəştli ipoteka kreditindən kimlər istifadə edə bilər?</h3>
+          <div className="space-y-4 text-sm text-green-900 leading-relaxed">
+            <div>
+              <p className="font-semibold text-green-800 mb-2">Gənc ailənin üzvü olan aşağıdakı şəxslər:</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Şəhidin övladları</li>
+                <li>Azərbaycan Respublikasının Vətən Müharibəsi Qəhrəmanının övladları</li>
+                <li>Azərbaycanın Milli Qəhrəmanının övladları</li>
+                <li>Məcburi köçkün və ya ona bərabər tutulan şəxs</li>
+                <li>Ən azı 3 il dövlət qulluğunda qulluq edən, o cümlədən dövlət qulluğunun xüsusi növündə xidmət keçən şəxs</li>
+                <li>Ən azı 3 il dövlət ümumtəhsil müəssisəsində müəllim işləyən şəxs</li>
+                <li>Fəlsəfə doktoru elmi dərəcəsi olan şəxs</li>
+                <li>İdman sahəsində xüsusi xidmətləri olan şəxs (fəxri bədən tərbiyəsi və idman xadimi, ölkə miqyaslı yarışların qalibi (I yer), beynəlxalq miqyaslı yarışların mükafatçısı (I, II və ya III yer))</li>
+                <li>Ən azı 5 il jurnalist işləyən və Media Reyestrinə daxil edilmiş şəxs</li>
+              </ul>
+            </div>
+            <div>
+              <p className="font-semibold text-green-800 mb-2">Digər hüququ olan şəxslər:</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Elmlər doktoru elmi dərəcəsi olan şəxs</li>
+                <li>Ən azı 15 il dövlət qulluğunda qulluq edən şəxs, o cümlədən dövlət qulluğunun xüsusi növündə xidmət keçən şəxs</li>
+                <li>Ən azı 3 il hərbi xidmətdə olan hərbi qulluqçular (müddətli həqiqi hərbi xidmətdə olanlar istisna), həmçinin ehtiyata və istefaya buraxılmış hərbi qulluqçular</li>
+                <li>Ən azı 3 il daxili işlər orqanlarında xidmət keçən xüsusi rütbəsi olan şəxs</li>
+                <li>Ən azı 3 il elmi vəzifədə işləyən elmi işçilər</li>
+                <li>Ən azı 15 il dövlət ümumi təhsil müəssisəsində müəllim işləyən şəxs</li>
+                <li>Ən azı 15 il jurnalist işləyən və Media Reyestrinə daxil edilmiş şəxs</li>
+                <li>Şəhid ailəsinin üzvü (əri/arvadı)</li>
+                <li>Azərbaycan Respublikasının Vətən Müharibəsi Qəhrəmanı (özü, əri/arvadı)</li>
+                <li>Azərbaycanın Milli Qəhrəmanı (özü, əri/arvadı)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
     </CalculatorLayout>
   );
 }

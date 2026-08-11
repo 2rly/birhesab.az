@@ -29,6 +29,15 @@ const az = {
   contact: "Əlaqə",
   contactMessage: "Təklif və iradlarınız üçün bizimlə əlaqə saxlayın.",
   copyright: "BirHesab.az — Bütün hüquqlar qorunur.",
+  feedbackTitle: "Təklif və iradlar",
+  feedbackDesc: "Saytımızı daha yaxşı etmək üçün fikir və təkliflərinizi yazın — birbaşa bizə çatdırılacaq.",
+  feedbackNamePlaceholder: "Adınız (istəyə bağlı)",
+  feedbackPlaceholder: "Təklif, irad və ya sualınızı yazın...",
+  feedbackSend: "Göndər",
+  feedbackSuccess: "Təşəkkür edirik! Mesajınız göndərildi.",
+  feedbackError: "Göndərmə uğursuz oldu. Zəhmət olmasa yenidən cəhd edin.",
+  privacyTitle: "Məxfilik",
+  privacyText: "Məxfiliyiniz bizim üçün prioritetdir. BirHesab.az platformasında apardığınız heç bir hesablama və daxil etdiyiniz fərdi məlumatlar serverlərimizdə saxlanılmır. Bütün hesablamalar birbaşa sizin brauzerinizdə icra edilir.",
 
   // Categories
   categoryNames: {
@@ -68,6 +77,8 @@ const az = {
     "university-admission": "DİM bal hesablanması",
     gpa: "GPA çevirici",
     "school-grade": "Məktəb qiymət ortalaması",
+    "ksq-bsq": "KSQ / BSQ qiymət hesablayıcısı",
+    "ikinci-ali-tehsil": "İkinci ali təhsil (təkrar ali təhsil)",
     "foreign-university": "Xaricdə təhsil şansı",
     "property-tax": "Əmlak alqı-satqı vergisi",
     "rental-tax": "Kirayə vergisi hesablayıcısı",
@@ -111,6 +122,10 @@ const az = {
     "gold-silver": "Qiymətli metallar hesablayıcısı",
     crypto: "Kripto qiymət hesablayıcısı",
     "qr-code": "QR kod yaradıcı",
+    "ad-menasi": "Adın mənası",
+    "zererli-verdis": "Zərərli vərdişdən qənaət",
+    "yuxu-dovru": "Yuxu dövrü hesablayıcısı",
+    "youtube-qazanc": "YouTube qazanc hesablayıcısı",
     "unit-converter": "Vahid ölçü çeviricisi",
     "traffic-fines": "Yol cərimələri axtarışı",
     "vehicle-fees": "Nəqliyyat rüsumları hesablayıcısı",
@@ -147,6 +162,10 @@ const az = {
     gpa: "100 ballıq sistemdən 4.0 şkalasına çevirmə",
     "school-grade":
       "Azərbaycan 2-5 qiymətləndirmə sistemi üzrə ortalama",
+    "ksq-bsq":
+      "KSQ və BSQ əsasında yarımillik və illik qiymət",
+    "ikinci-ali-tehsil":
+      "Təkrar / əlavə ali təhsil üçün universitetlər və ixtisaslar (2025/2026)",
     "foreign-university": "GPA + IELTS + ölkə → qəbul şansı %",
     "property-tax": "Azərbaycanda əmlak alışında vergi hesablaması",
     "rental-tax": "Kirayə gəlirindən vergi hesablaması",
@@ -206,6 +225,14 @@ const az = {
       "BTC, ETH, SOL, USDT, BNB — real vaxt qiymətləri ilə AZN/USD çevirmə",
     "qr-code":
       "Mətn və ya link-dən QR kod yaradın — real vaxt generasiya, PNG yükləmə",
+    "ad-menasi":
+      "Adın mənası, mənşəyi və tarixi — Azərbaycan, ərəb, fars, türk adları",
+    "zererli-verdis":
+      "Siqaret, kofe, fast-food — aylıq və illik itki, müqayisə",
+    "yuxu-dovru":
+      "90 dəqiqəlik yuxu siklusları — gümrah oyanmaq üçün ən yaxşı vaxt",
+    "youtube-qazanc":
+      "Baxış, region və niche-ə görə YouTube reklam gəliri",
     "unit-converter":
       "Uzunluq, çəki, data — km/mil, kq/lb, MB/GB/TB çevirmə",
     "traffic-fines":
@@ -244,6 +271,15 @@ const en: typeof az = {
   contact: "Contact",
   contactMessage: "Contact us for suggestions and feedback.",
   copyright: "BirHesab.az — All rights reserved.",
+  feedbackTitle: "Feedback",
+  feedbackDesc: "Share your suggestions to help us improve — your message goes directly to our team.",
+  feedbackNamePlaceholder: "Your name (optional)",
+  feedbackPlaceholder: "Write your suggestion, feedback or question...",
+  feedbackSend: "Send",
+  feedbackSuccess: "Thank you! Your message has been sent.",
+  feedbackError: "Failed to send. Please try again.",
+  privacyTitle: "Privacy",
+  privacyText: "Your privacy is our priority. No calculations or personal data you enter on BirHesab.az are stored on our servers. All calculations run directly in your browser.",
 
   // Categories
   categoryNames: {
@@ -283,6 +319,8 @@ const en: typeof az = {
     "university-admission": "University Admission Score",
     gpa: "GPA Converter",
     "school-grade": "School Grade Average",
+    "ksq-bsq": "KSQ / BSQ Grade Calculator",
+    "ikinci-ali-tehsil": "Second Higher Education",
     "foreign-university": "Study Abroad Chance",
     "property-tax": "Property Sale Tax",
     "rental-tax": "Rental Tax Calculator",
@@ -326,6 +364,10 @@ const en: typeof az = {
     "gold-silver": "Precious Metals Calculator",
     crypto: "Crypto Price Calculator",
     "qr-code": "QR Code Generator",
+    "ad-menasi": "Name Meaning",
+    "zererli-verdis": "Bad Habit Savings",
+    "yuxu-dovru": "Sleep Cycle Calculator",
+    "youtube-qazanc": "YouTube Earnings Calculator",
     "unit-converter": "Unit Converter",
     "traffic-fines": "Traffic Fines Search",
     "vehicle-fees": "Vehicle Fees Calculator",
@@ -362,6 +404,10 @@ const en: typeof az = {
     gpa: "Convert from 100-point system to 4.0 scale",
     "school-grade":
       "Average in Azerbaijan's 2-5 grading system",
+    "ksq-bsq":
+      "Semester and annual grades from small and big summative assessments",
+    "ikinci-ali-tehsil":
+      "Universities and specialties for repeated / additional higher education (2025/2026)",
     "foreign-university": "GPA + IELTS + country — admission chance %",
     "property-tax": "Tax calculation for property purchase in Azerbaijan",
     "rental-tax": "Tax calculation on rental income",
@@ -421,6 +467,14 @@ const en: typeof az = {
       "BTC, ETH, SOL, USDT, BNB — real-time prices in AZN/USD",
     "qr-code":
       "Generate QR codes from text or links — real-time generation, PNG download",
+    "ad-menasi":
+      "Name meaning, origin and history — Azerbaijani, Arabic, Persian, Turkic names",
+    "zererli-verdis":
+      "Cigarettes, coffee, fast food — monthly/yearly cost and what you could buy instead",
+    "yuxu-dovru":
+      "90-minute sleep cycles — best time to wake up refreshed",
+    "youtube-qazanc":
+      "YouTube ad revenue based on views, region and content niche",
     "unit-converter":
       "Length, weight, data — km/mile, kg/lb, MB/GB/TB conversion",
     "traffic-fines":
@@ -460,6 +514,15 @@ const ru: typeof az = {
   contact: "Контакты",
   contactMessage: "Свяжитесь с нами для предложений и замечаний.",
   copyright: "BirHesab.az — Все права защищены.",
+  feedbackTitle: "Предложения и замечания",
+  feedbackDesc: "Напишите ваши идеи для улучшения сайта — сообщение поступит напрямую нашей команде.",
+  feedbackNamePlaceholder: "Ваше имя (необязательно)",
+  feedbackPlaceholder: "Напишите предложение, замечание или вопрос...",
+  feedbackSend: "Отправить",
+  feedbackSuccess: "Спасибо! Ваше сообщение отправлено.",
+  feedbackError: "Не удалось отправить. Попробуйте ещё раз.",
+  privacyTitle: "Конфиденциальность",
+  privacyText: "Ваша конфиденциальность — наш приоритет. Никакие расчёты и введённые вами данные не сохраняются на наших серверах. Все вычисления выполняются прямо в вашем браузере.",
 
   // Categories
   categoryNames: {
@@ -499,6 +562,8 @@ const ru: typeof az = {
     "university-admission": "Расчёт баллов для поступления",
     gpa: "Конвертер GPA",
     "school-grade": "Средний балл школы",
+    "ksq-bsq": "Калькулятор оценок МСО / БСО",
+    "ikinci-ali-tehsil": "Второе высшее образование",
     "foreign-university": "Шансы на обучение за рубежом",
     "property-tax": "Налог на куплю-продажу недвижимости",
     "rental-tax": "Калькулятор налога на аренду",
@@ -542,6 +607,10 @@ const ru: typeof az = {
     "gold-silver": "Калькулятор драгоценных металлов",
     crypto: "Калькулятор криптовалют",
     "qr-code": "Генератор QR-кодов",
+    "ad-menasi": "Значение имени",
+    "zererli-verdis": "Экономия от вредных привычек",
+    "yuxu-dovru": "Калькулятор циклов сна",
+    "youtube-qazanc": "Калькулятор доходов на YouTube",
     "unit-converter": "Конвертер единиц измерения",
     "traffic-fines": "Поиск дорожных штрафов",
     "vehicle-fees": "Калькулятор транспортных сборов",
@@ -578,6 +647,10 @@ const ru: typeof az = {
     gpa: "Перевод из 100-балльной системы в шкалу 4.0",
     "school-grade":
       "Средний балл по системе оценивания 2-5 Азербайджана",
+    "ksq-bsq":
+      "Полугодовая и годовая оценки по формулам МСО / БСО",
+    "ikinci-ali-tehsil":
+      "Университеты и специальности для второго высшего образования (2025/2026)",
     "foreign-university": "GPA + IELTS + страна — шанс поступления %",
     "property-tax":
       "Расчёт налога при покупке недвижимости в Азербайджане",
@@ -640,6 +713,14 @@ const ru: typeof az = {
       "BTC, ETH, SOL, USDT, BNB — цены в реальном времени в AZN/USD",
     "qr-code":
       "Генерация QR-кодов из текста или ссылок — в реальном времени, скачивание PNG",
+    "ad-menasi":
+      "Значение, происхождение и история имени — азербайджанские, арабские, персидские, тюркские имена",
+    "zererli-verdis":
+      "Сигареты, кофе, фастфуд — потери в месяц и год + что можно купить",
+    "yuxu-dovru":
+      "90-минутные циклы сна — лучшее время для бодрого пробуждения",
+    "youtube-qazanc":
+      "Доход YouTube по просмотрам, региону и нише канала",
     "unit-converter":
       "Длина, вес, данные — км/миля, кг/фунт, МБ/ГБ/ТБ конвертация",
     "traffic-fines":

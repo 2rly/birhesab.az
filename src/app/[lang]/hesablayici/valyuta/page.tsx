@@ -52,10 +52,10 @@ const currencyList: CurrencyInfo[] = [
   { code: "QAR", name: { az: "Qətər rialı", en: "Qatari riyal", ru: "Катарский риал" }, flag: "🇶🇦" },
   { code: "ILS", name: { az: "İsrail şekeli", en: "Israeli shekel", ru: "Израильский шекель" }, flag: "🇮🇱" },
   { code: "SDR", name: { az: "SDR (BVF)", en: "SDR (IMF)", ru: "СДР (МВФ)" }, flag: "💎" },
-  { code: "XAU", name: { az: "Qızıl (1 t.u.)", en: "Gold (1 troy oz)", ru: "Золото (1 тр. унц.)" }, flag: "🥇" },
-  { code: "XAG", name: { az: "Gümüş (1 t.u.)", en: "Silver (1 troy oz)", ru: "Серебро (1 тр. унц.)" }, flag: "🥈" },
-  { code: "XPT", name: { az: "Platin (1 t.u.)", en: "Platinum (1 troy oz)", ru: "Платина (1 тр. унц.)" }, flag: "⬜" },
-  { code: "XPD", name: { az: "Palladium (1 t.u.)", en: "Palladium (1 troy oz)", ru: "Палладий (1 тр. унц.)" }, flag: "🔲" },
+  { code: "XAU", name: { az: "Qızıl (1 troy unsiyası)", en: "Gold (1 troy oz)", ru: "Золото (1 тр. унц.)" }, flag: "🥇" },
+  { code: "XAG", name: { az: "Gümüş (1 troy unsiyası)", en: "Silver (1 troy oz)", ru: "Серебро (1 тр. унц.)" }, flag: "🥈" },
+  { code: "XPT", name: { az: "Platin (1 troy unsiyası)", en: "Platinum (1 troy oz)", ru: "Платина (1 тр. унц.)" }, flag: "⬜" },
+  { code: "XPD", name: { az: "Palladium (1 troy unsiyası)", en: "Palladium (1 troy oz)", ru: "Палладий (1 тр. унц.)" }, flag: "🔲" },
 ];
 
 function formatAmount(n: number): string {
@@ -172,30 +172,44 @@ export default function CurrencyConverter() {
   const [isLive, setIsLive] = useState(false);
 
   useEffect(() => {
-    const today = new Date();
-    const dd = String(today.getDate()).padStart(2, "0");
-    const mm = String(today.getMonth() + 1).padStart(2, "0");
-    const yyyy = today.getFullYear();
-    const url = `https://www.cbar.az/currencies/${dd}.${mm}.${yyyy}.xml`;
-
-    fetch(url)
-      .then((r) => r.text())
-      .then((xml) => {
-        const parsed: Record<string, number> = { AZN: 1 };
-        const regex = /<Valute Code="([^"]+)">\s*<Nominal>([^<]+)<\/Nominal>\s*<Name>[^<]*<\/Name>\s*<Value>([^<]+)<\/Value>/g;
-        let m;
-        while ((m = regex.exec(xml)) !== null) {
-          const code = m[1];
-          const nominal = parseFloat(m[2]);
-          const value = parseFloat(m[3]);
-          if (nominal > 0 && value > 0) parsed[code] = value / nominal;
-        }
-        const dateMatch = xml.match(/Date="([^"]+)"/);
-        setRates((prev) => ({ ...prev, ...parsed }));
-        setRateDate(dateMatch ? dateMatch[1] : `${dd}.${mm}.${yyyy}`);
-        setIsLive(true);
+    // Cloudflare Pages Function proxy — CORS problemsiz CBAR data
+    fetch("/api/cbar/")
+      .then((r) => {
+        if (!r.ok) throw new Error("proxy failed");
+        return r.json();
       })
-      .catch(() => {})
+      .then((data) => {
+        if (data?.rates && typeof data.rates === "object") {
+          setRates((prev) => ({ ...prev, ...data.rates }));
+          setRateDate(data.date || "");
+          setIsLive(true);
+        }
+      })
+      .catch(() => {
+        // Proxy işləmirsə birbaşa CBAR-dan sına
+        const today = new Date();
+        const dd = String(today.getDate()).padStart(2, "0");
+        const mm = String(today.getMonth() + 1).padStart(2, "0");
+        const yyyy = today.getFullYear();
+        return fetch(`https://www.cbar.az/currencies/${dd}.${mm}.${yyyy}.xml`)
+          .then((r) => r.text())
+          .then((xml) => {
+            const parsed: Record<string, number> = { AZN: 1 };
+            const regex = /<Valute Code="([^"]+)">\s*<Nominal>([^<]+)<\/Nominal>\s*<Name>[^<]*<\/Name>\s*<Value>([^<]+)<\/Value>/g;
+            let m;
+            while ((m = regex.exec(xml)) !== null) {
+              const code = m[1];
+              const nominal = parseFloat(m[2]);
+              const value = parseFloat(m[3]);
+              if (nominal > 0 && value > 0) parsed[code] = value / nominal;
+            }
+            const dateMatch = xml.match(/Date="([^"]+)"/);
+            setRates((prev) => ({ ...prev, ...parsed }));
+            setRateDate(dateMatch ? dateMatch[1] : `${dd}.${mm}.${yyyy}`);
+            setIsLive(true);
+          })
+          .catch(() => {});
+      })
       .finally(() => setLoading(false));
   }, []);
 

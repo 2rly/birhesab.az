@@ -10,7 +10,8 @@ export type Category =
   | "labor"
   | "nutrition"
   | "religion"
-  | "metals";
+  | "metals"
+  | "agriculture";
 
 export interface Calculator {
   id: string;
@@ -20,6 +21,8 @@ export interface Calculator {
   icon: string;
   path: string;
   popular?: boolean;
+  /** Əlavə axtarış açar sözləri (ad və təsvirdə olmayan sinonimlər). */
+  keywords?: string[];
 }
 
 export const categories: { id: Category; name: string; icon: string }[] = [
@@ -35,6 +38,7 @@ export const categories: { id: Category; name: string; icon: string }[] = [
   { id: "nutrition", name: "Qidalanma", icon: "🍎" },
   { id: "religion", name: "Din", icon: "🕌" },
   { id: "metals", name: "Qiymətli Metallar", icon: "💎" },
+  { id: "agriculture", name: "Kənd Təsərrüfatı", icon: "🌾" },
 ];
 
 export const calculators: Calculator[] = [
@@ -46,6 +50,15 @@ export const calculators: Calculator[] = [
     category: "finance",
     icon: "💵",
     path: "/hesablayici/emek-haqqi",
+    popular: true,
+  },
+  {
+    id: "civil-servant-salary",
+    name: "Dövlət qulluqçusu maaş hesablayıcısı",
+    description: "Qurum, vəzifə və pilləyə görə dövlət qulluqçusunun maaşı (gross və net)",
+    category: "legal",
+    icon: "🏛️",
+    path: "/hesablayici/dovlet-qullugcusu",
     popular: true,
   },
   {
@@ -133,6 +146,15 @@ export const calculators: Calculator[] = [
     popular: true,
   },
   {
+    id: "xalq-life-savings",
+    name: "Xalq Həyat yığım sığortası",
+    description: "Xalq Həyat yığım modeli — net sığorta haqqı, yekun sığorta məbləği və xalis gəlir (aktuar hesablama)",
+    category: "finance",
+    icon: "💰",
+    path: "/hesablayici/xalq-hayat-yigim",
+    keywords: ["xalq həyat", "xalq hayat", "yığım sığortası", "yigim sigortasi", "xalq həyat kalkulyator", "yaşam yığım", "xalqbank həyat"],
+  },
+  {
     id: "overtime",
     name: "Əlavə iş saatı hesablayıcısı",
     description: "Əlavə iş saatı üçün əmək haqqı hesablaması",
@@ -200,6 +222,89 @@ export const calculators: Calculator[] = [
     category: "education",
     icon: "🎓",
     path: "/hesablayici/universitet-qebul",
+    keywords: ["buraxılış balı", "buraxilis bali", "buraxılış balı hesablamaq", "blok balı", "blok bali", "blok balı hesablamaq", "dim bal", "dim ball", "dim bali", "dim balı", "dim bal hesablayıcısı", "dim bal hesablamaq", "qəbul balı", "qebul bali", "abituriyent balı", "imtahan balı", "tam bal", "ümumi bal"],
+  },
+  {
+    id: "admission-group1",
+    name: "1-ci qrup keçid balları 2026",
+    description: "Balınıza uyğun universitetlər və ixtisaslar — 1-ci qrup üzrə qəbul şansınızı öyrənin",
+    category: "education",
+    icon: "🎯",
+    path: "/hesablayici/qebul-ballari-1ci-qrup",
+    popular: true,
+    keywords: ["1ci qrup", "1-ci qrup", "birinci qrup", "1 qrup", "I qrup", "1 ci qrup", "birinci qrupun keçid balları", "1 qrup kecid ballari", "I qrup keçid balları"],
+  },
+  {
+    id: "admission-group2",
+    name: "2-ci qrup keçid balları 2026",
+    description: "İqtisad, maliyyə, menecment — 2-ci qrup üzrə qəbul şansınızı öyrənin",
+    category: "education",
+    icon: "🎯",
+    path: "/hesablayici/qebul-ballari-2ci-qrup",
+    popular: true,
+    keywords: ["2ci qrup", "2-ci qrup", "ikinci qrup", "2 qrup", "II qrup", "2 ci qrup", "ikinci qrupun keçid balları", "2 qrup kecid ballari"],
+  },
+  {
+    id: "admission-group3",
+    name: "3-cü qrup keçid balları 2026",
+    description: "Hüquq, filologiya, tarix, beynəlxalq münasibətlər — 3-cü qrup qəbul",
+    category: "education",
+    icon: "🎯",
+    path: "/hesablayici/qebul-ballari-3cu-qrup",
+    popular: true,
+    keywords: ["3cu qrup", "3-cü qrup", "3cü qrup", "üçüncü qrup", "ucuncu qrup", "3 qrup", "III qrup", "3 cu qrup"],
+  },
+  {
+    id: "admission-group4",
+    name: "4-cü qrup keçid balları 2026",
+    description: "Biologiya, kimya, tibb, əczaçılıq — 4-cü qrup üzrə qəbul şansı",
+    category: "education",
+    icon: "🎯",
+    path: "/hesablayici/qebul-ballari-4cu-qrup",
+    popular: true,
+    keywords: ["4cu qrup", "4-cü qrup", "4cü qrup", "dördüncü qrup", "dorduncu qrup", "4 qrup", "IV qrup", "4 cu qrup"],
+  },
+  {
+    id: "admission-group5",
+    name: "5-ci qrup keçid balları 2026",
+    description: "Dizayn, incəsənət, fiziki tərbiyə — 5-ci qrup üzrə qəbul şansı",
+    category: "education",
+    icon: "🎨",
+    path: "/hesablayici/qebul-ballari-5ci-qrup",
+    keywords: ["5ci qrup", "5-ci qrup", "beşinci qrup", "besinci qrup", "5 qrup", "V qrup", "5 ci qrup"],
+  },
+  {
+    id: "admission-magistr",
+    name: "Magistr keçid balları 2026",
+    description: "Magistratura proqramları üzrə keçid balları və ixtisas kodları — 2026-cı il",
+    category: "education",
+    icon: "🎓",
+    path: "/hesablayici/magistr-kecid-ballari",
+  },
+  {
+    id: "admission-subbakalavr",
+    name: "Subbakalavr keçid balları 2026",
+    description: "Subbakalavrlar üçün ali təhsilə keçid balları — qrupu seçin, balları görün",
+    category: "education",
+    icon: "📋",
+    path: "/hesablayici/subbakalavr-kecid-ballari",
+    keywords: ["subbakalavr", "subbakalavrlar", "subbakalavr keçid balları", "subbakalavr bal", "sub bakalavr", "subbakalavr qebul"],
+  },
+  {
+    id: "admission-college11",
+    name: "11-illik kolleclərə keçid balları 2025-2026",
+    description: "Tam orta təhsil bazasında kolleclərə qəbul balları",
+    category: "education",
+    icon: "📚",
+    path: "/hesablayici/qebul-ballari-11illik-kollec",
+  },
+  {
+    id: "admission-college9",
+    name: "9-illik kolleclərə keçid balları 2025-2026",
+    description: "Əsas təhsil bazasında (9-illik) kolleclərə qəbul balları",
+    category: "education",
+    icon: "📚",
+    path: "/hesablayici/qebul-ballari-9illik-kollec",
   },
   {
     id: "gpa",
@@ -224,6 +329,24 @@ export const calculators: Calculator[] = [
     category: "education",
     icon: "📚",
     path: "/hesablayici/mekteb-qiymet",
+  },
+  {
+    id: "ksq-bsq",
+    name: "KSQ / BSQ qiymət hesablayıcısı",
+    description: "Yarımillik və illik qiymət — kiçik və böyük summativ qiymətləndirmə formulu ilə",
+    category: "education",
+    icon: "📝",
+    path: "/hesablayici/ksq-bsq",
+    keywords: ["summativ", "yarımillik", "illik qiymət", "məktəbdaxili qiymətləndirmə", "kurikulum"],
+  },
+  {
+    id: "ikinci-ali-tehsil",
+    name: "İkinci ali təhsil (təkrar ali təhsil)",
+    description: "Azərbaycan universitetlərində təkrar / əlavə ali təhsil ixtisasları və təhsil haqqı 2025/2026",
+    category: "education",
+    icon: "🎓",
+    path: "/hesablayici/ikinci-ali-tehsil",
+    keywords: ["təkrar ali təhsil", "əlavə təhsil", "ikinci diplom", "qiyabi", "əyani", "universitet ixtisasları"],
   },
   {
     id: "foreign-university",
@@ -348,12 +471,12 @@ export const calculators: Calculator[] = [
 
   // ⚖️ Legal & Government
   {
-    id: "civil-servant-salary",
-    name: "Dövlət qulluqçusu maaş hesablayıcısı",
-    description: "Qurum, vəzifə və pilləyə görə dövlət qulluqçusunun maaşı (gross və net)",
+    id: "lost-document-fee",
+    name: "Dövlət rüsumu — itirilmiş sənəd",
+    description: "Şəxsiyyət vəsiqəsi, pasport, sürücülük vəsiqəsi və s. itkisi — cərimə + yeni rüsum + təcililik",
     category: "legal",
-    icon: "🏛️",
-    path: "/hesablayici/dovlet-qullugcusu",
+    icon: "📄",
+    path: "/hesablayici/itirilmis-sened-rusumu",
     popular: true,
   },
   {
@@ -387,6 +510,24 @@ export const calculators: Calculator[] = [
     category: "legal",
     icon: "♿",
     path: "/hesablayici/elillik-muavineti",
+  },
+  {
+    id: "divorce-property",
+    name: "Boşanma və əmlak bölgüsü hesablayıcısı",
+    description: "Birgə və şəxsi mülkiyyətin ayrılması, ipoteka bölgüsü və uşaq faktoru — Ailə Məcəlləsi 31-37",
+    category: "legal",
+    icon: "💔",
+    path: "/hesablayici/bosanma-emlak",
+    popular: true,
+  },
+  {
+    id: "inheritance",
+    name: "Vərəsəlik hesablayıcısı",
+    description: "Mirasın növbəlilik prinsipi ilə bölünməsi — məcburi pay, nikah payı və vəsiyyətnamə",
+    category: "legal",
+    icon: "📜",
+    path: "/hesablayici/vərəsəlik",
+    popular: true,
   },
   {
     id: "customs-duty",
@@ -458,6 +599,44 @@ export const calculators: Calculator[] = [
     icon: "📱",
     path: "/hesablayici/qr-kod",
     popular: true,
+  },
+  {
+    id: "ad-menasi",
+    name: "Adın mənası",
+    description: "Adınızın mənasını, mənşəyini və tarixini öyrənin — Azərbaycan, ərəb, fars və türk adları",
+    category: "daily",
+    icon: "📖",
+    path: "/hesablayici/ad-menasi",
+    keywords: ["ad lüğəti", "adın mənası", "ad mənası", "ad mənaları", "ad sözlüyü", "kişi adları", "qadın adları"],
+  },
+  {
+    id: "zererli-verdis",
+    name: "Zərərli vərdişdən qənaət",
+    description: "Siqaret, kofe, fast-food xərcləri — aylıq, illik itki və bu pulla nə almaq olar",
+    category: "finance",
+    icon: "💸",
+    path: "/hesablayici/zererli-verdis",
+    popular: true,
+    keywords: ["siqaret xərci", "kofe xərci", "vərdiş", "qənaət", "pul itkisi"],
+  },
+  {
+    id: "yuxu-dovru",
+    name: "Yuxu dövrü hesablayıcısı",
+    description: "90 dəqiqəlik yuxu siklusları — gümrah oyanmaq üçün ən yaxşı vaxtı tapın",
+    category: "health",
+    icon: "🌙",
+    path: "/hesablayici/yuxu-dovru",
+    popular: true,
+    keywords: ["yuxu", "yatma", "oyanma", "siklus", "REM"],
+  },
+  {
+    id: "youtube-qazanc",
+    name: "YouTube qazanc hesablayıcısı",
+    description: "Aylıq baxış, region və mövzuya görə YouTube reklam gəlirinin təxmini hesablanması",
+    category: "finance",
+    icon: "📺",
+    path: "/hesablayici/youtube-qazanc",
+    keywords: ["youtube", "cpm", "reklam", "blogger", "kontent yaradıcısı"],
   },
   {
     id: "unit-converter",
@@ -622,6 +801,17 @@ export const calculators: Calculator[] = [
     category: "religion",
     icon: "🤲",
     path: "/hesablayici/zekat",
+  },
+
+  // 🌾 Kənd Təsərrüfatı
+  {
+    id: "aqrar-subsidiya",
+    name: "Aqrar subsidiya hesablayıcısı",
+    description: "2026 əkin və bitki subsidiyası — bitki növü, sahə və regiona görə dəstək məbləği",
+    category: "agriculture",
+    icon: "🌾",
+    path: "/hesablayici/aqrar-subsidiya",
+    popular: true,
   },
 
   // 💎 Qiymətli Metallar
