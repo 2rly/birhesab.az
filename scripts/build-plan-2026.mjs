@@ -88,8 +88,26 @@ function universityKey(value: string): string {
     .trim();
 }
 
+/**
+ * DİM bəzi ixtisasların adını 2026-da dəyişib, bal siyahısı isə köhnə adı saxlayır.
+ * Dəqiq uyğunluq tapılmayanda bu "yumşaq" açar işə düşür.
+ */
+function looseSpecialty(value: string): string {
+  return normalize(value)
+    .replace(/\\(rəqəmsal bacarıqlar\\)\\s*/g, "") // İnformatika (rəqəmsal bacarıqlar) müəllimliyi
+    .replace(/\\s*\\(azərbaycan dilində\\)/g, "") // planda var, bal siyahısında yox
+    .replace(/əmlak kadastrı/g, "əmlakın kadastrı")
+    .replace(/ədəbiyyat(?= |$)/g, "ədəbiyyatı üzrə")
+    .replace(/\\s+/g, " ")
+    .trim();
+}
+
 function planKey(university: string, specialty: string): string {
   return universityKey(university) + "||" + normalize(specialty);
+}
+
+function loosePlanKey(university: string, specialty: string): string {
+  return universityKey(university) + "||" + looseSpecialty(specialty);
 }
 
 /**
@@ -101,12 +119,17 @@ export function attachPlan<T extends { university: string; specialty: string }>(
   plan: PlanEntry[],
 ): (T & { code?: string; seats?: number; language?: string })[] {
   const index = new Map<string, PlanEntry>();
+  const loose = new Map<string, PlanEntry>();
   for (const item of plan) {
     const key = planKey(item.university, item.specialty);
     if (!index.has(key)) index.set(key, item);
+    const alt = loosePlanKey(item.university, item.specialty);
+    if (!loose.has(alt)) loose.set(alt, item);
   }
   return entries.map((entry) => {
-    const match = index.get(planKey(entry.university, entry.specialty));
+    const match =
+      index.get(planKey(entry.university, entry.specialty)) ??
+      loose.get(loosePlanKey(entry.university, entry.specialty));
     if (!match) return entry;
     return { ...entry, code: match.code, seats: match.seats, language: match.language };
   });
