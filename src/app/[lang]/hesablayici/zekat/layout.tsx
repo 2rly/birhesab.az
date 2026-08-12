@@ -1,6 +1,9 @@
 import { getCalculatorMetadata } from "@/lib/seo";
 
-export const metadata = getCalculatorMetadata("zekat");
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params;
+  return getCalculatorMetadata("zekat", lang);
+}
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return children;

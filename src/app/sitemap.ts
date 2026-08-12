@@ -9,21 +9,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://birhesab.az";
   const entries: MetadataRoute.Sitemap = [];
 
-  // Homepage for each language
+  // Sayt `trailingSlash: true` ilə qurulur — sitemap də son URL-i göstərməlidir,
+  // yoxsa hər sətir 308 yönləndirməsinə düşür.
   for (const lang of LANGS) {
     entries.push({
-      url: `${baseUrl}/${lang}`,
+      url: `${baseUrl}/${lang}/`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 1,
     });
   }
 
-  // Calculator pages for each language
   for (const calc of calculators) {
     for (const lang of LANGS) {
       entries.push({
-        url: `${baseUrl}/${lang}${calc.path}`,
+        url: `${baseUrl}/${lang}${calc.path}/`,
         lastModified: new Date(),
         changeFrequency: "monthly",
         priority: 0.8,

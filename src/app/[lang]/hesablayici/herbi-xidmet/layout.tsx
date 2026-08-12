@@ -1,6 +1,9 @@
 import { getCalculatorMetadata } from "@/lib/seo";
 
-export const metadata = getCalculatorMetadata("herbi-xidmet");
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params;
+  return getCalculatorMetadata("herbi-xidmet", lang);
+}
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return children;
