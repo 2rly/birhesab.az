@@ -2,6 +2,8 @@
 
 import AdmissionScoreCalculator, { type AdmissionTranslation, type SubgroupOption } from "@/components/AdmissionScoreCalculator";
 import { admissionsGroup3 } from "@/data/admissions-group3-2026";
+import { attachPlan } from "@/data/admissions-plan-2026";
+import { planGroup3 } from "@/data/admissions-plan-2026-group3";
 
 // Dil-tarix (DT) altqrupu — DİM rəsmi siyahısı
 const DIL_TARIX = [
@@ -147,10 +149,13 @@ Note: Actual scores may change. This is an estimate based on last year's results
   },
 };
 
+// Bal siyahısına 2026 planından kod, yer sayı və tədris dili qoşulur.
+const ENTRIES = attachPlan(admissionsGroup3, planGroup3);
+
 export default function AdmissionGroup3Page() {
   return (
     <AdmissionScoreCalculator
-      entries={admissionsGroup3}
+      entries={ENTRIES}
       translations={t}
       subgroups={SUBGROUPS_G3}
       subgroupLabel="İmtahan verdiyiniz altqrup"

@@ -2,6 +2,8 @@
 
 import AdmissionScoreCalculator, { type AdmissionTranslation } from "@/components/AdmissionScoreCalculator";
 import { admissionsGroup4 } from "@/data/admissions-group4-2026";
+import { attachPlan } from "@/data/admissions-plan-2026";
+import { planGroup4 } from "@/data/admissions-plan-2026-group4";
 
 const LOW_BLOCK_SPECIALTIES_G4 = [
   "Ekologiya",
@@ -105,10 +107,13 @@ Note: Medical school cutoffs change annually.`,
   },
 };
 
+// Bal siyahısına 2026 planından kod, yer sayı və tədris dili qoşulur.
+const ENTRIES = attachPlan(admissionsGroup4, planGroup4);
+
 export default function AdmissionGroup4Page() {
   return (
     <AdmissionScoreCalculator
-      entries={admissionsGroup4}
+      entries={ENTRIES}
       translations={t}
       lowBlockSpecialties={LOW_BLOCK_SPECIALTIES_G4}
       relatedIds={["qebul-ballari-1ci-qrup", "qebul-ballari-2ci-qrup", "qebul-ballari-3cu-qrup", "gpa"]}

@@ -2,6 +2,8 @@
 
 import AdmissionScoreCalculator, { type AdmissionTranslation, type SubgroupOption } from "@/components/AdmissionScoreCalculator";
 import { admissionsGroup1 } from "@/data/admissions-group1-2026";
+import { attachPlan } from "@/data/admissions-plan-2026";
+import { planGroup1 } from "@/data/admissions-plan-2026-group1";
 
 // Riyaziyyat-İnformatika (Rİ) altqrupu — 9 ixtisas (DİM rəsmi siyahısı)
 const R_INFORMATIKA = [
@@ -184,10 +186,13 @@ Note: Actual scores may change. This is an estimate based on last year's results
   },
 };
 
+// Bal siyahısına 2026 planından kod, yer sayı və tədris dili qoşulur.
+const ENTRIES = attachPlan(admissionsGroup1, planGroup1);
+
 export default function AdmissionGroup1Page() {
   return (
     <AdmissionScoreCalculator
-      entries={admissionsGroup1}
+      entries={ENTRIES}
       translations={t}
       subgroups={SUBGROUPS_G1}
       subgroupLabel="İmtahan verdiyiniz altqrup"

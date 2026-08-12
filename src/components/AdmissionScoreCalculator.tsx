@@ -30,8 +30,46 @@ export interface AdmissionEntry {
   score?: number;
   /** Dövlət sifarişli (state-funded) keçid balı — shown in parentheses on source. */
   stateScore?: number;
+  /** Bu il ayrılmış plan yerlərinin sayı (DİM "Abituriyent 4" bukleti). */
+  seats?: number;
+  /** Tədris dili: AZ · RU · AZ/RU · EN · TR · DE */
+  language?: string;
   /** Optional tag for subgroup filtering (e.g. "mba"). */
   tag?: string;
+}
+
+const LANGUAGE_LABELS: Record<string, string> = {
+  AZ: "Azərbaycan dili",
+  RU: "Rus dili",
+  "AZ/RU": "Azərbaycan / rus dili",
+  EN: "İngilis dili",
+  TR: "Türk dili",
+  DE: "Alman dili",
+};
+
+/** Plan məlumatı: bu il ayrılmış yer sayı və tədris dili. */
+function PlanBadges({ seats, language }: { seats?: number; language?: string }) {
+  if (seats == null && !language) return null;
+  return (
+    <>
+      {seats != null && (
+        <span
+          title="Bu il ayrılmış plan yerlərinin sayı"
+          className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 align-middle whitespace-nowrap"
+        >
+          {seats} yer
+        </span>
+      )}
+      {language && (
+        <span
+          title={LANGUAGE_LABELS[language] ?? language}
+          className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-violet-50 text-violet-700 border border-violet-200 align-middle whitespace-nowrap"
+        >
+          {language}
+        </span>
+      )}
+    </>
+  );
 }
 
 export interface AdmissionTranslation {
@@ -750,6 +788,7 @@ export default function AdmissionScoreCalculator({
                           {item.stream === "Q" && (
                             <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-orange-50 text-orange-700 border border-orange-200 align-middle">Qiyabi</span>
                           )}
+                          <PlanBadges seats={item.seats} language={item.language} />
                         </div>
                         {item.aptitude != null && (
                           <div className="mt-1 flex items-start gap-1 text-[11px] font-normal text-amber-700 leading-snug">
@@ -844,6 +883,7 @@ export default function AdmissionScoreCalculator({
                     {item.stream === "Q" && (
                       <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-orange-50 text-orange-700 border border-orange-200 align-middle">Qiyabi</span>
                     )}
+                    <PlanBadges seats={item.seats} language={item.language} />
                   </div>
                   {item.aptitude != null && (
                     <div className="mb-2 flex items-start gap-1 text-[11px] text-amber-700 leading-snug">

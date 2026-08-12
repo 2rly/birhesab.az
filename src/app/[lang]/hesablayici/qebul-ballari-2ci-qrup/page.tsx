@@ -2,6 +2,8 @@
 
 import AdmissionScoreCalculator, { type AdmissionTranslation } from "@/components/AdmissionScoreCalculator";
 import { admissionsGroup2 } from "@/data/admissions-group2-2026";
+import { attachPlan } from "@/data/admissions-plan-2026";
+import { planGroup2 } from "@/data/admissions-plan-2026-group2";
 
 const LOW_BLOCK_SPECIALTIES_G2 = [
   "Marketinq",
@@ -99,10 +101,13 @@ Within ±10 — borderline.`,
   },
 };
 
+// Bal siyahısına 2026 planından kod, yer sayı və tədris dili qoşulur.
+const ENTRIES = attachPlan(admissionsGroup2, planGroup2);
+
 export default function AdmissionGroup2Page() {
   return (
     <AdmissionScoreCalculator
-      entries={admissionsGroup2}
+      entries={ENTRIES}
       translations={t}
       lowBlockSpecialties={LOW_BLOCK_SPECIALTIES_G2}
       relatedIds={["qebul-ballari-1ci-qrup", "qebul-ballari-3cu-qrup", "qebul-ballari-4cu-qrup", "gpa"]}
