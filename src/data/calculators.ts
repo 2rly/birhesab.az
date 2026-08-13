@@ -274,6 +274,32 @@ export const calculators: Calculator[] = [
     keywords: ["5ci qrup", "5-ci qrup", "beşinci qrup", "besinci qrup", "5 qrup", "V qrup", "5 ci qrup"],
   },
   {
+    id: "subbakalavr-uygunlug",
+    name: "Subbakalavrların ixtisas uyğunluq kodları 2026",
+    description:
+      "Subbakalavr dərəcəsi ilə hansı bakalavriat ixtisaslarını seçə bilərsiniz — DİM ixtisas uyğunluğu cədvəli, şifrlər və kodlar",
+    category: "education",
+    icon: "🔗",
+    popular: true,
+    path: "/hesablayici/subbakalavr-ixtisas-uygunlugu",
+    keywords: [
+      "subbakalavr",
+      "subbakalavr 2026",
+      "subbakalavr ixtisas uyğunluğu",
+      "subbakalavr ixtisas uygunlugu",
+      "ixtisas uyğunluğu cədvəli",
+      "ixtisas uygunlugu cedveli",
+      "subbakalavr ixtisas kodları",
+      "subbakalavr ixtisas secimi",
+      "subbakalavr ixtisas seçimi 2026",
+      "subbakalavrlar üçün ixtisaslar",
+      "orta ixtisas təhsili bakalavriat",
+      "peşə təhsili bakalavriat",
+      "subbakalavr qəbul 2026",
+      "DİM subbakalavr",
+    ],
+  },
+  {
     id: "admission-codes",
     name: "İxtisas kodları 2026 — Abituriyent 4",
     description:
