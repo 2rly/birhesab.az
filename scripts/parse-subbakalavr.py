@@ -19,6 +19,9 @@ CHARMAP = str.maketrans(
 )
 
 TABLE_PAGES = range(5, 39)  # 1-dən
+ANNOUNCE_PAGE = 3   # subbakalavr ixtisas seçimi elanı
+APTITUDE_PAGE = 4   # xüsusi qabiliyyət tələb edən ixtisaslar üzrə müsabiqə şərtləri
+APT_COLS = [42.0, 294.0, 376.0, 452.0, 553.0]
 COL_LEFT, COL_MID, COL_RIGHT = 42.0, 356.0, 552.0
 
 # Səhifə bəzəkləri: "DİM-2026" su nişanı hissə-hissə düşür, altbilik və səhifə nömrəsi
@@ -143,10 +146,53 @@ def parse(pdf_path):
     return rows
 
 
+def parse_announcement(doc):
+    """Səh. 3 — nömrələnmiş elan bəndləri."""
+    text = fix(doc[ANNOUNCE_PAGE - 1].get_text())
+    text = re.sub(r"^\s*(DİM-2026|\d{1,3})\s*$", "", text, flags=re.M)
+    text = re.sub(r"\n(?!\s*\d+\.)", " ", text)  # yalnız "N." yeni bənd açır
+    return [
+        re.sub(r"\s+", " ", line).strip()
+        for line in text.split("\n")
+        if re.match(r"^\s*\d+\.", line) and len(line.strip()) > 40
+    ]
+
+
+def parse_aptitude(doc):
+    """Səh. 4 — qabiliyyət imtahanı tələb edən ixtisaslar üzrə şərtlər."""
+    page = doc[APTITUDE_PAGE - 1]
+    bounds = grid(page)
+    rows, group = [], None
+    for i in range(len(bounds) - 1):
+        y0, y1 = bounds[i], bounds[i + 1]
+        if y1 - y0 < 8:
+            continue
+        full = " ".join(fix(page.get_text("text", clip=fitz.Rect(42, y0, 553, y1))).split())
+        if not full or "Xüsusi qabiliyyət" in full or "İxtisasın adı" in full:
+            continue
+        if re.search(r"ixtisas\s*qrupu", full):
+            group = full
+            continue
+        cells = [
+            fix(page.get_text("text", clip=fitz.Rect(APT_COLS[j], y0, APT_COLS[j + 1], y1)))
+            for j in range(4)
+        ]
+        names = [" ".join(l.split()) for l in cells[0].split("\n") if l.strip()]
+        rest = [" ".join(c.split()) for c in cells[1:]]
+        for name in names:
+            rows.append(
+                {"group": group, "specialty": name, "minScore": rest[0], "stage2": rest[1], "result": rest[2]}
+            )
+    return rows
+
+
 def main():
     rows = parse(sys.argv[1])
+    doc = fitz.open(sys.argv[1])
+    clauses = parse_announcement(doc)
+    aptitude = parse_aptitude(doc)
     with open(sys.argv[2], "w", encoding="utf-8") as fh:
-        json.dump(rows, fh, ensure_ascii=False, indent=1)
+        json.dump({"matches": rows, "clauses": clauses, "aptitude": aptitude}, fh, ensure_ascii=False, indent=1)
     sources = sum(len(r["sources"]) for r in rows)
     targets = sum(len(r["targets"]) for r in rows)
     print(f"sətir (uyğunluq bəndi): {len(rows)}")
@@ -156,6 +202,8 @@ def main():
     print(f"  mənbəsiz sətir       : {sum(1 for r in rows if not r['sources'])}")
     leftovers = [n for r in rows for n in r["notes"]]
     print(f"  tanınmayan sətir     : {len(leftovers)}")
+    print(f"  elan bəndi (səh 3)   : {len(clauses)}")
+    print(f"  qabiliyyət şərti     : {len(aptitude)}")
     for note in leftovers[:10]:
         print("      ", note[:80])
 

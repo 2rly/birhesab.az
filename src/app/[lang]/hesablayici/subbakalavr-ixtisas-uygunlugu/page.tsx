@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import CalculatorLayout from "@/components/CalculatorLayout";
 import { useLanguage } from "@/i18n";
 import type { Lang } from "@/i18n";
-import { subbakalavrMatches } from "@/data/subbakalavr-uygunluq-2026";
+import { subbakalavrAptitude, subbakalavrMatches, subbakalavrRules } from "@/data/subbakalavr-uygunluq-2026";
 
 const SOURCE = "DİM 2026 «Subbakalavrların ixtisas seçimi elanı» buraxılışından götürülüb";
 
@@ -115,6 +115,51 @@ export default function SubbakalavrUygunlugPage() {
       formulaContent={pt.formulaContent}
       relatedIds={["admission-subbakalavr", "admission-codes", "admission-group1", "admission-group2"]}
     >
+      <details className="mb-4 rounded-xl border border-border bg-gray-50">
+        <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-foreground">
+          Subbakalavrların ixtisas seçimi qaydaları ({subbakalavrRules.length} bənd)
+        </summary>
+        <ol className="list-decimal space-y-2 px-8 pb-4 text-sm leading-relaxed text-muted">
+          {subbakalavrRules.map((rule, i) => (
+            <li key={i}>{rule.replace(/^\s*\d+\.\s*/, "")}</li>
+          ))}
+        </ol>
+      </details>
+
+      <details className="mb-4 rounded-xl border border-border bg-gray-50">
+        <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-foreground">
+          Qabiliyyət imtahanı tələb edən ixtisaslar üzrə müsabiqə şərtləri ({subbakalavrAptitude.length} ixtisas)
+        </summary>
+        <div className="overflow-x-auto px-4 pb-4">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-xs text-muted">
+                <th className="py-2 pr-3 font-medium">İxtisas</th>
+                <th className="py-2 pr-3 font-medium text-right whitespace-nowrap">Minimal bal</th>
+                <th className="py-2 pr-3 font-medium text-right whitespace-nowrap">II mərhələ</th>
+                <th className="py-2 font-medium whitespace-nowrap">Yekun nəticə</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {subbakalavrAptitude.map((row, i) => {
+                const isNewGroup = i === 0 || subbakalavrAptitude[i - 1].group !== row.group;
+                return (
+                  <tr key={`${row.specialty}-${i}`}>
+                    <td className="py-2 pr-3 text-foreground">
+                      {isNewGroup && <div className="text-[11px] font-semibold text-primary mb-0.5">{row.group}</div>}
+                      {row.specialty}
+                    </td>
+                    <td className="py-2 pr-3 text-right tabular-nums whitespace-nowrap">{row.minScore}</td>
+                    <td className="py-2 pr-3 text-right tabular-nums whitespace-nowrap">{row.stage2}</td>
+                    <td className="py-2 whitespace-nowrap">{row.result}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </details>
+
       <div className="mb-4">
         <label className="block text-sm font-medium text-foreground mb-1.5" htmlFor="uygunluq-axtar">
           Bitirdiyiniz ixtisası və ya seçmək istədiyiniz bakalavriat ixtisasını yazın

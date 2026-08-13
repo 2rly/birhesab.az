@@ -28,6 +28,19 @@ export interface SubbakalavrMatch {
   sources: SubbakalavrSource[];
 }
 
+/** Qabiliyyət imtahanı tələb edən ixtisaslar üzrə müsabiqə şərti. */
+export interface SubbakalavrAptitude {
+  /** İxtisas qrupu, məs. "V ixtisas qrupu" */
+  group: string;
+  specialty: string;
+  /** Qabiliyyət imtahanı üzrə minimal bal */
+  minScore: string;
+  /** II mərhələ üzrə minimal bal ("-" — tələb olunmur) */
+  stage2: string;
+  /** Qabiliyyət imtahanının yekun nəticəsi üzrə tələb */
+  result: string;
+}
+
 export const subbakalavrMatches: SubbakalavrMatch[] = [
   {
     group: { code: "6001", name: "Təhsil ixtisasları qrupu" },
@@ -2388,4 +2401,46 @@ export const subbakalavrMatches: SubbakalavrMatch[] = [
       { code: "3020701", name: "Media və audiovizual texnologiyaların istismarı", level: "pese-tehsili" },
     ],
   },
+];
+
+/** Elandakı əsas şərtlər (DİM buraxılışının 1-ci səhifəsi). */
+export const subbakalavrRules: string[] = [
+  "1. Orta ixtisas təhsili pilləsi və ya yüksək texniki peşə təhsili səviyyəsi üzrə “subbakalavr” peşə-ixtisas dərəcəsi almış şəxslər (bundan sonra - subbakalavrlar) qəbul imtahanlarında iştirak etmədən ali təhsil müəssisələrinə müsabiqə yolu ilə qəbul olmaq hüququna malikdirlər.",
+  "2. Subbakalavrlar ixtisas seçimində iştirak etmək üçün 2026-cı il avqustun 12-dən 19-dək qəbul olmaq istədikləri ixtisasların kodlarını* “Abituriyentin elektron ixtisas seçimi ərizəsi”nə daxil edib təsdiq etməlidirlər. Subbakalavrlar yalnız orta ixtisas təhsili pilləsində və ya yüksək texniki peşə təhsili səviyyəsində təhsil aldıqları tədris dilinə və bitirdikləri ixtisasa uyğun olan ixtisasları seçə bilərlər (bax: səh. 3-36). Qəbul aparılan ixtisasların uyğunluğu Dövlət İmtahan Mərkəzi ilə razılaşdırılmaqla, Elm və Təhsil Nazirliyi tərəfindən müəyyən olunmuşdur. Subbakalavr ixtisas seçərkən bu ixtisas üzrə dövlət sifarişi əsasında/dövlət hesabına və ya ödənişli əsaslarla təhsil almaq istədiyini qeyd etməlidir. Hər hansı bir ixtisas üzrə həm dövlət sifarişi, həm də ödənişli əsaslarla olan yerlərin müsabiqəsində iştirak etmək istəyən subbakalavr həmin ixtisasın kodunu ərizəyə iki dəfə daxil etməli və ayrılıqda bu ixtisas üzrə təhsilini dövlət sifarişi əsasında və ya ödənişli əsaslarla almaq istədiyini qeyd etməlidir. İxtisas kodlarını, onların sayını və ardıcıllığını subbaka- lavr özü müəyyənləşdirir. Dövlət hesabına ali təhsil almış şəxslər dövlət sifarişi əsasında/dövlət hesabına ayrılmış yerləri seçə bilməzlər.",
+  "3. Subbakalavrların qəbul imtahanlarında iştirak etmədən aşağıda göstərilən ixtisaslara müsabiqə yolu ilə qəbulu aparılmır: − Xarici dil fənni üzrə əlavə tələb qoyulan ixtisaslar; − Ali təhsil müəssisələrinin “Riyaziyyat və informatika (rəqəmsal bacarıqlar) müəllimliyi” və “İnformatika (rəqəmsal bacarıqlar) müəllimliyi” ixtisasları; − ADA Universitetinin ixtisasları; − Bakı Ali Neft Məktəbinin ixtisasları; − Qarabağ Universitetinin ixtisasları; − Türkiyə-Azərbaycan Universitetinin ixtisasları. * Ali təhsil müəssisələrinə qəbul planı “Abituriyent” jurnalının 2026-cı il 4-cü nömrəsində dərc olunub.",
+  "4. Azərbaycan Dövlət Neft və Sənaye Universitetinin ixtisaslarını yalnız bu universitetin nəzdində olan Sənaye və Texnologiya Kolleci və Bakı Neft-Energetika Kollecindən məzun olan subbakalavrlar seçə bilərlər.",
+  "5. Azərbaycan Texniki Universitetinin ixtisaslarını yalnız bu universitetin nəzdində olan Bakı Dövlət Rabitə və Nəqliyyat Kolleci və Bakı Texniki Kollecindən məzun olan subbakalavrlar seçə bilərlər.",
+  "6. Xüsusi qabiliyyət tələb edən ixtisasları yalnız bu ixtisaslar üzrə qabiliyyət imtahanlarında iştirak edən və müvafiq müsabiqə şərtlərini ödəyən (bax: səh. 2 “Xüsusi qabiliyyət tələb edən ixtisaslar üzrə müsabiqə şərtləri” adlı cədvəl) subbakalavrlar seçə bilərlər.",
+  "7. İxtisas seçimi başa çatdıqdan sonra ali təhsil müəssisələrinin ixtisaslarının qəbul planı və dövlət sifarişi ilə tələbə qəbulunun proqnozu çərçivəsində (V ixtisas qrupunda qabiliyyət imtahanlarının nəticələri balla qiymətləndirilən ixtisaslar istisna olmaqla) əvvəlcə abituriyentlərin, bundan sonra isə subbakalavrların müsabiqə əsasında yerləşdirilməsi aparılır. V ixtisas qrupunda qabiliyyət imtahanlarının nəticələri balla qiymətləndirilən ixtisaslar üzrə müsabiqə isə abituriyentlər və subbakalavrlar arasında eyni vaxtda aparılır. Eyni yerə iddia edən abituriyent və subbaka- lavrın qabiliyyət imtahanı üzrə yekun balı bərabər olarsa, bu zaman üstünlük abituriyentə verilir. Yerləşdirmə elektron ixtisas seçimi ərizəsində qeyd olunan ixtisasların ardıcıllığı nəzərə alınmaqla həyata keçirilir. Eyni bir yerə iddia edən iki və daha artıq subbakalavrı bir-birindən fərqləndirmək məqsədilə aşağıda qeyd edilən ardıcıllıqla əlavə göstəricilərdən istifadə edilir:",
+  "1. Orta ixtisas təhsili pilləsi və ya yüksək texniki peşə təhsili səviyyəsi üzrə ümumi orta müvəffəqiyyət göstəricisi (ÜOMG),",
+  "2. Tam orta təhsil haqqında sənədə (attestata) “Tədris dili”, “Ədəbiyyat”, “Xarici dil”, “Riyaziyyat”, “Azərbaycan tarixi”, “Ümumi tarix”, “Fizika”, “Kimya”, “Biologiya”, “Coğrafiya” fənləri üzrə yazılmış yekun qiymətlərin ədədi ortası (AYQƏO).",
+  "8. Ümumi balı eyni olan iki və daha çox subbakalavrı bir-birindən fərqləndirmək mümkün olmadıqda, onların hamısı müvafiq ixtisasa yerləşdirilir.",
+];
+
+export const subbakalavrAptitude: SubbakalavrAptitude[] = [
+  { group: "I ixtisas qrupu (RK altqrupu)", specialty: "Memarlıq", minScore: "200", stage2: "-", result: "məqbul (6 bal)" },
+  { group: "III ixtisas qrupu (DT altqrupu)", specialty: "İslamşünaslıq", minScore: "150", stage2: "50", result: "məqbul" },
+  { group: "III ixtisas qrupu (DT altqrupu)", specialty: "Jurnalistika", minScore: "200", stage2: "100", result: "məqbul (5 bal)" },
+  { group: "V ixtisas qrupu", specialty: "Fiziki tərbiyə və çağırışaqədərki hazırlıq müəllimliyi", minScore: "80", stage2: "-", result: "məqbul (6 bal)" },
+  { group: "V ixtisas qrupu", specialty: "Kütləvi sağlamlaşdırıcı idman", minScore: "80", stage2: "-", result: "məqbul (6 bal)" },
+  { group: "V ixtisas qrupu", specialty: "Ümumi fiziki hazırlıq", minScore: "80", stage2: "-", result: "məqbul (6 bal)" },
+  { group: "V ixtisas qrupu", specialty: "Adaptiv bədən tərbiyəsi", minScore: "80", stage2: "-", result: "məqbul (6 bal)" },
+  { group: "V ixtisas qrupu", specialty: "Musiqi müəllimliyi", minScore: "60", stage2: "-", result: "məqbul (6 bal)" },
+  { group: "V ixtisas qrupu", specialty: "Təsviri incəsənət müəllimliyi", minScore: "60", stage2: "-", result: "məqbul (6 bal)" },
+  { group: "V ixtisas qrupu", specialty: "Dizayn (sahələr üzrə)", minScore: "60", stage2: "-", result: "məqbul (6 bal)" },
+  { group: "V ixtisas qrupu", specialty: "Rejissorluq", minScore: "120", stage2: "-", result: "6 (bal)" },
+  { group: "V ixtisas qrupu", specialty: "Aktyor sənəti", minScore: "100", stage2: "-", result: "6 (bal)" },
+  { group: "V ixtisas qrupu", specialty: "Məşqçilik (sahələr üzrə)", minScore: "70", stage2: "-", result: "6 (bal)" },
+  { group: "V ixtisas qrupu", specialty: "Dekorativ-tətbiqi sənət (sahələr üzrə)", minScore: "60", stage2: "-", result: "6 (bal)" },
+  { group: "V ixtisas qrupu", specialty: "İnstrumental ifaçılıq (sahələr üzrə)", minScore: "60", stage2: "-", result: "6 (bal)" },
+  { group: "V ixtisas qrupu", specialty: "Vokal sənəti (sahələr üzrə)", minScore: "60", stage2: "-", result: "6 (bal)" },
+  { group: "V ixtisas qrupu", specialty: "Dirijorluq (sahələr üzrə)", minScore: "60", stage2: "-", result: "6 (bal)" },
+  { group: "V ixtisas qrupu", specialty: "Bəstəkarlıq", minScore: "60", stage2: "-", result: "6 (bal)" },
+  { group: "V ixtisas qrupu", specialty: "Musiqişünaslıq", minScore: "60", stage2: "-", result: "6 (bal)" },
+  { group: "V ixtisas qrupu", specialty: "Populyar musiqi və caz ifaçılığı (sahələr üzrə)", minScore: "60", stage2: "-", result: "6 (bal)" },
+  { group: "V ixtisas qrupu", specialty: "Operator sənəti", minScore: "60", stage2: "-", result: "6 (bal)" },
+  { group: "V ixtisas qrupu", specialty: "Rəngkarlıq", minScore: "60", stage2: "-", result: "6 (bal)" },
+  { group: "V ixtisas qrupu", specialty: "Qrafika", minScore: "60", stage2: "-", result: "6 (bal)" },
+  { group: "V ixtisas qrupu", specialty: "Heykəltəraşlıq", minScore: "60", stage2: "-", result: "6 (bal)" },
+  { group: "V ixtisas qrupu", specialty: "Xoreoqrafiya sənəti (sahələr üzrə)", minScore: "50", stage2: "-", result: "6 (bal)" },
 ];

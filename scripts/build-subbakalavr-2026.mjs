@@ -7,7 +7,10 @@ import fs from "node:fs";
 const SRC = process.argv[2];
 const OUT = "src/data/subbakalavr-uygunluq-2026.ts";
 
-const rows = JSON.parse(fs.readFileSync(SRC, "utf8"));
+const parsed = JSON.parse(fs.readFileSync(SRC, "utf8"));
+const rows = parsed.matches;
+const clauses = parsed.clauses ?? [];
+const aptitude = parsed.aptitude ?? [];
 
 function esc(s) {
   return s.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
@@ -64,8 +67,35 @@ export interface SubbakalavrMatch {
   sources: SubbakalavrSource[];
 }
 
+/** Qabiliyyət imtahanı tələb edən ixtisaslar üzrə müsabiqə şərti. */
+export interface SubbakalavrAptitude {
+  /** İxtisas qrupu, məs. "V ixtisas qrupu" */
+  group: string;
+  specialty: string;
+  /** Qabiliyyət imtahanı üzrə minimal bal */
+  minScore: string;
+  /** II mərhələ üzrə minimal bal ("-" — tələb olunmur) */
+  stage2: string;
+  /** Qabiliyyət imtahanının yekun nəticəsi üzrə tələb */
+  result: string;
+}
+
 export const subbakalavrMatches: SubbakalavrMatch[] = [
 ${serialized}
+];
+
+/** Elandakı əsas şərtlər (DİM buraxılışının 1-ci səhifəsi). */
+export const subbakalavrRules: string[] = [
+${clauses.map((c) => `  "${esc(c)}",`).join("\n")}
+];
+
+export const subbakalavrAptitude: SubbakalavrAptitude[] = [
+${aptitude
+  .map(
+    (a) =>
+      `  { group: "${esc(a.group ?? "")}", specialty: "${esc(a.specialty)}", minScore: "${esc(a.minScore)}", stage2: "${esc(a.stage2)}", result: "${esc(a.result)}" },`,
+  )
+  .join("\n")}
 ];
 `;
 
@@ -76,3 +106,5 @@ console.log(`${OUT} yazıldı`);
 console.log(`  uyğunluq bəndi        : ${rows.length}`);
 console.log(`  bakalavriat ixtisası  : ${targets}`);
 console.log(`  subbakalavr ixtisası  : ${sources}`);
+console.log(`  elan bendi            : ${clauses.length}`);
+console.log(`  qabiliyyet serti      : ${aptitude.length}`);
