@@ -98,6 +98,7 @@ import { MagistrAdmissionCalculator } from "@/calculators/magistr-admission";
 import { SubbakalavrAdmissionCalculator } from "@/calculators/subbakalavr-admission";
 import { SubbakalavrUygunluqCalculator } from "@/calculators/subbakalavr-uygunluq";
 import { IxtisasKodlariCalculator } from "@/calculators/ixtisas-kodlari";
+import { QrCodeCalculator } from "@/calculators/qr-code";
 
 const calculatorComponents: Record<string, React.ComponentType> = {
   "emek-haqqi": SalaryCalculator,
@@ -192,6 +193,7 @@ const calculatorComponents: Record<string, React.ComponentType> = {
   "subbakalavr-kecid-ballari": SubbakalavrAdmissionCalculator,
   "subbakalavr-ixtisas-uygunlugu": SubbakalavrUygunluqCalculator,
   "ixtisas-kodlari": IxtisasKodlariCalculator,
+  "qr-kod": QrCodeCalculator,
 };
 
 export default function CalculatorScreen() {

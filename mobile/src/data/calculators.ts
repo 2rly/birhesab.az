@@ -881,4 +881,13 @@ export const calculators: Calculator[] = [
     slug: "ixtisas-kodlari",
     implemented: true,
   },
+  {
+    id: "qr-code",
+    name: "QR Kod yaradıcısı",
+    description: "Mətn, URL və ya istənilən məlumat üçün QR kod yaradın",
+    category: "daily",
+    icon: "qr-code",
+    slug: "qr-kod",
+    implemented: true,
+  },
 ];
