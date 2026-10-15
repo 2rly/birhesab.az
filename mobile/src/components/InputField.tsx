@@ -6,9 +6,14 @@ interface InputFieldProps {
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
-  keyboardType?: "default" | "numeric" | "decimal-pad";
+  keyboardType?: "default" | "numeric" | "decimal-pad" | "number-pad" | "email-address" | "url";
   suffix?: string;
   prefix?: string;
+  /** Sahənin altında kiçik izah mətni */
+  hint?: string;
+  editable?: boolean;
+  multiline?: boolean;
+  maxLength?: number;
 }
 
 export function InputField({
@@ -19,6 +24,10 @@ export function InputField({
   keyboardType = "default",
   suffix,
   prefix,
+  hint,
+  editable = true,
+  multiline,
+  maxLength,
 }: InputFieldProps) {
   const { colors } = useTheme();
 
@@ -46,11 +55,15 @@ export function InputField({
           placeholder={placeholder}
           placeholderTextColor={colors.n400c}
           keyboardType={keyboardType}
+          editable={editable}
+          multiline={multiline}
+          maxLength={maxLength}
         />
         {suffix && (
           <Text style={[styles.affix, { color: colors.n580 }]}>{suffix}</Text>
         )}
       </View>
+      {hint && <Text style={[styles.hint, { color: colors.n580 }]}>{hint}</Text>}
     </View>
   );
 }
@@ -73,4 +86,5 @@ const styles = StyleSheet.create({
   inputWithPrefix: { paddingLeft: 4 },
   inputWithSuffix: { paddingRight: 4 },
   affix: { fontSize: 14, paddingHorizontal: 12 },
+  hint: { fontSize: 12, marginTop: 4, lineHeight: 16 },
 });
