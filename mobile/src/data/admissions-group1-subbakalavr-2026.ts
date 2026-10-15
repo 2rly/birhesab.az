@@ -1,167 +1,97 @@
+// I ixtisas qrupu üzrə keçid balları — 2026/2027 qəbulu.
+// Mənbə: DİM rəsmi keçid balı siyahısı (ödənişli / dövlət sifarişli).
+// Bu fayl scripts/build-group1-scores-2026.mjs tərəfindən yaradılır — əl ilə redaktə etməyin.
+// Subbakalavr pilləsi — 19 ali məktəb, 69 ixtisas (0-100 şkalası).
+
 import type { AdmissionEntry } from "./admissions-group1-2026";
 
-// 1-ci qrup — subbakalavr keçid balları 2026 (0-100 şkala)
 export const admissionsGroup1Sub: AdmissionEntry[] = [
-  // Bakı Dövlət Universiteti
-  { university: "Bakı Dövlət Universiteti", specialty: "Kompüter elmləri / Riyaziyyat bloku", stream: "Ə", score: 51, stateScore: 63.1, tag: "subbakalavr" },
-  { university: "Bakı Dövlət Universiteti", specialty: "Geologiya və geofizika mühəndisliyi", stream: "Ə", score: 51, stateScore: 63, tag: "subbakalavr" },
-  { university: "Bakı Dövlət Universiteti", specialty: "Geomatika və geodeziya mühəndisliyi", stream: "Ə", score: 51, stateScore: 60.8, tag: "subbakalavr" },
-  { university: "Bakı Dövlət Universiteti", specialty: "Mədən mühəndisliyi", stream: "Ə", score: 70.7, stateScore: 71.2, tag: "subbakalavr" },
-  { university: "Bakı Dövlət Universiteti", specialty: "Riyaziyyat və informatika müəllimliyi (Qazax filialı)", stream: "Ə", score: 51, stateScore: 86.3, tag: "subbakalavr" },
-  // Azərbaycan Dövlət Neft və Sənaye Universiteti
-  { university: "Azərbaycan Dövlət Neft və Sənaye Universiteti", specialty: "Geologiya və geofizika mühəndisliyi", stream: "Ə", score: 51, stateScore: 62.3, tag: "subbakalavr" },
-  { university: "Azərbaycan Dövlət Neft və Sənaye Universiteti", specialty: "Həyat fəaliyyətinin təhlükəsizliyi mühəndisliyi", stream: "Ə", score: 51, stateScore: 66.2, tag: "subbakalavr" },
-  { university: "Azərbaycan Dövlət Neft və Sənaye Universiteti", specialty: "Maşın mühəndisliyi", stream: "Ə", score: 51, stateScore: 64, tag: "subbakalavr" },
-  { university: "Azərbaycan Dövlət Neft və Sənaye Universiteti", specialty: "Materiallar mühəndisliyi", stream: "Ə", score: 51, tag: "subbakalavr" },
-  { university: "Azərbaycan Dövlət Neft və Sənaye Universiteti", specialty: "Mexanika mühəndisliyi", stream: "Ə", score: 51, stateScore: 58.4, tag: "subbakalavr" },
-  { university: "Azərbaycan Dövlət Neft və Sənaye Universiteti", specialty: "Mədən mühəndisliyi", stream: "Ə", score: 74.9, stateScore: 74.9, tag: "subbakalavr" },
-  { university: "Azərbaycan Dövlət Neft və Sənaye Universiteti", specialty: "Radiotexnika və telekommunikasiya mühəndisliyi", stream: "Ə", score: 51, stateScore: 83.5, tag: "subbakalavr" },
-  { university: "Azərbaycan Dövlət Neft və Sənaye Universiteti", specialty: "Sənaye mühəndisliyi", stream: "Ə", score: 51, tag: "subbakalavr" },
-  // Azərbaycan Texniki Universiteti
-  { university: "Azərbaycan Texniki Universiteti", specialty: "Cihaz mühəndisliyi", stream: "Ə", score: 77.7, stateScore: 77.7, tag: "subbakalavr" },
-  { university: "Azərbaycan Texniki Universiteti", specialty: "Energetika mühəndisliyi", stream: "Ə", score: 51, stateScore: 62, tag: "subbakalavr" },
-  { university: "Azərbaycan Texniki Universiteti", specialty: "Həyat fəaliyyətinin təhlükəsizliyi mühəndisliyi", stream: "Ə", score: 51, stateScore: 69.1, tag: "subbakalavr" },
-  { university: "Azərbaycan Texniki Universiteti", specialty: "Maşın mühəndisliyi", stream: "Ə", score: 51, stateScore: 73, tag: "subbakalavr" },
-  { university: "Azərbaycan Texniki Universiteti", specialty: "Maşın mühəndisliyi", stream: "Ə", score: 59.4, tag: "subbakalavr" },
-  { university: "Azərbaycan Texniki Universiteti", specialty: "Mexanika mühəndisliyi", stream: "Ə", score: 66.6, stateScore: 66.7, tag: "subbakalavr" },
-  { university: "Azərbaycan Texniki Universiteti", specialty: "Metallurgiya mühəndisliyi", stream: "Ə", score: 51, stateScore: 64.9, tag: "subbakalavr" },
-  { university: "Azərbaycan Texniki Universiteti", specialty: "Mədən mühəndisliyi", stream: "Ə", score: 51, stateScore: 59.4, tag: "subbakalavr" },
-  { university: "Azərbaycan Texniki Universiteti", specialty: "Nəqliyyat mühəndisliyi", stream: "Ə", score: 86, stateScore: 86, tag: "subbakalavr" },
-  { university: "Azərbaycan Texniki Universiteti", specialty: "Radiotexnika və telekommunikasiya mühəndisliyi", stream: "Ə", score: 86.2, stateScore: 86.2, tag: "subbakalavr" },
-  // Azərbaycan Memarlıq və İnşaat Universiteti
-  { university: "Azərbaycan Memarlıq və İnşaat Universiteti", specialty: "Geomatika və geodeziya mühəndisliyi", stream: "Ə", score: 73.8, stateScore: 73.8, tag: "subbakalavr" },
-  { university: "Azərbaycan Memarlıq və İnşaat Universiteti", specialty: "Həyat fəaliyyətinin təhlükəsizliyi mühəndisliyi", stream: "Ə", score: 80.4, stateScore: 80.4, tag: "subbakalavr" },
-  { university: "Azərbaycan Memarlıq və İnşaat Universiteti", specialty: "İnşaat mühəndisliyi", stream: "Ə", score: 70.3, tag: "subbakalavr" },
-  { university: "Azərbaycan Memarlıq və İnşaat Universiteti", specialty: "Kommunikasiya sistemləri mühəndisliyi", stream: "Ə", score: 77.4, stateScore: 78.2, tag: "subbakalavr" },
-  { university: "Azərbaycan Memarlıq və İnşaat Universiteti", specialty: "Kommunikasiya sistemləri mühəndisliyi", stream: "Ə", score: 87.3, stateScore: 87.3, tag: "subbakalavr" },
-  { university: "Azərbaycan Memarlıq və İnşaat Universiteti", specialty: "Maşın mühəndisliyi", stream: "Ə", score: 70, stateScore: 70, tag: "subbakalavr" },
-  { university: "Azərbaycan Memarlıq və İnşaat Universiteti", specialty: "Materiallar mühəndisliyi", stream: "Ə", score: 51, stateScore: 56.7, tag: "subbakalavr" },
-  { university: "Azərbaycan Memarlıq və İnşaat Universiteti", specialty: "Mexanika mühəndisliyi", stream: "Ə", score: 74.1, stateScore: 75.2, tag: "subbakalavr" },
-  { university: "Azərbaycan Memarlıq və İnşaat Universiteti", specialty: "Neft-qaz mühəndisliyi", stream: "Ə", score: 91.1, tag: "subbakalavr" },
-  { university: "Azərbaycan Memarlıq və İnşaat Universiteti", specialty: "Nəqliyyat mühəndisliyi", stream: "Ə", score: 85.6, stateScore: 85.6, tag: "subbakalavr" },
-  { university: "Azərbaycan Memarlıq və İnşaat Universiteti", specialty: "Nəqliyyat tikintisi mühəndisliyi", stream: "Ə", score: 51, stateScore: 64.3, tag: "subbakalavr" },
-  { university: "Azərbaycan Memarlıq və İnşaat Universiteti", specialty: "Sənaye mühəndisliyi", stream: "Ə", score: 66.8, tag: "subbakalavr" },
-  // Azərbaycan Dövlət Pedaqoji Universiteti
-  { university: "Azərbaycan Dövlət Pedaqoji Universiteti", specialty: "Riyaziyyat və informatika müəllimliyi (Şamaxı filialı)", stream: "Ə", score: 51, stateScore: 85.7, tag: "subbakalavr" },
-  { university: "Azərbaycan Dövlət Pedaqoji Universiteti", specialty: "İnformatika müəllimliyi (Şəki filialı)", stream: "Ə", score: 51, tag: "subbakalavr" },
-  { university: "Azərbaycan Dövlət Pedaqoji Universiteti", specialty: "Riyaziyyat və informatika müəllimliyi (Şəki filialı)", stream: "Ə", score: 51, tag: "subbakalavr" },
-  { university: "Azərbaycan Dövlət Pedaqoji Universiteti", specialty: "Riyaziyyat və informatika müəllimliyi (Ağcabədi filialı)", stream: "Ə", score: 51, stateScore: 82.5, tag: "subbakalavr" },
-  // Azərbaycan Dövlət İqtisad Universiteti
-  { university: "Azərbaycan Dövlət İqtisad Universiteti", specialty: "Maşın mühəndisliyi", stream: "Ə", score: 77.9, stateScore: 77.9, tag: "subbakalavr" },
-  { university: "Azərbaycan Dövlət İqtisad Universiteti", specialty: "Materiallar mühəndisliyi", stream: "Ə", score: 51, stateScore: 63.2, tag: "subbakalavr" },
-  { university: "Azərbaycan Dövlət İqtisad Universiteti", specialty: "İnformasiya texnologiyaları (Zaqatala filialı)", stream: "Ə", score: 83.7, stateScore: 86.9, tag: "subbakalavr" },
-  // Bakı Mühəndislik Universiteti
-  { university: "Bakı Mühəndislik Universiteti", specialty: "Elektrik və elektronika mühəndisliyi", stream: "Ə", score: 87.1, stateScore: 87.1, tag: "subbakalavr" },
-  { university: "Bakı Mühəndislik Universiteti", specialty: "Energetika mühəndisliyi", stream: "Ə", score: 82.2, stateScore: 82.2, tag: "subbakalavr" },
-  { university: "Bakı Mühəndislik Universiteti", specialty: "İnşaat mühəndisliyi", stream: "Ə", score: 70.9, tag: "subbakalavr" },
-  { university: "Bakı Mühəndislik Universiteti", specialty: "Kommunikasiya sistemləri mühəndisliyi", stream: "Ə", score: 74.8, stateScore: 79.5, tag: "subbakalavr" },
-  { university: "Bakı Mühəndislik Universiteti", specialty: "Qida mühəndisliyi", stream: "Ə", score: 87.8, tag: "subbakalavr" },
-  { university: "Bakı Mühəndislik Universiteti", specialty: "Logistika və nəqliyyat texnologiyaları", stream: "Ə", score: 80.8, tag: "subbakalavr" },
-  { university: "Bakı Mühəndislik Universiteti", specialty: "Maşın mühəndisliyi", stream: "Ə", score: 51, stateScore: 63.1, tag: "subbakalavr" },
-  { university: "Bakı Mühəndislik Universiteti", specialty: "Mexanika mühəndisliyi", stream: "Ə", score: 70.7, stateScore: 70.7, tag: "subbakalavr" },
-  { university: "Bakı Mühəndislik Universiteti", specialty: "Memarlıq", stream: "Ə", score: 51, tag: "subbakalavr" },
-  { university: "Bakı Mühəndislik Universiteti", specialty: "Nəqliyyat mühəndisliyi", stream: "Ə", score: 84.8, stateScore: 84.8, tag: "subbakalavr" },
-  { university: "Bakı Mühəndislik Universiteti", specialty: "Nəqliyyat tikintisi mühəndisliyi", stream: "Ə", score: 51, stateScore: 67.2, tag: "subbakalavr" },
-  { university: "Bakı Mühəndislik Universiteti", specialty: "Radiotexnika və telekommunikasiya mühəndisliyi", stream: "Ə", score: 83, stateScore: 83, tag: "subbakalavr" },
-  { university: "Bakı Mühəndislik Universiteti", specialty: "Sənaye mühəndisliyi", stream: "Ə", score: 51, tag: "subbakalavr" },
-  // Azərbaycan Turizm və Menecment Universiteti
-  { university: "Azərbaycan Turizm və Menecment Universiteti", specialty: "Qida mühəndisliyi", stream: "Ə", score: 86, tag: "subbakalavr" },
-  // Azərbaycan Dövlət Dəniz Akademiyası
-  { university: "Azərbaycan Dövlət Dəniz Akademiyası", specialty: "Dəniz naviqasiyası mühəndisliyi (Qiyabi)", stream: "Ə", score: 67.8, tag: "subbakalavr" },
-  { university: "Azərbaycan Dövlət Dəniz Akademiyası", specialty: "Gəmi energetik qurğularının istismarı (Əyani)", stream: "Ə", score: 77.6, tag: "subbakalavr" },
-  { university: "Azərbaycan Dövlət Dəniz Akademiyası", specialty: "Gəmi energetik qurğularının istismarı (Qiyabi)", stream: "Ə", score: 71.2, tag: "subbakalavr" },
-  { university: "Azərbaycan Dövlət Dəniz Akademiyası", specialty: "Gəmiqayırma və gəmi təmiri mühəndisliyi", stream: "Ə", score: 64.9, stateScore: 64.9, tag: "subbakalavr" },
-  // Naxçıvan Dövlət Universiteti
-  { university: "Naxçıvan Dövlət Universiteti", specialty: "Riyaziyyat və informatika müəllimliyi", stream: "Ə", score: 51, tag: "subbakalavr" },
-  { university: "Naxçıvan Dövlət Universiteti", specialty: "Elektrik və elektronika mühəndisliyi", stream: "Ə", score: 75.1, stateScore: 91.1, tag: "subbakalavr" },
-  { university: "Naxçıvan Dövlət Universiteti", specialty: "Energetika mühəndisliyi", stream: "Ə", score: 76.7, stateScore: 77, tag: "subbakalavr" },
-  { university: "Naxçıvan Dövlət Universiteti", specialty: "Kompüter mühəndisliyi", stream: "Ə", score: 84.1, stateScore: 96.5, tag: "subbakalavr" },
-  { university: "Naxçıvan Dövlət Universiteti", specialty: "Memarlıq", stream: "Ə", score: 51, tag: "subbakalavr" },
-  { university: "Naxçıvan Dövlət Universiteti", specialty: "Nəqliyyat mühəndisliyi", stream: "Ə", score: 81.5, stateScore: 81.5, tag: "subbakalavr" },
-  { university: "Naxçıvan Dövlət Universiteti", specialty: "Proseslərin avtomatlaşdırılması mühəndisliyi", stream: "Ə", score: 75.6, stateScore: 87.8, tag: "subbakalavr" },
-  // Naxçıvan Müəllimlər İnstitutu
-  { university: "Naxçıvan Müəllimlər İnstitutu", specialty: "Riyaziyyat və informatika müəllimliyi", stream: "Ə", score: 51, tag: "subbakalavr" },
-  // Azərbaycan Dövlət Aqrar Universiteti
-  { university: "Azərbaycan Dövlət Aqrar Universiteti", specialty: "Elektrik və elektronika mühəndisliyi", stream: "Ə", score: 84.7, stateScore: 87.2, tag: "subbakalavr" },
-  { university: "Azərbaycan Dövlət Aqrar Universiteti", specialty: "Energetika mühəndisliyi", stream: "Ə", score: 85.8, stateScore: 85.8, tag: "subbakalavr" },
-  { university: "Azərbaycan Dövlət Aqrar Universiteti", specialty: "Həyat fəaliyyətinin təhlükəsizliyi mühəndisliyi", stream: "Ə", score: 72.8, stateScore: 72.8, tag: "subbakalavr" },
-  { university: "Azərbaycan Dövlət Aqrar Universiteti", specialty: "İnformasiya texnologiyaları", stream: "Ə", score: 86.7, stateScore: 86.7, tag: "subbakalavr" },
-  { university: "Azərbaycan Dövlət Aqrar Universiteti", specialty: "Kompüter mühəndisliyi", stream: "Ə", score: 83.5, stateScore: 97.5, tag: "subbakalavr" },
-  { university: "Azərbaycan Dövlət Aqrar Universiteti", specialty: "Qida mühəndisliyi", stream: "Ə", score: 83.9, tag: "subbakalavr" },
-  { university: "Azərbaycan Dövlət Aqrar Universiteti", specialty: "Logistika və nəqliyyat texnologiyaları mühəndisliyi", stream: "Ə", score: 81.8, tag: "subbakalavr" },
-  { university: "Azərbaycan Dövlət Aqrar Universiteti", specialty: "Maşın mühəndisliyi", stream: "Ə", score: 73.3, stateScore: 73.3, tag: "subbakalavr" },
-  // Gəncə Dövlət Universiteti
-  { university: "Gəncə Dövlət Universiteti", specialty: "İnformatika müəllimliyi", stream: "Ə", score: 68.4, tag: "subbakalavr" },
-  { university: "Gəncə Dövlət Universiteti", specialty: "Kimya mühəndisliyi", stream: "Ə", score: 67.2, tag: "subbakalavr" },
-  { university: "Gəncə Dövlət Universiteti", specialty: "Maşın mühəndisliyi", stream: "Ə", score: 59.3, stateScore: 59.3, tag: "subbakalavr" },
-  // Azərbaycan Texnologiya Universiteti
-  { university: "Azərbaycan Texnologiya Universiteti", specialty: "Elektrik və elektronika mühəndisliyi", stream: "Ə", score: 79.9, stateScore: 87.5, tag: "subbakalavr" },
-  { university: "Azərbaycan Texnologiya Universiteti", specialty: "Həyat fəaliyyətinin təhlükəsizliyi", stream: "Ə", score: 62.1, stateScore: 65.8, tag: "subbakalavr" },
-  { university: "Azərbaycan Texnologiya Universiteti", specialty: "İnformasiya texnologiyaları", stream: "Ə", score: 82.5, stateScore: 86.7, tag: "subbakalavr" },
-  { university: "Azərbaycan Texnologiya Universiteti", specialty: "İnformasiya təhlükəsizliyi", stream: "Ə", score: 80.8, tag: "subbakalavr" },
-  { university: "Azərbaycan Texnologiya Universiteti", specialty: "Kompüter mühəndisliyi", stream: "Ə", score: 78.4, tag: "subbakalavr" },
-  { university: "Azərbaycan Texnologiya Universiteti", specialty: "Qida mühəndisliyi", stream: "Ə", score: 75.5, tag: "subbakalavr" },
-  { university: "Azərbaycan Texnologiya Universiteti", specialty: "Logistika və nəqliyyat texnologiyaları", stream: "Ə", score: 76.9, tag: "subbakalavr" },
-  { university: "Azərbaycan Texnologiya Universiteti", specialty: "Maşın mühəndisliyi", stream: "Ə", score: 51, stateScore: 67.5, tag: "subbakalavr" },
-  { university: "Azərbaycan Texnologiya Universiteti", specialty: "Metallurgiya mühəndisliyi", stream: "Ə", score: 51, stateScore: 65.5, tag: "subbakalavr" },
-  { university: "Azərbaycan Texnologiya Universiteti", specialty: "Nəqliyyat mühəndisliyi", stream: "Ə", score: 83.5, stateScore: 83.5, tag: "subbakalavr" },
-  { university: "Azərbaycan Texnologiya Universiteti", specialty: "Proseslərin avtomatlaşdırılması", stream: "Ə", score: 78.3, stateScore: 86.6, tag: "subbakalavr" },
-  { university: "Azərbaycan Texnologiya Universiteti", specialty: "Radiotexnika və telekommunikasiya", stream: "Ə", score: 75.9, stateScore: 82.6, tag: "subbakalavr" },
-  { university: "Azərbaycan Texnologiya Universiteti", specialty: "Sənaye mühəndisliyi", stream: "Ə", score: 51, tag: "subbakalavr" },
-  // Sumqayıt Dövlət Universiteti
-  { university: "Sumqayıt Dövlət Universiteti", specialty: "İnformatika müəllimliyi", stream: "Ə", score: 73.8, tag: "subbakalavr" },
-  { university: "Sumqayıt Dövlət Universiteti", specialty: "Riyaziyyat və informatika müəllimliyi", stream: "Ə", score: 84.1, stateScore: 84.1, tag: "subbakalavr" },
-  { university: "Sumqayıt Dövlət Universiteti", specialty: "Elektrik və elektronika mühəndisliyi", stream: "Ə", score: 78.8, stateScore: 87.2, tag: "subbakalavr" },
-  { university: "Sumqayıt Dövlət Universiteti", specialty: "Energetika mühəndisliyi", stream: "Ə", score: 81.2, stateScore: 81.2, tag: "subbakalavr" },
-  { university: "Sumqayıt Dövlət Universiteti", specialty: "Kimya mühəndisliyi", stream: "Ə", score: 72.6, tag: "subbakalavr" },
-  { university: "Sumqayıt Dövlət Universiteti", specialty: "Logistika və nəqliyyat texnologiyaları", stream: "Ə", score: 81.1, tag: "subbakalavr" },
-  { university: "Sumqayıt Dövlət Universiteti", specialty: "Mexanika mühəndisliyi", stream: "Ə", score: 69.7, stateScore: 69.7, tag: "subbakalavr" },
-  { university: "Sumqayıt Dövlət Universiteti", specialty: "Mexatronika və robototexnika", stream: "Ə", score: 51, tag: "subbakalavr" },
-  { university: "Sumqayıt Dövlət Universiteti", specialty: "Neft-qaz mühəndisliyi", stream: "Ə", score: 83.4, tag: "subbakalavr" },
-  { university: "Sumqayıt Dövlət Universiteti", specialty: "Proseslərin avtomatlaşdırılması", stream: "Ə", score: 93.6, stateScore: 93.7, tag: "subbakalavr" },
-  // Mingəçevir Dövlət Universiteti
-  { university: "Mingəçevir Dövlət Universiteti", specialty: "İnformatika müəllimliyi", stream: "Ə", score: 51, tag: "subbakalavr" },
-  { university: "Mingəçevir Dövlət Universiteti", specialty: "Riyaziyyat və informatika müəllimliyi", stream: "Ə", score: 51, stateScore: 81.5, tag: "subbakalavr" },
-  { university: "Mingəçevir Dövlət Universiteti", specialty: "Kompüter elmləri", stream: "Ə", score: 76.1, stateScore: 76.6, tag: "subbakalavr" },
-  { university: "Mingəçevir Dövlət Universiteti", specialty: "Elektrik və elektronika mühəndisliyi", stream: "Ə", score: 78.5, stateScore: 88.7, tag: "subbakalavr" },
-  { university: "Mingəçevir Dövlət Universiteti", specialty: "Energetika mühəndisliyi", stream: "Ə", score: 79.7, stateScore: 79.7, tag: "subbakalavr" },
-  { university: "Mingəçevir Dövlət Universiteti", specialty: "Həyat fəaliyyətinin təhlükəsizliyi", stream: "Ə", score: 51, stateScore: 67.2, tag: "subbakalavr" },
-  { university: "Mingəçevir Dövlət Universiteti", specialty: "İnformasiya texnologiyaları", stream: "Ə", score: 78.3, stateScore: 86.7, tag: "subbakalavr" },
-  { university: "Mingəçevir Dövlət Universiteti", specialty: "İnformasiya təhlükəsizliyi", stream: "Ə", score: 80.2, tag: "subbakalavr" },
-  { university: "Mingəçevir Dövlət Universiteti", specialty: "Kompüter mühəndisliyi", stream: "Ə", score: 78.9, stateScore: 98.2, tag: "subbakalavr" },
-  { university: "Mingəçevir Dövlət Universiteti", specialty: "Nəqliyyat mühəndisliyi", stream: "Ə", score: 82.8, stateScore: 82.8, tag: "subbakalavr" },
-  // Lənkəran Dövlət Universiteti
-  { university: "Lənkəran Dövlət Universiteti", specialty: "Riyaziyyat və informatika müəllimliyi", stream: "Ə", score: 51, stateScore: 81.2, tag: "subbakalavr" },
-  { university: "Lənkəran Dövlət Universiteti", specialty: "İnformasiya texnologiyaları", stream: "Ə", score: 78.1, stateScore: 87.5, tag: "subbakalavr" },
-  { university: "Lənkəran Dövlət Universiteti", specialty: "İnformasiya təhlükəsizliyi", stream: "Ə", score: 79.2, tag: "subbakalavr" },
-  { university: "Lənkəran Dövlət Universiteti", specialty: "Kompüter mühəndisliyi", stream: "Ə", score: 80.8, tag: "subbakalavr" },
-  { university: "Lənkəran Dövlət Universiteti", specialty: "Qida mühəndisliyi", stream: "Ə", score: 74.4, tag: "subbakalavr" },
-  // Azərbaycan Kooperasiya Universiteti
-  { university: "Azərbaycan Kooperasiya Universiteti", specialty: "Kompüter mühəndisliyi", stream: "Ə", score: 93, stateScore: 96.5, tag: "subbakalavr" },
-  { university: "Azərbaycan Kooperasiya Universiteti", specialty: "Qida mühəndisliyi", stream: "Ə", score: 84.1, tag: "subbakalavr" },
-  // "Azərbaycan" Universiteti
-  { university: "\"Azərbaycan\" Universiteti", specialty: "İnformasiya təhlükəsizliyi", stream: "Ə", score: 93.6, tag: "subbakalavr" },
-  // Qərbi Kaspi Universiteti
-  { university: "Qərbi Kaspi Universiteti", specialty: "Kompüter elmləri (tədris ingilis dilində)", stream: "Ə", score: 73.8, stateScore: 74.6, tag: "subbakalavr" },
-  { university: "Qərbi Kaspi Universiteti", specialty: "Cihaz mühəndisliyi", stream: "Ə", score: 69.9, stateScore: 69.9, tag: "subbakalavr" },
-  { university: "Qərbi Kaspi Universiteti", specialty: "İnformasiya texnologiyaları (tədris ingilis dilində)", stream: "Ə", score: 96.9, stateScore: 96.9, tag: "subbakalavr" },
-  { university: "Qərbi Kaspi Universiteti", specialty: "İnformasiya təhlükəsizliyi (tədris ingilis dilində)", stream: "Ə", score: 81.4, tag: "subbakalavr" },
-  { university: "Qərbi Kaspi Universiteti", specialty: "İnformasiya təhlükəsizliyi", stream: "Ə", score: 87.3, tag: "subbakalavr" },
-  { university: "Qərbi Kaspi Universiteti", specialty: "Qida mühəndisliyi", stream: "Ə", score: 73, tag: "subbakalavr" },
-  // Xəzər Universiteti
-  { university: "Xəzər Universiteti", specialty: "Riyaziyyat və informatika müəllimliyi", stream: "Ə", score: 73.5, stateScore: 88.4, tag: "subbakalavr" },
-  { university: "Xəzər Universiteti", specialty: "Elektrik və elektronika mühəndisliyi (tədris ingilis dilində)", stream: "Ə", score: 71.7, tag: "subbakalavr" },
-  { university: "Xəzər Universiteti", specialty: "İnşaat mühəndisliyi (tədris ingilis dilində)", stream: "Ə", score: 51, tag: "subbakalavr" },
-  { university: "Xəzər Universiteti", specialty: "Kimya mühəndisliyi (tədris ingilis dilində)", stream: "Ə", score: 90, tag: "subbakalavr" },
-  { university: "Xəzər Universiteti", specialty: "Mexanika mühəndisliyi (tədris ingilis dilində)", stream: "Ə", score: 63.5, stateScore: 66.3, tag: "subbakalavr" },
-  { university: "Xəzər Universiteti", specialty: "Memarlıq (tədris ingilis dilində)", stream: "Ə", score: 51, tag: "subbakalavr" },
-  { university: "Xəzər Universiteti", specialty: "Neft-qaz mühəndisliyi (tədris ingilis dilində)", stream: "Ə", score: 51, tag: "subbakalavr" },
-  { university: "Xəzər Universiteti", specialty: "Radiotexnika və telekommunikasiya mühəndisliyi (tədris ingilis dilində)", stream: "Ə", score: 71, stateScore: 83.8, tag: "subbakalavr" },
-  // Bakı Qızlar Universiteti
-  { university: "Bakı Qızlar Universiteti", specialty: "Riyaziyyat və informatika müəllimliyi", stream: "Ə", score: 67.2, stateScore: 83, tag: "subbakalavr" },
-  // "Odlar Yurdu" Universiteti
-  { university: "\"Odlar Yurdu\" Universiteti", specialty: "İnformasiya təhlükəsizliyi", stream: "Ə", score: 98.5, tag: "subbakalavr" },
-  { university: "\"Odlar Yurdu\" Universiteti", specialty: "Kompüter mühəndisliyi (tədris ingilis dilində)", stream: "Ə", score: 99, stateScore: 99, tag: "subbakalavr" },
-  // Bakı Biznes Universiteti
-  { university: "Bakı Biznes Universiteti", specialty: "İnformasiya təhlükəsizliyi", stream: "Ə", score: 90.2, tag: "subbakalavr" },
+  // ═══ Bakı Dövlət Universiteti ═══
+  { code: "111293", university: "Bakı Dövlət Universiteti", specialty: "Geomatika və geodeziya mühəndisliyi", stream: "Ə", language: "AZ", score: 89.4, stateScore: 89.4, tag: "subbakalavr" },
+  { code: "111374", university: "Bakı Dövlət Universiteti", specialty: "Mədən mühəndisliyi", stream: "Ə", language: "AZ", score: 68.9, stateScore: 70.6, tag: "subbakalavr" },
+  // ═══ Azərbaycan Dövlət Neft və Sənaye Universiteti ═══
+  { code: "114558", university: "Azərbaycan Dövlət Neft və Sənaye Universiteti", specialty: "Mədən mühəndisliyi", stream: "Ə", language: "AZ/RU", score: 87.8, stateScore: 87.8, tag: "subbakalavr" },
+  // ═══ Azərbaycan Texniki Universiteti ═══
+  { code: "116372", university: "Azərbaycan Texniki Universiteti", specialty: "Maşın mühəndisliyi", stream: "Ə", language: "AZ", stateScore: 88.2, tag: "subbakalavr" },
+  { code: "116389", university: "Azərbaycan Texniki Universiteti", specialty: "Maşın mühəndisliyi", stream: "Ə", language: "AZ", score: 88.8, stateScore: 88.8, tag: "subbakalavr" },
+  { code: "116461", university: "Azərbaycan Texniki Universiteti", specialty: "Metallurgiya mühəndisliyi", stream: "Ə", language: "AZ", score: 60.5, stateScore: 60.5, tag: "subbakalavr" },
+  { code: "116478", university: "Azərbaycan Texniki Universiteti", specialty: "Mədən mühəndisliyi", stream: "Ə", language: "AZ", score: 51, stateScore: 75.2, tag: "subbakalavr" },
+  // ═══ Azərbaycan Memarlıq və İnşaat Universiteti ═══
+  { code: "118162", university: "Azərbaycan Memarlıq və İnşaat Universiteti", specialty: "Geomatika və geodeziya mühəndisliyi", stream: "Ə", language: "AZ", score: 87.7, stateScore: 87.7, tag: "subbakalavr" },
+  { code: "118284", university: "Azərbaycan Memarlıq və İnşaat Universiteti", specialty: "Kommunikasiya sistemləri mühəndisliyi", stream: "Ə", language: "AZ", score: 84.7, stateScore: 84.7, tag: "subbakalavr" },
+  { code: "118324", university: "Azərbaycan Memarlıq və İnşaat Universiteti", specialty: "Maşın mühəndisliyi", stream: "Ə", language: "AZ", score: 85.2, stateScore: 85.2, tag: "subbakalavr" },
+  { code: "118332", university: "Azərbaycan Memarlıq və İnşaat Universiteti", specialty: "Materiallar mühəndisliyi", stream: "Ə", language: "AZ", score: 76.9, stateScore: 76.9, tag: "subbakalavr" },
+  { code: "118381", university: "Azərbaycan Memarlıq və İnşaat Universiteti", specialty: "Nəqliyyat mühəndisliyi", stream: "Ə", language: "AZ", score: 92.9, stateScore: 92.9, tag: "subbakalavr" },
+  { code: "118398", university: "Azərbaycan Memarlıq və İnşaat Universiteti", specialty: "Nəqliyyat tikintisi mühəndisliyi", stream: "Ə", language: "AZ", score: 80.4, stateScore: 80.4, tag: "subbakalavr" },
+  // ═══ Azərbaycan Dövlət Pedaqoji Universiteti ═══
+  { code: "122714", university: "Azərbaycan Dövlət Pedaqoji Universiteti", specialty: "Aqronomluq (Cəlilabad filialı)", stream: "Ə", language: "AZ", score: 80.2, tag: "subbakalavr" },
+  // ═══ Azərbaycan Dövlət İqtisad Universiteti ═══
+  { code: "123298", university: "Azərbaycan Dövlət İqtisad Universiteti", specialty: "Maşın mühəndisliyi", stream: "Ə", language: "AZ", score: 90.7, stateScore: 90.7, tag: "subbakalavr" },
+  { code: "123313", university: "Azərbaycan Dövlət İqtisad Universiteti", specialty: "Materiallar mühəndisliyi", stream: "Ə", language: "AZ", score: 87.8, stateScore: 87.8, tag: "subbakalavr" },
+  // ═══ Bakı Mühəndislik Universiteti ═══
+  { code: "128377", university: "Bakı Mühəndislik Universiteti", specialty: "Kommunikasiya sistemləri mühəndisliyi", stream: "Ə", language: "AZ", score: 83.5, stateScore: 83.5, tag: "subbakalavr" },
+  { code: "128441", university: "Bakı Mühəndislik Universiteti", specialty: "Maşın mühəndisliyi", stream: "Ə", language: "AZ", score: 79.6, stateScore: 79.6, tag: "subbakalavr" },
+  { code: "128499", university: "Bakı Mühəndislik Universiteti", specialty: "Memarlıq", stream: "Ə", language: "AZ", score: 88.8, tag: "subbakalavr" },
+  { code: "128522", university: "Bakı Mühəndislik Universiteti", specialty: "Nəqliyyat mühəndisliyi", stream: "Ə", language: "AZ", score: 91.5, stateScore: 91.5, tag: "subbakalavr" },
+  { code: "128539", university: "Bakı Mühəndislik Universiteti", specialty: "Nəqliyyat tikintisi mühəndisliyi", stream: "Ə", language: "AZ", score: 75.9, stateScore: 75.9, tag: "subbakalavr" },
+  { code: "128588", university: "Bakı Mühəndislik Universiteti", specialty: "Sənaye mühəndisliyi", stream: "Ə", language: "AZ", score: 87.1, tag: "subbakalavr" },
+  // ═══ ADA Universiteti ═══
+  { code: "131251", university: "ADA Universiteti", specialty: "Heyvandarlıq (tədris ingilis dilində)", stream: "Ə", language: "AZ/RU", score: 91, tag: "subbakalavr" },
+  // ═══ Azərbaycan Dövlət Rəssamlıq Akademiyası ═══
+  { code: "135115", university: "Azərbaycan Dövlət Rəssamlıq Akademiyası", specialty: "Memarlıq (tədris Azərbaycan dilində)", stream: "Ə", language: "AZ/RU", score: 88.4, tag: "subbakalavr" },
+  // ═══ Azərbaycan Dövlət Dəniz Akademiyası ═══
+  { code: "139125", university: "Azərbaycan Dövlət Dəniz Akademiyası", specialty: "Dəniz naviqasiyası mühəndisliyi", stream: "Q", language: "AZ", score: 51, tag: "subbakalavr" },
+  { code: "139182", university: "Azərbaycan Dövlət Dəniz Akademiyası", specialty: "Gəmi energetik qurğularının istismarı mühəndisliyi", stream: "Q", language: "AZ", score: 70.8, tag: "subbakalavr" },
+  { code: "139214", university: "Azərbaycan Dövlət Dəniz Akademiyası", specialty: "Gəmiqayırma və gəmi təmiri mühəndisliyi", stream: "Ə", language: "AZ", score: 62.8, stateScore: 62.8, tag: "subbakalavr" },
+  // ═══ Naxçıvan Dövlət Universiteti ═══
+  { code: "142187", university: "Naxçıvan Dövlət Universiteti", specialty: "Ekologiya mühəndisliyi", stream: "Ə", language: "AZ", score: 72.6, tag: "subbakalavr" },
+  { code: "142219", university: "Naxçıvan Dövlət Universiteti", specialty: "Energetika mühəndisliyi", stream: "Ə", language: "AZ", score: 80.7, stateScore: 80.8, tag: "subbakalavr" },
+  { code: "142268", university: "Naxçıvan Dövlət Universiteti", specialty: "Kimya mühəndisliyi", stream: "Ə", language: "AZ", score: 51, tag: "subbakalavr" },
+  { code: "142316", university: "Naxçıvan Dövlət Universiteti", specialty: "Meliorasiya mühəndisliyi", stream: "Ə", language: "AZ", score: 51, stateScore: 78.3, tag: "subbakalavr" },
+  { code: "142324", university: "Naxçıvan Dövlət Universiteti", specialty: "Memarlıq", stream: "Ə", language: "AZ", score: 72.2, tag: "subbakalavr" },
+  { code: "142332", university: "Naxçıvan Dövlət Universiteti", specialty: "Nəqliyyat mühəndisliyi", stream: "Ə", language: "AZ", score: 85.6, stateScore: 85.6, tag: "subbakalavr" },
+  { code: "142349", university: "Naxçıvan Dövlət Universiteti", specialty: "Proseslərin avtomatlaşdırılması mühəndisliyi", stream: "Ə", language: "AZ", score: 98.1, tag: "subbakalavr" },
+  { code: "142365", university: "Naxçıvan Dövlət Universiteti", specialty: "Yerquruluşu və daşınmaz əmlakın kadastrı", stream: "Ə", language: "AZ", score: 89.3, tag: "subbakalavr" },
+  // ═══ Azərbaycan Dövlət Aqrar Universiteti (Gəncə şəhəri) ═══
+  { code: "144155", university: "Azərbaycan Dövlət Aqrar Universiteti (Gəncə şəhəri)", specialty: "Energetika mühəndisliyi", stream: "Ə", language: "AZ", score: 87.9, stateScore: 87.9, tag: "subbakalavr" },
+  { code: "144163", university: "Azərbaycan Dövlət Aqrar Universiteti (Gəncə şəhəri)", specialty: "Həyat fəaliyyətinin təhlükəsizliyi mühəndisliyi", stream: "Ə", language: "AZ", score: 88.9, stateScore: 88.9, tag: "subbakalavr" },
+  { code: "144228", university: "Azərbaycan Dövlət Aqrar Universiteti (Gəncə şəhəri)", specialty: "Maşın mühəndisliyi", stream: "Ə", language: "AZ", score: 77.9, stateScore: 77.9, tag: "subbakalavr" },
+  { code: "144333", university: "Azərbaycan Dövlət Aqrar Universiteti (Gəncə şəhəri)", specialty: "Balıqçılıq", stream: "Q", language: "AZ", stateScore: 70.2, tag: "subbakalavr" },
+  { code: "144341", university: "Azərbaycan Dövlət Aqrar Universiteti (Gəncə şəhəri)", specialty: "Meşəçilik", stream: "Ə", language: "AZ", stateScore: 85.5, tag: "subbakalavr" },
+  { code: "144455", university: "Azərbaycan Dövlət Aqrar Universiteti (Gəncə şəhəri)", specialty: "Zoomühəndislik (tədris türk dilində)", stream: "Ə", language: "AZ", score: 85.5, tag: "subbakalavr" },
+  // ═══ Gəncə Dövlət Universiteti ═══
+  { code: "145176", university: "Gəncə Dövlət Universiteti", specialty: "Kimya mühəndisliyi", stream: "Ə", language: "AZ", score: 71.2, tag: "subbakalavr" },
+  { code: "145184", university: "Gəncə Dövlət Universiteti", specialty: "Maşın mühəndisliyi", stream: "Ə", language: "AZ", score: 74.3, stateScore: 74.6, tag: "subbakalavr" },
+  // ═══ Azərbaycan Texnologiya Universiteti (Gəncə şəhəri) ═══
+  { code: "147136", university: "Azərbaycan Texnologiya Universiteti (Gəncə şəhəri)", specialty: "Həyat fəaliyyətinin təhlükəsizliyi mühəndisliyi", stream: "Ə", language: "AZ/RU", score: 75.5, stateScore: 75.5, tag: "subbakalavr" },
+  { code: "147193", university: "Azərbaycan Texnologiya Universiteti (Gəncə şəhəri)", specialty: "Maşın mühəndisliyi", stream: "Ə", language: "AZ", score: 73, stateScore: 73, tag: "subbakalavr" },
+  { code: "147217", university: "Azərbaycan Texnologiya Universiteti (Gəncə şəhəri)", specialty: "Metallurgiya mühəndisliyi", stream: "Ə", language: "AZ", score: 51, stateScore: 59.3, tag: "subbakalavr" },
+  { code: "147225", university: "Azərbaycan Texnologiya Universiteti (Gəncə şəhəri)", specialty: "Nəqliyyat mühəndisliyi", stream: "Ə", language: "AZ", score: 86, stateScore: 86, tag: "subbakalavr" },
+  { code: "147258", university: "Azərbaycan Texnologiya Universiteti (Gəncə şəhəri)", specialty: "Sənaye mühəndisliyi", stream: "Ə", language: "AZ", score: 69.7, tag: "subbakalavr" },
+  { code: "147266", university: "Azərbaycan Texnologiya Universiteti (Gəncə şəhəri)", specialty: "Şərabçılıq", stream: "Ə", language: "AZ/RU", score: 51, tag: "subbakalavr" },
+  // ═══ Sumqayıt Dövlət Universiteti ═══
+  { code: "148213", university: "Sumqayıt Dövlət Universiteti", specialty: "Energetika mühəndisliyi", stream: "Ə", language: "AZ", score: 90.4, stateScore: 90.4, tag: "subbakalavr" },
+  { code: "148246", university: "Sumqayıt Dövlət Universiteti", specialty: "Kimya mühəndisliyi", stream: "Ə", language: "AZ", score: 78.1, tag: "subbakalavr" },
+  { code: "148254", university: "Sumqayıt Dövlət Universiteti", specialty: "Kimya mühəndisliyi", stream: "Ə", language: "AZ", score: 72.5, tag: "subbakalavr" },
+  { code: "148327", university: "Sumqayıt Dövlət Universiteti", specialty: "Neft-qaz mühəndisliyi", stream: "Ə", language: "AZ", score: 85.1, tag: "subbakalavr" },
+  // ═══ Mingəçevir Dövlət Universiteti ═══
+  { code: "149161", university: "Mingəçevir Dövlət Universiteti", specialty: "Kompüter elmləri", stream: "Ə", language: "AZ", score: 84.7, tag: "subbakalavr" },
+  { code: "149178", university: "Mingəçevir Dövlət Universiteti", specialty: "Kompüter elmləri (tədris ingilis dilində)", stream: "Ə", language: "AZ/RU", score: 91.6, tag: "subbakalavr" },
+  { code: "149218", university: "Mingəçevir Dövlət Universiteti", specialty: "Energetika mühəndisliyi", stream: "Ə", language: "AZ", score: 85.4, stateScore: 85.4, tag: "subbakalavr" },
+  { code: "149226", university: "Mingəçevir Dövlət Universiteti", specialty: "Həyat fəaliyyətinin təhlükəsizliyi mühəndisliyi", stream: "Ə", language: "AZ", score: 78.9, stateScore: 78.9, tag: "subbakalavr" },
+  { code: "149267", university: "Mingəçevir Dövlət Universiteti", specialty: "Nəqliyyat mühəndisliyi", stream: "Ə", language: "AZ", score: 88.1, stateScore: 88.1, tag: "subbakalavr" },
+  { code: "149283", university: "Mingəçevir Dövlət Universiteti", specialty: "Sənaye mühəndisliyi", stream: "Ə", language: "AZ", score: 51, tag: "subbakalavr" },
+  // ═══ Lənkəran Dövlət Universiteti ═══
+  { code: "151218", university: "Lənkəran Dövlət Universiteti", specialty: "Şərabçılıq", stream: "Ə", language: "AZ", stateScore: 58.4, tag: "subbakalavr" },
+  { code: "151242", university: "Lənkəran Dövlət Universiteti", specialty: "Meşəçilik", stream: "Ə", language: "AZ", stateScore: 77.7, tag: "subbakalavr" },
+  { code: "151259", university: "Lənkəran Dövlət Universiteti", specialty: "Meşəçilik", stream: "Q", language: "AZ", stateScore: 92.6, tag: "subbakalavr" },
+  { code: "151283", university: "Lənkəran Dövlət Universiteti", specialty: "Zoomühəndislik", stream: "Ə", language: "AZ", stateScore: 62.3, tag: "subbakalavr" },
+  // ═══ Qərbi Kaspi Universiteti ═══
+  { code: "157131", university: "Qərbi Kaspi Universiteti", specialty: "Cihaz mühəndisliyi", stream: "Ə", language: "AZ", score: 83.1, stateScore: 83.1, tag: "subbakalavr" },
+  // ═══ Xəzər Universiteti ═══
+  { code: "158177", university: "Xəzər Universiteti", specialty: "İnşaat mühəndisliyi (tədris ingilis dilində)", stream: "Ə", language: "AZ/RU", score: 86.5, stateScore: 86.5, tag: "subbakalavr" },
+  { code: "158185", university: "Xəzər Universiteti", specialty: "Kimya mühəndisliyi (tədris ingilis dilində)", stream: "Ə", language: "AZ/RU", score: 51, tag: "subbakalavr" },
+  { code: "158225", university: "Xəzər Universiteti", specialty: "Memarlıq", stream: "Ə", language: "AZ/RU", score: 83.6, tag: "subbakalavr" },
+  { code: "158233", university: "Xəzər Universiteti", specialty: "Memarlıq (tədris ingilis dilində)", stream: "Ə", language: "AZ/RU", score: 78.3, tag: "subbakalavr" },
+  { code: "158241", university: "Xəzər Universiteti", specialty: "Neft-qaz mühəndisliyi (tədris ingilis dilində)", stream: "Ə", language: "AZ/RU", score: 77.8, tag: "subbakalavr" },
 ];

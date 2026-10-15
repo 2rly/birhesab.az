@@ -62,24 +62,30 @@ function loosePlanKey(university: string, specialty: string): string {
 /**
  * Bal siyahısındakı hər yazıya plan məlumatını (kod, yer sayı, tədris dili) qoşur.
  * Planda tapılmayan ixtisas — bu il yer ayrılmayan ixtisasdır — olduğu kimi qalır.
+ * Eyni ad altında birdən çox plan sətri olanda (əyani/qiyabi) bal yazısındaki
+ * `code` üstünlük təşkil edir.
  */
-export function attachPlan<T extends { university: string; specialty: string }>(
+export function attachPlan<T extends { university: string; specialty: string; code?: string; language?: string }>(
   entries: T[],
   plan: PlanEntry[],
 ): (T & { code?: string; seats?: number; language?: string })[] {
   const index = new Map<string, PlanEntry>();
   const loose = new Map<string, PlanEntry>();
+  const byCode = new Map<string, PlanEntry>();
   for (const item of plan) {
     const key = planKey(item.university, item.specialty);
     if (!index.has(key)) index.set(key, item);
     const alt = loosePlanKey(item.university, item.specialty);
     if (!loose.has(alt)) loose.set(alt, item);
+    byCode.set(item.code, item);
   }
   return entries.map((entry) => {
     const match =
+      (entry.code ? byCode.get(entry.code) : undefined) ??
       index.get(planKey(entry.university, entry.specialty)) ??
       loose.get(loosePlanKey(entry.university, entry.specialty));
     if (!match) return entry;
-    return { ...entry, code: match.code, seats: match.seats, language: match.language };
+    // Bal siyahısı bölməni özü göstərirsə (AZ · RU · AZ/RU), o üstünlük təşkil edir.
+    return { ...entry, code: match.code, seats: match.seats, language: entry.language ?? match.language };
   });
 }

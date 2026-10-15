@@ -1,16 +1,15 @@
-import { useState, useMemo } from "react";
-import { View, Text, TextInput, FlatList, Pressable, StyleSheet } from "react-native";
+import { useState, useMemo, useCallback } from "react";
+import { View, Text, FlatList, Pressable, StyleSheet } from "react-native";
 import { useTheme } from "@/constants/theme";
-import type { ThemeColors } from "@/constants/colors";
-import { secondDegreeData, type SecondDegreeProgram, type StudyForm } from "@/data/ikinci-ali-tehsil";
+import { InputField } from "@/components/InputField";
+import {
+  secondDegreeData,
+  type SecondDegreeUniversity,
+  type SecondDegreeProgram,
+  type StudyForm,
+} from "@/data/ikinci-ali-tehsil";
 
-interface FlatProgram extends SecondDegreeProgram {
-  universityId: string;
-  universityName: string;
-  universityShort?: string;
-}
-
-function normalizeText(s: string): string {
+function normalize(s: string): string {
   return s
     .toLowerCase()
     .normalize("NFD")
@@ -19,216 +18,218 @@ function normalizeText(s: string): string {
     .replace(/ə/g, "e");
 }
 
-function formatFee(fee: number | string | undefined): string {
-  if (fee === undefined) return "—";
-  return `${fee} AZN`;
+const FORM_COLORS: Record<StudyForm, string> = {
+  "əyani": "#3b82f6",
+  qiyabi: "#f59e0b",
+  "əyani/qiyabi": "#8b5cf6",
+};
+
+const FORM_LABELS: Record<StudyForm, string> = {
+  "əyani": "Ǝyani",
+  qiyabi: "Qiyabi",
+  "əyani/qiyabi": "Ǝyani/Qiyabi",
+};
+
+function formatFee(fee?: number | string): string {
+  if (fee == null) return "—";
+  if (typeof fee === "number") return fee.toLocaleString("az-AZ") + " ₼";
+  return fee + " ₼";
 }
 
-const ALL_PROGRAMS: FlatProgram[] = (() => {
-  const flat: FlatProgram[] = [];
-  for (const uni of secondDegreeData) {
-    for (const p of uni.programs) {
-      flat.push({
-        ...p,
-        universityId: uni.id,
-        universityName: uni.name,
-        universityShort: uni.shortName,
-      });
-    }
-  }
-  return flat;
-})();
-
-const FORM_OPTIONS: { value: "" | StudyForm; label: string }[] = [
-  { value: "", label: "Hamısı" },
-  { value: "əyani", label: "Əyani" },
-  { value: "qiyabi", label: "Qiyabi" },
-];
-
-function ProgramCard({ item, colors }: { item: FlatProgram; colors: ThemeColors }) {
-  const formStyle =
-    item.form === "əyani"
-      ? { bg: "#eff6ff", text: "#1d4ed8", border: "#bfdbfe" }
-      : item.form === "qiyabi"
-      ? { bg: "#fefce8", text: "#a16207", border: "#fde68a" }
-      : { bg: "#faf5ff", text: "#7e22ce", border: "#d8b4fe" };
-
-  const formLabel =
-    item.form === "əyani" ? "Əyani" : item.form === "qiyabi" ? "Qiyabi" : "Əyani/Qiyabi";
-
-  return (
-    <View style={[s.card, { backgroundColor: colors.n195, borderColor: colors.n300 }]}>
-      <View style={s.cardHeader}>
-        <View style={{ flex: 1 }}>
-          <Text style={[s.specName, { color: colors.n940 }]}>{item.specialty}</Text>
-          <Text style={[s.uniName, { color: colors.n580 }]}>
-            {item.universityShort ? `${item.universityShort} — ${item.universityName}` : item.universityName}
-          </Text>
-        </View>
-        {item.fee !== undefined && (
-          <View style={[s.feeBadge, { backgroundColor: "#ecfdf5", borderColor: "#a7f3d0" }]}>
-            <Text style={{ fontSize: 11, fontWeight: "700", color: "#15803d" }}>{formatFee(item.fee)}</Text>
-          </View>
-        )}
-      </View>
-      <View style={s.badges}>
-        <View style={[s.badge, { backgroundColor: formStyle.bg, borderColor: formStyle.border }]}>
-          <Text style={{ fontSize: 10, fontWeight: "600", color: formStyle.text }}>{formLabel}</Text>
-        </View>
-        {item.code && (
-          <View style={[s.badge, { backgroundColor: colors.n240, borderColor: colors.n280 }]}>
-            <Text style={{ fontSize: 10, fontWeight: "600", color: colors.n700, fontVariant: ["tabular-nums"] }}>{item.code}</Text>
-          </View>
-        )}
-        {item.language && (
-          <View style={[s.badge, { backgroundColor: colors.n240, borderColor: colors.n280 }]}>
-            <Text style={{ fontSize: 10, fontWeight: "600", color: colors.n700 }}>{item.language}</Text>
-          </View>
-        )}
-      </View>
-    </View>
-  );
+interface FilteredUniversity {
+  uni: SecondDegreeUniversity;
+  programs: SecondDegreeProgram[];
 }
 
 export function SecondDegreeCalculator() {
   const { colors } = useTheme();
   const [search, setSearch] = useState("");
-  const [uniFilter, setUniFilter] = useState("");
-  const [formFilter, setFormFilter] = useState<"" | StudyForm>("");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const filtered = useMemo(() => {
-    let result = ALL_PROGRAMS;
+  const { filtered, totalPrograms, totalUnis } = useMemo(() => {
+    const q = search.trim();
+    const nq = q ? normalize(q) : "";
 
-    if (uniFilter) {
-      result = result.filter((p) => p.universityId === uniFilter);
+    const result: FilteredUniversity[] = [];
+    let progCount = 0;
+
+    for (const uni of secondDegreeData) {
+      if (!nq) {
+        result.push({ uni, programs: uni.programs });
+        progCount += uni.programs.length;
+        continue;
+      }
+
+      const uniMatch = normalize(uni.name).includes(nq) ||
+        (uni.shortName && normalize(uni.shortName).includes(nq));
+
+      if (uniMatch) {
+        result.push({ uni, programs: uni.programs });
+        progCount += uni.programs.length;
+      } else {
+        const matchedPrograms = uni.programs.filter(
+          (p) => normalize(p.specialty).includes(nq) ||
+            (p.code && p.code.includes(q))
+        );
+        if (matchedPrograms.length > 0) {
+          result.push({ uni, programs: matchedPrograms });
+          progCount += matchedPrograms.length;
+        }
+      }
     }
 
-    if (formFilter) {
-      result = result.filter((p) => {
-        if (formFilter === "əyani") return p.form === "əyani" || p.form === "əyani/qiyabi";
-        if (formFilter === "qiyabi") return p.form === "qiyabi" || p.form === "əyani/qiyabi";
-        return p.form === formFilter;
-      });
-    }
+    return { filtered: result, totalPrograms: progCount, totalUnis: result.length };
+  }, [search]);
 
-    if (search.trim()) {
-      const q = normalizeText(search.trim());
-      result = result.filter(
-        (p) =>
-          normalizeText(p.specialty).includes(q) ||
-          normalizeText(p.universityName).includes(q) ||
-          (p.universityShort && normalizeText(p.universityShort).includes(q)) ||
-          (p.code && p.code.includes(q))
+  const toggleExpand = useCallback((id: string) => {
+    setExpandedId((prev) => (prev === id ? null : id));
+  }, []);
+
+  const renderProgram = useCallback(
+    (prog: SecondDegreeProgram, index: number) => {
+      const formColor = FORM_COLORS[prog.form];
+      return (
+        <View
+          key={`${prog.code ?? prog.specialty}-${index}`}
+          style={[styles.progCard, { borderBottomColor: colors.n250 }]}
+        >
+          <View style={styles.progHeader}>
+            <Text style={[styles.progName, { color: colors.n840 }]} numberOfLines={2}>
+              {prog.code ? `${prog.code} — ` : ""}{prog.specialty}
+            </Text>
+          </View>
+          <View style={styles.progBadges}>
+            <View style={[styles.badge, { backgroundColor: formColor + "18" }]}>
+              <Text style={[styles.badgeText, { color: formColor }]}>{FORM_LABELS[prog.form]}</Text>
+            </View>
+            {prog.language && (
+              <View style={[styles.badge, { backgroundColor: colors.n240 }]}>
+                <Text style={[styles.badgeText, { color: colors.n660 }]}>{prog.language}</Text>
+              </View>
+            )}
+            {prog.fee != null && (
+              <View style={[styles.badge, { backgroundColor: colors.accent + "15" }]}>
+                <Text style={[styles.badgeText, { color: colors.accent }]}>{formatFee(prog.fee)}/il</Text>
+              </View>
+            )}
+          </View>
+          {prog.note && (
+            <Text style={[styles.progNote, { color: colors.n500c }]}>{prog.note}</Text>
+          )}
+        </View>
       );
-    }
+    },
+    [colors]
+  );
 
-    return result;
-  }, [uniFilter, formFilter, search]);
+  const renderUniversity = useCallback(
+    ({ item }: { item: FilteredUniversity }) => {
+      const { uni, programs } = item;
+      const isExpanded = expandedId === uni.id || expandedId === null;
+
+      return (
+        <View style={[styles.uniSection, { backgroundColor: colors.n195, borderColor: colors.n280 }]}>
+          <Pressable onPress={() => toggleExpand(uni.id)} style={styles.uniHeader}>
+            <View style={styles.uniTitleRow}>
+              <Text style={[styles.uniName, { color: colors.n940 }]}>{uni.name}</Text>
+              {uni.shortName && (
+                <View style={[styles.badge, { backgroundColor: colors.n240, marginLeft: 8 }]}>
+                  <Text style={[styles.badgeText, { color: colors.n660 }]}>{uni.shortName}</Text>
+                </View>
+              )}
+            </View>
+            <Text style={[styles.progCount, { color: colors.n580 }]}>
+              {programs.length} ixtisas {isExpanded ? "▲" : "▼"}
+            </Text>
+          </Pressable>
+          {uni.note && (
+            <Text style={[styles.uniNote, { color: colors.n500c }]}>{uni.note}</Text>
+          )}
+          {isExpanded && programs.map((p, i) => renderProgram(p, i))}
+        </View>
+      );
+    },
+    [colors, expandedId, toggleExpand, renderProgram]
+  );
+
+  const keyExtractor = useCallback((item: FilteredUniversity) => item.uni.id, []);
 
   return (
-    <View style={{ flex: 1 }}>
-      {/* Summary */}
-      <View style={s.summaryRow}>
-        <View style={[s.summaryCard, { backgroundColor: "#eff6ff", borderColor: "#bfdbfe" }]}>
-          <Text style={[s.summaryNum, { color: "#1e40af" }]}>{secondDegreeData.length}</Text>
-          <Text style={{ fontSize: 11, color: "#1e40af" }}>universitet</Text>
-        </View>
-        <View style={[s.summaryCard, { backgroundColor: "#ecfdf5", borderColor: "#a7f3d0" }]}>
-          <Text style={[s.summaryNum, { color: "#166534" }]}>{ALL_PROGRAMS.length}</Text>
-          <Text style={{ fontSize: 11, color: "#166534" }}>proqram</Text>
-        </View>
-      </View>
-
+    <View style={styles.container}>
       {/* Search */}
-      <View style={[s.searchWrap, { backgroundColor: colors.n240, borderColor: colors.n280 }]}>
-        <TextInput
-          style={[s.searchInput, { color: colors.n940 }]}
-          value={search}
-          onChangeText={setSearch}
-          placeholder="İxtisas axtar..."
-          placeholderTextColor={colors.n400c}
-        />
-      </View>
-
-      {/* University filter */}
-      <View style={s.filterRow}>
-        <Pressable
-          onPress={() => setUniFilter("")}
-          style={[s.filterPill, uniFilter === "" && { backgroundColor: colors.accent, borderColor: colors.accent }]}
-        >
-          <Text style={[s.filterText, uniFilter === "" && { color: colors.onAccent }]}>Hamısı</Text>
-        </Pressable>
-        {secondDegreeData.slice(0, 6).map((uni) => (
-          <Pressable
-            key={uni.id}
-            onPress={() => setUniFilter(uniFilter === uni.id ? "" : uni.id)}
-            style={[
-              s.filterPill,
-              { borderColor: colors.n280 },
-              uniFilter === uni.id && { backgroundColor: colors.accent, borderColor: colors.accent },
-            ]}
-          >
-            <Text style={[s.filterText, { color: colors.n700 }, uniFilter === uni.id && { color: colors.onAccent }]}>
-              {uni.shortName || uni.name.slice(0, 12)}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
-
-      {/* Form filter */}
-      <View style={s.filterRow}>
-        {FORM_OPTIONS.map((opt) => (
-          <Pressable
-            key={opt.value}
-            onPress={() => setFormFilter(opt.value)}
-            style={[
-              s.filterPill,
-              { borderColor: colors.n280 },
-              formFilter === opt.value && { backgroundColor: colors.accent, borderColor: colors.accent },
-            ]}
-          >
-            <Text style={[s.filterText, { color: colors.n700 }, formFilter === opt.value && { color: colors.onAccent }]}>
-              {opt.label}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
+      <InputField
+        label="Axtarış"
+        value={search}
+        onChangeText={setSearch}
+        placeholder="İxtisas və ya universitet adı"
+      />
 
       {/* Count */}
-      <Text style={[s.count, { color: colors.n580 }]}>
-        <Text style={{ fontWeight: "700", color: colors.n940 }}>{filtered.length}</Text> nəticə
+      <Text style={[styles.countText, { color: colors.n580 }]}>
+        {totalUnis} universitet, {totalPrograms} ixtisas
       </Text>
 
-      {/* Results */}
-      <FlatList
-        data={filtered}
-        keyExtractor={(_, i) => String(i)}
-        renderItem={({ item }) => <ProgramCard item={item} colors={colors} />}
-        scrollEnabled={false}
-        ListEmptyComponent={
-          <Text style={[s.empty, { color: colors.n500c }]}>Seçilmiş filtrlərə uyğun ixtisas tapılmadı.</Text>
-        }
-      />
+      {/* No results */}
+      {filtered.length === 0 && search.trim().length > 0 ? (
+        <View style={[styles.emptyBox, { backgroundColor: colors.n240 }]}>
+          <Text style={[styles.emptyText, { color: colors.n580 }]}>
+            Uyğun nəticə tapılmadı
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={filtered}
+          renderItem={renderUniversity}
+          keyExtractor={keyExtractor}
+          scrollEnabled={false}
+        />
+      )}
     </View>
   );
 }
 
-const s = StyleSheet.create({
-  summaryRow: { flexDirection: "row", gap: 10, marginBottom: 14 },
-  summaryCard: { flex: 1, borderRadius: 12, borderWidth: 1, padding: 12, alignItems: "center" },
-  summaryNum: { fontSize: 22, fontWeight: "800" },
-  searchWrap: { borderRadius: 12, borderWidth: 1, marginBottom: 12 },
-  searchInput: { fontSize: 14, paddingHorizontal: 14, paddingVertical: 10 },
-  filterRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginBottom: 10 },
-  filterPill: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1 },
-  filterText: { fontSize: 11, fontWeight: "600" },
-  count: { fontSize: 13, marginBottom: 12 },
-  card: { borderRadius: 14, borderWidth: 1, padding: 14, marginBottom: 8 },
-  cardHeader: { flexDirection: "row", alignItems: "flex-start", gap: 10, marginBottom: 8 },
-  specName: { fontSize: 14, fontWeight: "700", lineHeight: 19 },
-  uniName: { fontSize: 12, marginTop: 2 },
-  feeBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, borderWidth: 1 },
-  badges: { flexDirection: "row", flexWrap: "wrap", gap: 4 },
-  badge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, borderWidth: 1 },
-  empty: { textAlign: "center", paddingVertical: 32, fontSize: 14 },
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  countText: { fontSize: 12, marginBottom: 12 },
+  uniSection: {
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 12,
+    overflow: "hidden",
+  },
+  uniHeader: {
+    padding: 14,
+  },
+  uniTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
+    marginBottom: 4,
+  },
+  uniName: { fontSize: 16, fontWeight: "700", flexShrink: 1 },
+  progCount: { fontSize: 12 },
+  uniNote: { fontSize: 12, paddingHorizontal: 14, paddingBottom: 10, lineHeight: 17 },
+  progCard: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+  },
+  progHeader: {
+    marginBottom: 6,
+  },
+  progName: { fontSize: 14, fontWeight: "600", lineHeight: 20 },
+  progBadges: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
+  badge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+  },
+  badgeText: { fontSize: 11, fontWeight: "600" },
+  progNote: { fontSize: 11, marginTop: 4, fontStyle: "italic", lineHeight: 16 },
+  emptyBox: {
+    borderRadius: 12,
+    padding: 24,
+    alignItems: "center",
+  },
+  emptyText: { fontSize: 14, textAlign: "center" },
 });

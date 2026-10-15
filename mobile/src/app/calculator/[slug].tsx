@@ -80,25 +80,16 @@ import { NameMeaningCalculator } from "@/calculators/name-meaning";
 import { TimezoneCalculator } from "@/calculators/timezone";
 import { HarmfulHabitsCalculator } from "@/calculators/harmful-habits";
 import { FeeCalculator } from "@/calculators/fee-calculator";
+import { SavingsCalculator } from "@/calculators/savings";
 import { UomgCalculator } from "@/calculators/uomg";
 import { StudyAbroadCalculator } from "@/calculators/study-abroad";
 import { SecondDegreeCalculator } from "@/calculators/second-degree";
-import { KsqBsqCalculator } from "@/calculators/ksq-bsq";
-import { VehicleFeesCalculator } from "@/calculators/vehicle-fees";
 import { RentalIncomeTaxCalculator } from "@/calculators/rental-income-tax";
-import { XalqLifeSavingsCalculator } from "@/calculators/xalq-life-savings";
-import { AdmissionGroup1Calculator } from "@/calculators/admission-group1";
-import { AdmissionGroup2Calculator } from "@/calculators/admission-group2";
-import { AdmissionGroup3Calculator } from "@/calculators/admission-group3";
-import { AdmissionGroup4Calculator } from "@/calculators/admission-group4";
-import { AdmissionGroup5Calculator } from "@/calculators/admission-group5";
-import { AdmissionCollege11Calculator } from "@/calculators/admission-college11";
-import { AdmissionCollege9Calculator } from "@/calculators/admission-college9";
-import { MagistrAdmissionCalculator } from "@/calculators/magistr-admission";
-import { SubbakalavrAdmissionCalculator } from "@/calculators/subbakalavr-admission";
-import { SubbakalavrUygunluqCalculator } from "@/calculators/subbakalavr-uygunluq";
-import { IxtisasKodlariCalculator } from "@/calculators/ixtisas-kodlari";
 import { QrCodeCalculator } from "@/calculators/qr-code";
+import { AdmissionScoresCalculator } from "@/calculators/admission-scores";
+import { SpecialtyCodesCalculator } from "@/calculators/specialty-codes";
+import { MagistrScoresCalculator } from "@/calculators/magistr-scores";
+import { SubbakalavCalculator } from "@/calculators/subbakalavr";
 
 const calculatorComponents: Record<string, React.ComponentType> = {
   "emek-haqqi": SalaryCalculator,
@@ -175,25 +166,31 @@ const calculatorComponents: Record<string, React.ComponentType> = {
   "saat-qursagi": TimezoneCalculator,
   "zererli-verdis": HarmfulHabitsCalculator,
   rusum: FeeCalculator,
-  "xalq-hayat-yigim": XalqLifeSavingsCalculator,
+  "xalq-hayat-yigim": SavingsCalculator,
   uomg: UomgCalculator,
   "xaricde-tehsil": StudyAbroadCalculator,
   "ikinci-ali-tehsil": SecondDegreeCalculator,
-  "ksq-bsq": KsqBsqCalculator,
-  "neqliyyat-rusumlari": VehicleFeesCalculator,
   "kiraye-gelir-vergisi": RentalIncomeTaxCalculator,
-  "qebul-ballari-1ci-qrup": AdmissionGroup1Calculator,
-  "qebul-ballari-2ci-qrup": AdmissionGroup2Calculator,
-  "qebul-ballari-3cu-qrup": AdmissionGroup3Calculator,
-  "qebul-ballari-4cu-qrup": AdmissionGroup4Calculator,
-  "qebul-ballari-5ci-qrup": AdmissionGroup5Calculator,
-  "qebul-ballari-11illik-kollec": AdmissionCollege11Calculator,
-  "qebul-ballari-9illik-kollec": AdmissionCollege9Calculator,
-  "magistr-kecid-ballari": MagistrAdmissionCalculator,
-  "subbakalavr-kecid-ballari": SubbakalavrAdmissionCalculator,
-  "subbakalavr-ixtisas-uygunlugu": SubbakalavrUygunluqCalculator,
-  "ixtisas-kodlari": IxtisasKodlariCalculator,
   "qr-kod": QrCodeCalculator,
+  "qebul-ballari-1ci-qrup": AdmissionScoresCalculator,
+  "qebul-ballari-2ci-qrup": AdmissionScoresCalculator,
+  "qebul-ballari-3cu-qrup": AdmissionScoresCalculator,
+  "qebul-ballari-4cu-qrup": AdmissionScoresCalculator,
+  "qebul-ballari-5ci-qrup": AdmissionScoresCalculator,
+  "qebul-ballari-9illik-kollec": AdmissionScoresCalculator,
+  "qebul-ballari-11illik-kollec": AdmissionScoresCalculator,
+  "ixtisas-kodlari": SpecialtyCodesCalculator,
+  "kollec-ixtisas-kodlari": SpecialtyCodesCalculator,
+  "magistr-kecid-ballari": MagistrScoresCalculator,
+  "subbakalavr-ixtisas-uygunlugu": SubbakalavCalculator,
+  "subbakalavr-kecid-ballari": SubbakalavCalculator,
+  "elillik-muavineti": DisabilityCalculator,
+  "issizlik-muavineti": UnemploymentCalculator,
+  "itirilmis-sened-rusumu": LostDocFeeCalculator,
+  "ezamiyye": BusinessTripCalculator,
+  "ksq-bsq": BsaCalculator,
+  "vərəsəlik": InheritanceCalculator,
+  "youtube-qazanc": YoutubeCalculator,
 };
 
 export default function CalculatorScreen() {
