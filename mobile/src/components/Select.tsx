@@ -5,12 +5,18 @@ import {
   Pressable,
   Modal,
   FlatList,
+  ScrollView,
   TextInput,
   StyleSheet,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/constants/theme";
+
+// RN runtime-da ScrollView.Context mövcuddur, lakin ictimai TS tiplərində elan olunmayıb.
+const ScrollViewContext = (
+  ScrollView as unknown as { Context: React.Context<{ horizontal: boolean } | null> }
+).Context;
 
 export interface SelectOption<T extends string = string> {
   value: T;
@@ -85,6 +91,10 @@ export function Select<T extends string>({
       {hint && <Text style={[styles.hint, { color: colors.n580 }]}>{hint}</Text>}
 
       <Modal visible={open} animationType="slide" transparent onRequestClose={close}>
+        {/* Select adətən hesablayıcı ekranının ScrollView-u içindədir; React konteksti
+            Modal-dan keçdiyi üçün FlatList "nested VirtualizedList" xətası verir.
+            Konteksti sıfırlayırıq — modal ayrıca pəncərədir, iç-içə sürüşmə yoxdur. */}
+        <ScrollViewContext.Provider value={null}>
         <Pressable style={styles.backdrop} onPress={close} />
         <View
           style={[
@@ -163,6 +173,7 @@ export function Select<T extends string>({
             }
           />
         </View>
+        </ScrollViewContext.Provider>
       </Modal>
     </View>
   );
