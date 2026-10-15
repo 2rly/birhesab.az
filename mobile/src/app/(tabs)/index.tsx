@@ -50,6 +50,32 @@ export default function HomeScreen() {
         </Pressable>
       </View>
 
+      {/* Hero — saytın əsas səhifəsindəki alt başlıq və nişanlar */}
+      <View style={styles.hero}>
+        <Text style={[styles.heroSubtitle, { color: colors.n700 }]}>
+          Bütün hesablamalar bir yerdə — Azərbaycanın ən geniş onlayn hesablayıcı platforması
+        </Text>
+        <View style={styles.badges}>
+          {[
+            { icon: "calculate", text: `${calculators.length}+ hesablayıcı` },
+            { icon: "flag", text: "Azərbaycan qaydaları" },
+            { icon: "bolt", text: "Ani nəticə" },
+          ].map((b) => (
+            <View
+              key={b.text}
+              style={[styles.badge, { backgroundColor: colors.n200, borderColor: colors.n280 }]}
+            >
+              <MaterialIcons
+                name={b.icon as keyof typeof MaterialIcons.glyphMap}
+                size={14}
+                color={colors.accent}
+              />
+              <Text style={[styles.badgeText, { color: colors.n760 }]}>{b.text}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+
       {/* Featured Salary Card */}
       <Pressable
         onPress={() => router.push("/calculator/emek-haqqi")}
@@ -79,7 +105,7 @@ export default function HomeScreen() {
       {/* Popular Grid */}
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: colors.n760 }]}>
-          Populyar hesablayıcılar
+          Ən çox istifadə olunanlar
         </Text>
         <View style={styles.grid}>
           {popularCalculators.map((calc) => (
@@ -135,6 +161,19 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  hero: { paddingHorizontal: 16, marginBottom: 14 },
+  heroSubtitle: { fontSize: 14, lineHeight: 20, marginBottom: 10 },
+  badges: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  badge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+  },
+  badgeText: { fontSize: 12, fontWeight: "600" },
   container: { flex: 1 },
   header: {
     flexDirection: "row",

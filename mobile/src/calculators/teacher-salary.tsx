@@ -7,7 +7,6 @@ import { SegmentControl } from "@/components/SegmentControl";
 import { Select } from "@/components/Select";
 import { Checkbox, ChipGroup } from "@/components/Controls";
 import {
-  Paragraph,
   ResultHero,
   StatGrid,
   Collapsible,
@@ -635,7 +634,7 @@ export function TeacherSalaryCalculator() {
 
   return (
     <View>
-      <Paragraph>{pt.description}</Paragraph>
+      {/* Səhifə təsviri ekran sarğısında (pageHeaders) göstərilir */}
 
       {/* 1. Diaqnostik */}
       <SegmentControl

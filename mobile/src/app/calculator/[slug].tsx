@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/constants/theme";
 import { useFavorites } from "@/constants/favorites";
 import { calculators } from "@/data/calculators";
+import { pageHeaders } from "@/data/page-headers";
 import { SalaryCalculator } from "@/calculators/salary";
 import { VatCalculator } from "@/calculators/vat";
 import { LoanCalculator } from "@/calculators/loan";
@@ -193,6 +194,7 @@ export default function CalculatorScreen() {
   const insets = useSafeAreaInsets();
 
   const calculator = calculators.find((c) => c.slug === slug);
+  const header = slug ? pageHeaders[slug] : undefined;
   const CalculatorComponent = slug ? calculatorComponents[slug] : undefined;
   const favorited = calculator ? isFavorite(calculator.id) : false;
 
@@ -236,8 +238,11 @@ export default function CalculatorScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
+        <Text style={[styles.pageTitle, { color: colors.n960 }]}>
+          {header?.title ?? calculator.name}
+        </Text>
         <Text style={[styles.description, { color: colors.n580 }]}>
-          {calculator.description}
+          {header?.description ?? calculator.description}
         </Text>
         {CalculatorComponent ? (
           <View
@@ -282,6 +287,13 @@ const styles = StyleSheet.create({
   },
   navTitle: { fontSize: 17, fontWeight: "700", flex: 1, textAlign: "center", marginHorizontal: 12 },
   content: { paddingBottom: 40 },
+  pageTitle: {
+    fontSize: 22,
+    fontWeight: "800",
+    lineHeight: 28,
+    marginHorizontal: 20,
+    marginBottom: 6,
+  },
   description: {
     fontSize: 14,
     lineHeight: 20,

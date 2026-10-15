@@ -10,6 +10,7 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/constants/theme";
+import { FeedbackForm } from "@/components/FeedbackForm";
 
 export default function SettingsScreen() {
   const { theme, colors, toggleTheme } = useTheme();
@@ -54,10 +55,42 @@ export default function SettingsScreen() {
         </View>
       </View>
 
-      {/* About */}
+      {/* Haqqımızda — saytın footer mətni */}
       <View style={styles.section}>
         <Text style={[styles.sectionLabel, { color: colors.n580 }]}>
-          HAQQINDA
+          HAQQIMIZDA
+        </Text>
+        <View style={[styles.card, styles.textCard, { backgroundColor: colors.n195 }]}>
+          <Text style={[styles.brand, { color: colors.n960 }]}>
+            <Text style={{ color: colors.accent }}>Bir</Text>Hesab
+            <Text style={{ color: colors.accent, fontSize: 13 }}>.az</Text>
+          </Text>
+          <Text style={[styles.bodyText, { color: colors.n760 }]}>
+            Bütün hesablamalar bir yerdə. Azərbaycanın ən geniş onlayn hesablayıcı platforması.
+          </Text>
+          <Text style={[styles.subTitle, { color: colors.n940 }]}>Məxfilik</Text>
+          <Text style={[styles.bodyText, { color: colors.n760 }]}>
+            Məxfiliyiniz bizim üçün prioritetdir. BirHesab.az platformasında apardığınız heç bir
+            hesablama və daxil etdiyiniz fərdi məlumatlar serverlərimizdə saxlanılmır. Bütün
+            hesablamalar birbaşa sizin cihazınızda icra edilir.
+          </Text>
+        </View>
+      </View>
+
+      {/* Təklif və iradlar */}
+      <View style={styles.section}>
+        <Text style={[styles.sectionLabel, { color: colors.n580 }]}>
+          TƏKLİF VƏ İRADLAR
+        </Text>
+        <View style={[styles.card, styles.textCard, { backgroundColor: colors.n195 }]}>
+          <FeedbackForm />
+        </View>
+      </View>
+
+      {/* Əlaqə */}
+      <View style={styles.section}>
+        <Text style={[styles.sectionLabel, { color: colors.n580 }]}>
+          ƏLAQƏ
         </Text>
         <View style={[styles.card, { backgroundColor: colors.n195 }]}>
           <Pressable
@@ -83,9 +116,7 @@ export default function SettingsScreen() {
 
           <Pressable
             style={styles.row}
-            onPress={() =>
-              Linking.openURL("mailto:support@birhesab.az?subject=Rəy")
-            }
+            onPress={() => Linking.openURL("mailto:info@birhesab.az")}
           >
             <View
               style={[styles.iconWrap, { backgroundColor: colors.n240 }]}
@@ -96,9 +127,14 @@ export default function SettingsScreen() {
                 color={colors.accent}
               />
             </View>
-            <Text style={[styles.rowLabel, { color: colors.n840 }]}>
-              Rəy göndər
-            </Text>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.rowLabel, { color: colors.n840 }]}>
+                info@birhesab.az
+              </Text>
+              <Text style={[styles.rowHint, { color: colors.n500c }]}>
+                Təklif və iradlarınız üçün bizimlə əlaqə saxlayın.
+              </Text>
+            </View>
             <MaterialIcons
               name="chevron-right"
               size={20}
@@ -127,7 +163,7 @@ export default function SettingsScreen() {
       {/* Footer */}
       <View style={styles.footer}>
         <Text style={[styles.footerText, { color: colors.n400 }]}>
-          BirHesab.az © 2026
+          © {new Date().getFullYear()} BirHesab.az — Bütün hüquqlar qorunur.
         </Text>
         <Text style={[styles.footerText, { color: colors.n340 }]}>
           Bütün hesablamalar bir yerdə
@@ -165,6 +201,11 @@ const styles = StyleSheet.create({
   },
   rowLabel: { flex: 1, fontSize: 15, fontWeight: "600" },
   rowValue: { fontSize: 14 },
+  rowHint: { fontSize: 12, marginTop: 2 },
+  textCard: { padding: 16 },
+  brand: { fontSize: 22, fontWeight: "800", marginBottom: 6 },
+  subTitle: { fontSize: 15, fontWeight: "700", marginTop: 14, marginBottom: 4 },
+  bodyText: { fontSize: 14, lineHeight: 21 },
   divider: { height: 0.5, marginLeft: 62 },
   footer: { alignItems: "center", marginTop: 48 },
   footerText: { fontSize: 13, marginTop: 4 },

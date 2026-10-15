@@ -12,6 +12,7 @@ import { Select } from "@/components/Select";
 import { ChipGroup, Button } from "@/components/Controls";
 import { Paragraph, FormulaSection, RelatedCalculators } from "@/components/Content";
 import { calculators } from "@/data/calculators";
+import { pageHeaders } from "@/data/page-headers";
 import { getCityForEntry } from "@/data/university-cities";
 
 // ── Köməkçilər ─────────────────────────────────────────────────────────────────
@@ -39,10 +40,14 @@ export function resolveRelatedIds(ids: string[]): string[] {
   return out;
 }
 
-/** Səhifənin öz təsviri (registr təsvirindən fərqlidirsə göstərilir). */
+/**
+ * Səhifənin öz təsviri. Ekran sarğısı ([slug].tsx) artıq səhifə başlığı altında
+ * pageHeaders təsvirini (yoxdursa registr təsvirini) göstərir — eynidirsə təkrarlanmır.
+ */
 export function PageIntro({ slug, text }: { slug?: string; text: string }) {
   const reg = calculators.find((c) => c.slug === slug);
-  if (reg && reg.description.trim() === text.trim()) return null;
+  const shown = (slug && pageHeaders[slug]?.description) || reg?.description;
+  if (shown && shown.trim() === text.trim()) return null;
   return <Paragraph>{text}</Paragraph>;
 }
 
