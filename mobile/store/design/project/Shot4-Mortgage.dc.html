@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<title>Ekran 4 — İpoteka</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&amp;family=Roboto:wght@400;500;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1080px; height: 1920px; box-sizing: border-box; background: #064e3b; position: relative; overflow: hidden; font-family: Montserrat, sans-serif; color: #ffffff">
+  <div style="padding: 110px 90px 0; display: flex; flex-direction: column; gap: 22px">
+    <h2 style="margin: 0; font-size: 72px; line-height: 1.08; font-weight: 800; letter-spacing: -1.5px">İpoteka və kredit planlayın</h2>
+    <p style="margin: 0; font-size: 36px; line-height: 1.35; font-weight: 600; color: #d1fae5">Aylıq ödəniş, faiz və tam ödəniş cədvəli</p>
+  </div>
+  <div style="position: absolute; left: 110px; top: 470px; width: 860px; height: 1560px; border-radius: 64px; background: #222328; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.35)">
+    <div style="width: 390px; transform: scale(2.2051); transform-origin: 0 0; font-family: Roboto, sans-serif; padding-top: 18px">
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 16px 12px">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a7a8b0" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg>
+        <div style="font-size: 17px; font-weight: 700; color: #f1f1f3">İpoteka hesablayıcısı</div>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#868790" stroke-width="2" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"></path></svg>
+      </div>
+      <div style="padding: 0 20px 14px">
+        <div style="font-size: 22px; font-weight: 800; color: #f1f1f3; margin-bottom: 6px">İpoteka hesablayıcısı</div>
+        <div style="font-size: 14px; line-height: 20px; color: #868790">Əmlakın qiyməti, ilkin ödəniş, faiz və müddəti daxil edin — aylıq ipoteka ödənişini hesablayın.</div>
+      </div>
+      <div style="margin: 0 16px; border-radius: 16px; background: #2b2c32; padding: 16px">
+        <div style="font-size: 13px; font-weight: 600; color: #a7a8b0; margin-bottom: 6px">İpoteka növü</div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px">
+          <div style="border-radius: 10px; border: 2px solid #3dbd7c; background: rgba(61,189,124,0.12); padding: 10px"><div style="font-size: 13px; font-weight: 700; color: #ededef">Daxili ipoteka</div><div style="font-size: 11px; color: #868790; margin-top: 2px">Bankın öz faiz dərəcəsi ilə</div></div>
+          <div style="border-radius: 10px; border: 1px solid #3c3d44; background: #2d2e34; padding: 10px"><div style="font-size: 13px; font-weight: 700; color: #ededef">Dövlət ipotekası</div><div style="font-size: 11px; color: #868790; margin-top: 2px">Güzəştli dövlət proqramı</div></div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+          <div><div style="font-size: 12px; font-weight: 600; color: #a7a8b0; margin-bottom: 5px">Əmlakın qiyməti (AZN)</div><div style="background: #343540; border: 1px solid #3c3d44; border-radius: 10px; padding: 10px 12px; font-size: 15px; color: #ededef">120000</div></div>
+          <div><div style="font-size: 12px; font-weight: 600; color: #a7a8b0; margin-bottom: 5px">İlkin ödəniş</div><div style="background: #343540; border: 1px solid #3c3d44; border-radius: 10px; padding: 10px 12px; font-size: 15px; color: #ededef">24000 <span style="color: #868790">· 20%</span></div></div>
+          <div><div style="font-size: 12px; font-weight: 600; color: #a7a8b0; margin-bottom: 5px">İllik faiz dərəcəsi (%)</div><div style="background: #343540; border: 1px solid #3c3d44; border-radius: 10px; padding: 10px 12px; font-size: 15px; color: #ededef">8</div></div>
+          <div><div style="font-size: 12px; font-weight: 600; color: #a7a8b0; margin-bottom: 5px">Müddət (il)</div><div style="background: #343540; border: 1px solid #3c3d44; border-radius: 10px; padding: 10px 12px; font-size: 15px; color: #ededef">25</div></div>
+        </div>
+        <div style="margin-top: 16px; border-radius: 16px; background: #3dbd7c; padding: 16px; text-align: center">
+          <div style="font-size: 13px; font-weight: 600; color: #0f2318; opacity: 0.85">Aylıq ödəniş</div>
+          <div style="font-size: 32px; font-weight: 800; color: #0f2318; margin-top: 2px">740.94</div>
+          <div style="font-size: 12px; font-weight: 600; color: #0f2318; opacity: 0.85">AZN / ay</div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px">
+          <div style="border-radius: 12px; border: 1px solid #3c3d44; background: #2d2e34; padding: 10px"><div style="font-size: 11px; color: #868790">Kredit məbləği</div><div style="font-size: 16px; font-weight: 700; color: #ededef; margin-top: 3px">96 000.00 ₼</div></div>
+          <div style="border-radius: 12px; border: 1px solid #3c3d44; background: #2d2e34; padding: 10px"><div style="font-size: 11px; color: #868790">Artıq ödəniş (faiz)</div><div style="font-size: 16px; font-weight: 700; color: #ededef; margin-top: 3px">126 283.07 ₼</div></div>
+        </div>
+        <div style="font-size: 12px; font-weight: 700; color: #b7b8bd; text-transform: uppercase; letter-spacing: 0.5px; margin: 16px 0 8px">Aylıq annuitet cədvəli</div>
+        <div style="border-radius: 10px; border: 1px solid #3c3d44; overflow: hidden; background: #2d2e34">
+          <div style="display: grid; grid-template-columns: 30px repeat(4, minmax(0, 1fr)); background: #343540; padding: 8px 8px; font-size: 11px; font-weight: 700; color: #cbccd0"><span>Ay</span><span style="text-align: right">Ödəniş</span><span style="text-align: right">Əsas borc</span><span style="text-align: right">Faiz</span><span style="text-align: right">Qalıq borc</span></div>
+          <div style="display: grid; grid-template-columns: 30px repeat(4, minmax(0, 1fr)); padding: 8px; font-size: 11px; color: #b7b8bd; border-top: 1px solid #343540"><span>1</span><span style="text-align: right">740.94</span><span style="text-align: right">100.94</span><span style="text-align: right">640.00</span><span style="text-align: right">95 899.06</span></div>
+          <div style="display: grid; grid-template-columns: 30px repeat(4, minmax(0, 1fr)); padding: 8px; font-size: 11px; color: #b7b8bd; border-top: 1px solid #343540"><span>2</span><span style="text-align: right">740.94</span><span style="text-align: right">101.62</span><span style="text-align: right">639.33</span><span style="text-align: right">95 797.44</span></div>
+          <div style="display: grid; grid-template-columns: 30px repeat(4, minmax(0, 1fr)); padding: 8px; font-size: 11px; color: #b7b8bd; border-top: 1px solid #343540"><span>3</span><span style="text-align: right">740.94</span><span style="text-align: right">102.29</span><span style="text-align: right">638.65</span><span style="text-align: right">95 695.15</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1080,"height":1920}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

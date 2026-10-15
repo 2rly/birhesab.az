@@ -11,6 +11,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/constants/theme";
 import { FeedbackForm } from "@/components/FeedbackForm";
+import Constants from "expo-constants";
 
 export default function SettingsScreen() {
   const { theme, colors, toggleTheme } = useTheme();
@@ -95,6 +96,27 @@ export default function SettingsScreen() {
         <View style={[styles.card, { backgroundColor: colors.n195 }]}>
           <Pressable
             style={styles.row}
+            onPress={() => Linking.openURL("https://birhesab.az/az/mexfilik")}
+          >
+            <View
+              style={[styles.iconWrap, { backgroundColor: colors.n240 }]}
+            >
+              <MaterialIcons name="privacy-tip" size={20} color={colors.accent} />
+            </View>
+            <Text style={[styles.rowLabel, { color: colors.n840 }]}>
+              Məxfilik siyasəti
+            </Text>
+            <MaterialIcons
+              name="chevron-right"
+              size={20}
+              color={colors.n400c}
+            />
+          </Pressable>
+
+          <View style={[styles.divider, { backgroundColor: colors.n240 }]} />
+
+          <Pressable
+            style={styles.row}
             onPress={() => Linking.openURL("https://birhesab.az")}
           >
             <View
@@ -154,7 +176,7 @@ export default function SettingsScreen() {
               Versiya
             </Text>
             <Text style={[styles.rowValue, { color: colors.n500c }]}>
-              1.0.0
+              {Constants.expoConfig?.version ?? "1.0.0"}
             </Text>
           </View>
         </View>

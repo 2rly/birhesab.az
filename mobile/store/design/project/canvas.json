@@ -1,0 +1,30 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-10-15T14:40:00Z" },
+  "title": "BirHesab — Google Play qrafikaları",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 1024, "h": 500, "title": "Feature graphic — 1024×500" },
+    "Icon.dc.html": { "x": 1104, "y": 0, "w": 512, "h": 512, "title": "Play ikonu — 512×512" },
+    "Shot1-Home.dc.html": { "x": 0, "y": 932, "w": 1080, "h": 1920, "title": "Ekran 1 — Əsas ekran" },
+    "Shot2-Salary.dc.html": { "x": 1160, "y": 932, "w": 1080, "h": 1920, "title": "Ekran 2 — Əmək haqqı" },
+    "Shot3-Admission.dc.html": { "x": 2320, "y": 932, "w": 1080, "h": 1920, "title": "Ekran 3 — Qəbul balları" },
+    "Shot4-Mortgage.dc.html": { "x": 3480, "y": 932, "w": 1080, "h": 1920, "title": "Ekran 4 — İpoteka" },
+    "Shot5-Currency.dc.html": { "x": 4640, "y": 932, "w": 1080, "h": 1920, "title": "Ekran 5 — Valyuta" }
+  },
+  "order": [
+    "Main.dc.html",
+    "Icon.dc.html",
+    "Shot1-Home.dc.html",
+    "Shot2-Salary.dc.html",
+    "Shot3-Admission.dc.html",
+    "Shot4-Mortgage.dc.html",
+    "Shot5-Currency.dc.html"
+  ],
+  "notes": {
+    "brand": { "x": 0, "y": -300, "text": "Feature graphic və ikon", "kind": "title1", "maxW": 1616 },
+    "shots": { "x": 0, "y": 632, "text": "Telefon ekran görüntüləri — 1080×1920", "kind": "title1", "maxW": 5720 }
+  },
+  "designSystems": []
+}
