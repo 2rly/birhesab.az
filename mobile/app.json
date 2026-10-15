@@ -20,7 +20,9 @@
         "backgroundColor": "#10b981"
       },
       "package": "az.birhesab.app",
-      "permissions": ["android.permission.INTERNET"],
+      "permissions": [
+        "android.permission.INTERNET"
+      ],
       "blockedPermissions": [
         "android.permission.RECORD_AUDIO",
         "android.permission.SYSTEM_ALERT_WINDOW",
@@ -44,6 +46,13 @@
         }
       ],
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "2cd1cf31-f116-4576-8d83-960ec65f698c"
+      }
+    },
+    "owner": "turkan2"
   }
 }
