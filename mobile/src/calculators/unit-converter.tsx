@@ -1,147 +1,258 @@
 import { useState, useMemo } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useTheme } from "@/constants/theme";
 import { InputField } from "@/components/InputField";
-import { ResultRow, ResultSection } from "@/components/ResultRow";
+import { Select } from "@/components/Select";
+import { DataTable, FormulaSection, RelatedCalculators } from "@/components/Content";
 
-type Category = "length" | "weight" | "volume" | "temperature" | "area";
+/* ───────── çevirmə əmsalları (hamısı baza vahidə nisbətən) ───────── */
 
-interface UnitDef {
-  code: string;
-  name: string;
-  toBase: (v: number) => number;
-  fromBase: (v: number) => number;
-}
+type UnitDef = { key: string; label: string; toBase: number };
+type CategoryDef = { key: string; label: string; icon: string; units: UnitDef[] };
 
-const CATEGORIES: { id: Category; label: string }[] = [
-  { id: "length", label: "Uzunluq" },
-  { id: "weight", label: "Çəki" },
-  { id: "volume", label: "Həcm" },
-  { id: "temperature", label: "Temperatur" },
-  { id: "area", label: "Sahə" },
+const CATEGORIES: CategoryDef[] = [
+  {
+    key: "length",
+    label: "Uzunluq",
+    icon: "📏",
+    units: [
+      { key: "km", label: "Kilometr", toBase: 1000 },
+      { key: "mil", label: "Mil", toBase: 1609.344 },
+      { key: "m", label: "Metr", toBase: 1 },
+      { key: "ft", label: "Fut", toBase: 0.3048 },
+      { key: "cm", label: "Santimetr", toBase: 0.01 },
+      { key: "inch", label: "Düym", toBase: 0.0254 },
+    ],
+  },
+  {
+    key: "weight",
+    label: "Çəki",
+    icon: "⚖️",
+    units: [
+      { key: "kq", label: "Kiloqram", toBase: 1000 },
+      { key: "lb", label: "Funt", toBase: 453.592 },
+      { key: "q", label: "Qram", toBase: 1 },
+      { key: "oz", label: "Unsiya", toBase: 28.3495 },
+    ],
+  },
+  {
+    key: "data",
+    label: "Data",
+    icon: "💾",
+    units: [
+      { key: "MB", label: "Meqabayt", toBase: 1 },
+      { key: "GB", label: "Giqabayt", toBase: 1024 },
+      { key: "TB", label: "Terabayt", toBase: 1048576 },
+    ],
+  },
 ];
 
-const linear = (factor: number): Pick<UnitDef, "toBase" | "fromBase"> => ({
-  toBase: (v) => v * factor,
-  fromBase: (v) => v / factor,
-});
+const COMMON_CONVERSIONS = [
+  { catIdx: 0, fromKey: "km", toKey: "mil", value: 1 },
+  { catIdx: 0, fromKey: "m", toKey: "ft", value: 1 },
+  { catIdx: 0, fromKey: "cm", toKey: "inch", value: 1 },
+  { catIdx: 0, fromKey: "mil", toKey: "km", value: 1 },
+  { catIdx: 1, fromKey: "kq", toKey: "lb", value: 1 },
+  { catIdx: 1, fromKey: "q", toKey: "oz", value: 1 },
+  { catIdx: 2, fromKey: "GB", toKey: "MB", value: 1 },
+  { catIdx: 2, fromKey: "TB", toKey: "GB", value: 1 },
+];
 
-const UNITS: Record<Category, UnitDef[]> = {
-  length: [
-    { code: "mm", name: "Millimetr", ...linear(0.001) },
-    { code: "sm", name: "Santimetr", ...linear(0.01) },
-    { code: "m", name: "Metr", ...linear(1) },
-    { code: "km", name: "Kilometr", ...linear(1000) },
-    { code: "düym", name: "Düym", ...linear(0.0254) },
-    { code: "fut", name: "Fut", ...linear(0.3048) },
-    { code: "yard", name: "Yard", ...linear(0.9144) },
-    { code: "mil", name: "Mil", ...linear(1609.344) },
-  ],
-  weight: [
-    { code: "mq", name: "Milliqram", ...linear(0.000001) },
-    { code: "q", name: "Qram", ...linear(0.001) },
-    { code: "kq", name: "Kiloqram", ...linear(1) },
-    { code: "ton", name: "Ton", ...linear(1000) },
-    { code: "uns", name: "Uns", ...linear(0.0283495) },
-    { code: "funt", name: "Funt", ...linear(0.453592) },
-  ],
-  volume: [
-    { code: "ml", name: "Millilitr", ...linear(0.001) },
-    { code: "l", name: "Litr", ...linear(1) },
-    { code: "qal", name: "Qallon", ...linear(3.78541) },
-  ],
-  temperature: [
-    { code: "°C", name: "Selsi", toBase: (v) => v, fromBase: (v) => v },
-    { code: "°F", name: "Farenheyt", toBase: (v) => (v - 32) * (5 / 9), fromBase: (v) => v * (9 / 5) + 32 },
-    { code: "K", name: "Kelvin", toBase: (v) => v - 273.15, fromBase: (v) => v + 273.15 },
-  ],
-  area: [
-    { code: "m²", name: "Kvadrat metr", ...linear(1) },
-    { code: "km²", name: "Kvadrat km", ...linear(1000000) },
-    { code: "ha", name: "Hektar", ...linear(10000) },
-    { code: "sot", name: "Sotka", ...linear(100) },
-  ],
-};
+const FORMULA_TITLE = "Çevirmə haqqında";
+const FORMULA_CONTENT = `Vahid çevirici standart çevirmə əmsallarından istifadə edir.
+
+Uzunluq: 1 mil = 1.609 km, 1 fut = 0.3048 m, 1 düym = 2.54 sm
+Çəki: 1 funt = 0.4536 kq, 1 unsiya = 28.35 q
+Data: 1 GB = 1024 MB, 1 TB = 1024 GB`;
+
+/** toLocaleString("en", { maximumFractionDigits: 2 }) ekvivalenti */
+function fmtEn(n: number): string {
+  const rounded = Math.round(n * 100) / 100;
+  const [int, frac] = Math.abs(rounded).toFixed(2).split(".");
+  const fracTrim = frac.replace(/0+$/, "");
+  return (rounded < 0 ? "-" : "") + int.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (fracTrim ? "." + fracTrim : "");
+}
+
+function formatResult(n: number): string {
+  if (n === 0) return "0";
+  if (Math.abs(n) < 0.001 && n !== 0) return n.toExponential(4);
+  if (Math.abs(n) < 1) return n.toFixed(4);
+  if (Math.abs(n) >= 1e6) return fmtEn(n);
+  return n.toFixed(4).replace(/\.?0+$/, "");
+}
+
+function convert(value: number, from: UnitDef, to: UnitDef) {
+  return (value * from.toBase) / to.toBase;
+}
 
 export function UnitConverterCalculator() {
   const { colors } = useTheme();
-  const [category, setCategory] = useState<Category>("length");
-  const [fromIdx, setFromIdx] = useState(0);
-  const [toIdx, setToIdx] = useState(1);
-  const [amount, setAmount] = useState("1");
+  const [catIdx, setCatIdx] = useState(0);
+  const [fromUnit, setFromUnit] = useState(CATEGORIES[0].units[0].key);
+  const [toUnit, setToUnit] = useState(CATEGORIES[0].units[2].key);
+  const [leftValue, setLeftValue] = useState("1");
+  const [rightValue, setRightValue] = useState("");
+  const [activeField, setActiveField] = useState<"left" | "right">("left");
 
-  const units = UNITS[category];
+  const cat = CATEGORIES[catIdx];
+  const fromDef = cat.units.find((u) => u.key === fromUnit)!;
+  const toDef = cat.units.find((u) => u.key === toUnit)!;
 
-  const result = useMemo(() => {
-    const val = parseFloat(amount);
-    if (isNaN(val)) return null;
-    const from = units[fromIdx] || units[0];
-    const to = units[toIdx] || units[1];
-    const baseValue = from.toBase(val);
-    const converted = to.fromBase(baseValue);
-    return { converted, fromCode: from.code, toCode: to.code };
-  }, [amount, fromIdx, toIdx, units]);
+  const num = (s: string) => parseFloat(s.replace(",", "."));
+
+  const computedRight = useMemo(() => {
+    if (activeField !== "left") return rightValue;
+    const n = num(leftValue);
+    if (isNaN(n)) return "";
+    return formatResult(convert(n, fromDef, toDef));
+  }, [leftValue, rightValue, fromDef, toDef, activeField]);
+
+  const computedLeft = useMemo(() => {
+    if (activeField !== "right") return leftValue;
+    const n = num(rightValue);
+    if (isNaN(n)) return "";
+    return formatResult(convert(n, toDef, fromDef));
+  }, [leftValue, rightValue, fromDef, toDef, activeField]);
+
+  const displayLeft = activeField === "left" ? leftValue : computedLeft;
+  const displayRight = activeField === "right" ? rightValue : computedRight;
+
+  const handleCategoryChange = (idx: number) => {
+    setCatIdx(idx);
+    setFromUnit(CATEGORIES[idx].units[0].key);
+    setToUnit(CATEGORIES[idx].units.length > 2 ? CATEGORIES[idx].units[2].key : CATEGORIES[idx].units[1].key);
+    setLeftValue("1");
+    setRightValue("");
+    setActiveField("left");
+  };
+
+  const handleSwap = () => {
+    const tmp = fromUnit;
+    setFromUnit(toUnit);
+    setToUnit(tmp);
+  };
+
+  const unitOptions = cat.units.map((u) => ({ value: u.key, label: u.key, description: u.label }));
+
+  const refRows = COMMON_CONVERSIONS.filter((r) => r.catIdx === catIdx).map((r) => {
+    const fDef = cat.units.find((u) => u.key === r.fromKey)!;
+    const tDef = cat.units.find((u) => u.key === r.toKey)!;
+    return [`${r.value} ${fDef.label}`, tDef.label, `${formatResult(convert(r.value, fDef, tDef))} ${r.toKey}`];
+  });
 
   return (
     <View>
-      <View style={styles.chipRow}>
-        {CATEGORIES.map((c) => (
-          <Pressable
-            key={c.id}
-            style={[styles.chip, { backgroundColor: colors.n240 }, category === c.id && { backgroundColor: colors.accent }]}
-            onPress={() => { setCategory(c.id); setFromIdx(0); setToIdx(1); }}
-          >
-            <Text style={[styles.chipText, { color: colors.n580 }, category === c.id && { color: colors.onAccent }]}>{c.label}</Text>
-          </Pressable>
-        ))}
+      {/* Kateqoriyalar */}
+      <View style={styles.tabs}>
+        {CATEGORIES.map((c, i) => {
+          const active = catIdx === i;
+          return (
+            <Pressable
+              key={c.key}
+              onPress={() => handleCategoryChange(i)}
+              style={[styles.tab, { backgroundColor: active ? colors.accent : colors.n240 }]}
+            >
+              <Text style={[styles.tabText, { color: active ? colors.onAccent : colors.n760 }]}>
+                {c.icon} {c.label}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
 
-      <Text style={[styles.label, { color: colors.n700 }]}>Haradan</Text>
-      <View style={styles.chipRow}>
-        {units.map((u, i) => (
-          <Pressable
-            key={u.code}
-            style={[styles.unitChip, { backgroundColor: colors.n240 }, fromIdx === i && { backgroundColor: colors.accent }]}
-            onPress={() => setFromIdx(i)}
-          >
-            <Text style={[styles.chipText, { color: colors.n580 }, fromIdx === i && { color: colors.onAccent }]}>{u.code}</Text>
-          </Pressable>
-        ))}
-      </View>
-
-      <Text style={[styles.label, { color: colors.n700 }]}>Haraya</Text>
-      <View style={styles.chipRow}>
-        {units.map((u, i) => (
-          <Pressable
-            key={u.code}
-            style={[styles.unitChip, { backgroundColor: colors.n240 }, toIdx === i && { backgroundColor: colors.accent }]}
-            onPress={() => setToIdx(i)}
-          >
-            <Text style={[styles.chipText, { color: colors.n580 }, toIdx === i && { color: colors.onAccent }]}>{u.code}</Text>
-          </Pressable>
-        ))}
-      </View>
-
-      <InputField label="Məbləğ" value={amount} onChangeText={setAmount} placeholder="1" keyboardType="decimal-pad" suffix={units[fromIdx]?.code} />
-
-      {result && (
-        <ResultSection title="Nəticə">
-          <ResultRow
-            label={`${amount} ${result.fromCode}`}
-            value={`${result.converted.toPrecision(6)} ${result.toCode}`}
-            highlight
-            bold
+      {/* Buradan */}
+      <View style={styles.convRow}>
+        <View style={{ flex: 1 }}>
+          <InputField
+            label="Buradan"
+            value={displayLeft}
+            onChangeText={(v) => {
+              setActiveField("left");
+              setLeftValue(v);
+            }}
+            placeholder="0"
+            keyboardType="decimal-pad"
           />
-        </ResultSection>
+        </View>
+        <View style={styles.unitCol}>
+          <Select
+            label=" "
+            value={fromUnit}
+            options={unitOptions}
+            onSelect={(v) => {
+              setFromUnit(v);
+              setActiveField("left");
+            }}
+            searchable={false}
+          />
+        </View>
+      </View>
+
+      <View style={styles.swapWrap}>
+        <Pressable
+          onPress={handleSwap}
+          accessibilityLabel="Dəyişdir"
+          style={[styles.swapBtn, { backgroundColor: colors.n240, borderColor: colors.n280 }]}
+        >
+          <MaterialIcons name="swap-vert" size={22} color={colors.accent} />
+        </Pressable>
+      </View>
+
+      {/* Bura */}
+      <View style={styles.convRow}>
+        <View style={{ flex: 1 }}>
+          <InputField
+            label="Bura"
+            value={displayRight}
+            onChangeText={(v) => {
+              setActiveField("right");
+              setRightValue(v);
+            }}
+            placeholder="0"
+            keyboardType="decimal-pad"
+          />
+        </View>
+        <View style={styles.unitCol}>
+          <Select
+            label=" "
+            value={toUnit}
+            options={unitOptions}
+            onSelect={(v) => {
+              setToUnit(v);
+              setActiveField("right");
+            }}
+            searchable={false}
+          />
+        </View>
+      </View>
+
+      {!!displayLeft && !!displayRight && (
+        <Text style={[styles.rate, { color: colors.n580 }]}>
+          1 {fromUnit} = {formatResult(convert(1, fromDef, toDef))} {toUnit}
+        </Text>
       )}
+
+      <DataTable
+        title="Tez-tez istifadə olunan çevirmələr"
+        headers={["Dən", "Ə", "Nəticə"]}
+        rows={refRows}
+        columnWidths={[130, 110, 130]}
+      />
+
+      <FormulaSection title={FORMULA_TITLE} content={FORMULA_CONTENT} />
+      <RelatedCalculators ids={["currency", "percentage", "faiz"]} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  label: { fontSize: 13, fontWeight: "600", marginBottom: 8 },
-  chipRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 16 },
-  chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8 },
-  unitChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 },
-  chipText: { fontSize: 13, fontWeight: "600" },
+  tabs: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 18 },
+  tab: { paddingHorizontal: 14, paddingVertical: 9, borderRadius: 10 },
+  tabText: { fontSize: 14, fontWeight: "600" },
+  convRow: { flexDirection: "row", gap: 10 },
+  unitCol: { width: 110 },
+  swapWrap: { alignItems: "center", marginTop: -6, marginBottom: 6 },
+  swapBtn: { width: 42, height: 42, borderRadius: 21, borderWidth: 1, alignItems: "center", justifyContent: "center" },
+  rate: { fontSize: 14, textAlign: "center", marginTop: 4 },
 });

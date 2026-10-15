@@ -1,8 +1,10 @@
-import { useState, useMemo, useCallback } from "react";
-import { View, Text, ScrollView, Pressable, Switch, StyleSheet } from "react-native";
+import { useState, useMemo, type ReactNode } from "react";
+import { View, Text, Pressable, StyleSheet } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useTheme } from "@/constants/theme";
 import { InputField } from "@/components/InputField";
-import { ResultRow, ResultSection } from "@/components/ResultRow";
+import { Select } from "@/components/Select";
+import { FormulaSection, RelatedCalculators } from "@/components/Content";
 import {
   plantingSubsidies,
   productSubsidies,
@@ -11,364 +13,415 @@ import {
   type SubsidyType,
 } from "@/data/subsidies-2026";
 
-function fmt(n: number): string {
-  return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " ₼";
+// 2026 Aqrar Subsidiya Şurası — tam məlumat
+// Mənbə: agro.gov.az (01.09.2025 elanı)
+
+const LIBERATED_BONUS = 0.5; // birillik bitkilər və yonca üçün +50%
+
+const pt = {
+  formulaTitle: "Subsidiya necə hesablanır?",
+  formulaContent: `Mənbə: Aqrar Subsidiya Şurası, 01.09.2025 (agro.gov.az)
+
+3 növ subsidiya var:
+
+1. ƏKİN SUBSIDIYASI (manat/ha) — sahəyə görə
+Düstur: Subsidiya = Dərəcə (AZN/ha) × Sahə (ha)
+
+2. MƏHSUL SUBSIDIYASI (manat/ton) — istehsal həcminə görə
+Pambıq, tütün, şəkər çuğunduru, soya, qarğıdalı, günəbaxan, buğda, nar, alma üzrə.
+Düstur: Subsidiya = Dərəcə (AZN/ton) × Həcm (ton)
+
+3. DİNCƏ QOYULMUŞ TORPAQ (manat/ha) — yeni proqram
+Şamaxı, Şəki, Qobustan və Yardımlı rayonlarında dəmyə ərazilərdə son 3 ildə ardıcıl olaraq buğda və ya arpa əkilmiş torpaqların 2026-cı ildə dincə qoyulması üçün hektar başına 220 AZN.
+
+Əlavə güzəştlər:
+• "Böyük Qayıdış" bonusu — işğaldan azad edilmiş kənd və qəsəbələrdə məskunlaşan sakinlər üçün birillik bitkilər və yonca üzrə əkin subsidiyası +50% artırılır.
+
+Şərtlər və məhdudiyyətlər:
+• Sertifikatlı toxum tələbi: 10 ha-dan çox buğda və ya 100 ha-dan çox arpa əkən fermerlər sertifikatlı toxum istifadə etməlidir, əks halda əkin əmsalı 0-a bərabər olur.
+• Pambıq üzrə məhsul əmsalı yalnız müəyyən rayonlarda tətbiq edilir (Ağcabədi, Ağdam, Beyləqan, Bərdə, Biləsuvar, Goranboy, İmişli, Kürdəmir, Neftçala, Saatlı, Sabirabad, Salyan, Tərtər, Yevlax, Zərdab və s.).
+• Tütün üzrə məhsul əmsalı yalnız müəyyən rayonlarda (Ağstafa, Balakən, Gədəbəy, Goranboy, İsmayıllı, Lerik, Masallı, Oğuz, Qax, Qazax, Qəbələ, Qubadlı, Şəki, Tovuz, Yardımlı, Zaqatala, Zəngilan).
+• Aqrokimyəvi analiz tələb edilən ərazilərdə analiz olunmadıqda məhsul subsidiyası azaldılır (pambıq −10 AZN/ton, tütün −2 AZN/ton, şəkər çuğunduru −1 AZN/ton, soya −10 AZN/ton).
+• İntensiv alma və şaftalı bağlarının subsidiyası 2026-cı ilin 1 iyunundan dayandırılacaq (yalnız işğaldan azad ərazilər və NMR istisna).
+
+Diqqət: Dəqiq məbləğ Aqrar Subsidiya Şurasının qərarı ilə təsdiqlənir. Bu hesablayıcı rəsmi siyahıya əsasən təxmini məbləği göstərir.`,
+  subsidyType: "Subsidiya növü",
+  typePlanting: "Əkin subsidiyası (manat/ha)",
+  typeProduct: "Məhsul subsidiyası (manat/ton)",
+  typeFallow: "Dincə qoyulmuş torpaq (manat/ha)",
+  cropType: "Bitki / variant",
+  selectCrop: "Bitkini seçin",
+  area: "Sahə (ha)",
+  production: "Məhsul həcmi (ton)",
+  ha: "ha",
+  ton: "ton",
+  rate: "Dərəcə",
+  options: "Əlavə şərtlər",
+  liberated: '"Böyük Qayıdış" bonusu (+50%)',
+  liberatedDesc: "İşğaldan azad ərazilərdə məskunlaşan sakinlər üçün birillik bitkilər və yoncaya tətbiq edilir",
+  liberatedNotEligible:
+    "Bu bitki üçün +50% bonus tətbiq edilmir (rəsmi dərəcədə artıq nəzərə alınıb və ya çoxillik bitkidir)",
+  certifiedSeed: "Sertifikatlı toxum istifadə edilir",
+  certifiedSeedDesc: "10 ha-dan çox buğda və ya 100 ha-dan çox arpa əkəndə tələb olunur",
+  certifiedSeedWarning: "⚠️ Sertifikatlı toxum istifadə edilməsə subsidiya 0 olacaq",
+  quickAreas: "Sürətli seçim",
+  result: "Subsidiya məbləği",
+  baseSubsidy: "Əsas subsidiya",
+  liberatedBonus: '"Böyük Qayıdış" bonusu (+50%)',
+  total: "Yekun subsidiya",
+  details: "Hesablama detalları",
+  formula: "Düstur",
+  emptyState: "Sahə və ya məhsul həcmini daxil edin.",
+  note: "* Qiymətlər 01.09.2025 tarixli rəsmi siyahıya əsasən hesablanır. Yekun məbləğ üçün agro.gov.az saytına müraciət edin.",
+  cropCount: "bitki variantı",
+  sourceLabel: "Mənbə",
+  cropName: "Bitki",
+  quantity: "Miqdar",
+  perUnit: "vahid başına",
+};
+
+const GREEN = "#16a34a";
+const AMBER = "#d97706";
+const RED = "#dc2626";
+
+function formatMoney(n: number): string {
+  return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " AZN";
 }
 
-const TYPE_OPTIONS: { value: SubsidyType; label: string }[] = [
-  { value: "planting", label: "Ǝkin" },
-  { value: "product", label: "Məhsul" },
-  { value: "fallow", label: "Dincə" },
-];
+function getCropList(type: SubsidyType): CropEntry[] {
+  if (type === "planting") return plantingSubsidies;
+  if (type === "product") return productSubsidies;
+  return fallowSubsidies;
+}
 
-const QUICK_AMOUNTS = [1, 5, 10, 25, 50, 100];
-
-// Grain/cereal group names for certified seed check
-const GRAIN_GROUPS = [
-  "Buğda",
-  "Arpa",
-  "Çəltik",
-  "Qarğıdalı",
-  "Darı",
-  "Sorqo",
-  "Yulaf",
-  "Taxıl",
-];
-
-function isGrainCrop(crop: CropEntry): boolean {
-  return GRAIN_GROUPS.some(
-    (g) => crop.group.toLowerCase().includes(g.toLowerCase()) || crop.name.toLowerCase().includes(g.toLowerCase())
+function CheckCard({
+  checked,
+  disabled,
+  onToggle,
+  title,
+  children,
+}: {
+  checked: boolean;
+  disabled?: boolean;
+  onToggle: () => void;
+  title: string;
+  children?: ReactNode;
+}) {
+  const { colors } = useTheme();
+  return (
+    <Pressable
+      onPress={disabled ? undefined : onToggle}
+      style={[
+        styles.checkCard,
+        { backgroundColor: colors.n200, borderColor: colors.n280 },
+        disabled && { opacity: 0.5 },
+      ]}
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked, disabled }}
+    >
+      <MaterialIcons
+        name={checked ? "check-box" : "check-box-outline-blank"}
+        size={22}
+        color={checked ? colors.accent : colors.n580}
+      />
+      <View style={{ flex: 1 }}>
+        <Text style={[styles.checkTitle, { color: colors.n940 }]}>{title}</Text>
+        {children}
+      </View>
+    </Pressable>
   );
 }
 
-function getCropsForType(type: SubsidyType): CropEntry[] {
-  switch (type) {
-    case "planting":
-      return plantingSubsidies;
-    case "product":
-      return productSubsidies;
-    case "fallow":
-      return fallowSubsidies;
-  }
-}
-
-function groupCrops(crops: CropEntry[]): { group: string; items: CropEntry[] }[] {
-  const map = new Map<string, CropEntry[]>();
-  for (const crop of crops) {
-    const arr = map.get(crop.group);
-    if (arr) arr.push(crop);
-    else map.set(crop.group, [crop]);
-  }
-  return Array.from(map.entries()).map(([group, items]) => ({ group, items }));
+function DetailRow({
+  label,
+  value,
+  tint,
+  bold,
+}: {
+  label: string;
+  value: string;
+  tint?: string;
+  bold?: boolean;
+}) {
+  const { colors } = useTheme();
+  return (
+    <View
+      style={[
+        styles.detailRow,
+        { borderBottomColor: colors.n240 },
+        tint ? { backgroundColor: tint + "14" } : null,
+      ]}
+    >
+      <Text style={[styles.detailLabel, { color: tint ?? colors.n580 }, bold && { fontWeight: "700" }]}>
+        {label}
+      </Text>
+      <Text
+        style={[
+          styles.detailValue,
+          { color: tint ?? colors.n940 },
+          bold && { fontWeight: "800" },
+        ]}
+      >
+        {value}
+      </Text>
+    </View>
+  );
 }
 
 export function AgriSubsidyCalculator() {
   const { colors } = useTheme();
-  const [subsidyType, setSubsidyType] = useState<SubsidyType>("planting");
-  const [selectedCropId, setSelectedCropId] = useState<string | null>(null);
-  const [quantity, setQuantity] = useState("10");
-  const [liberatedBonus, setLiberatedBonus] = useState(false);
-  const [certifiedSeed, setCertifiedSeed] = useState(true);
+  const [type, setType] = useState<SubsidyType>("planting");
+  const [cropId, setCropId] = useState<string>(plantingSubsidies[0].id);
+  const [quantity, setQuantity] = useState<string>("");
+  const [liberated, setLiberated] = useState<boolean>(false);
+  const [certifiedSeed, setCertifiedSeed] = useState<boolean>(true);
 
-  const crops = useMemo(() => getCropsForType(subsidyType), [subsidyType]);
-  const grouped = useMemo(() => groupCrops(crops), [crops]);
+  const cropList = useMemo(() => getCropList(type), [type]);
+  const crop = useMemo(() => cropList.find((c) => c.id === cropId) || cropList[0], [cropList, cropId]);
 
-  const selectedCrop = useMemo(
-    () => crops.find((c) => c.id === selectedCropId) ?? null,
-    [crops, selectedCropId]
-  );
+  const handleTypeChange = (newType: SubsidyType) => {
+    setType(newType);
+    const list = getCropList(newType);
+    setCropId(list[0].id);
+    setLiberated(false);
+  };
 
-  // Reset selection when type changes
-  const handleTypeChange = useCallback((type: SubsidyType) => {
-    setSubsidyType(type);
-    setSelectedCropId(null);
-    setLiberatedBonus(false);
-    setCertifiedSeed(true);
-  }, []);
-
-  const showCertifiedSeed = selectedCrop ? isGrainCrop(selectedCrop) : false;
+  const isWheatOrBarley =
+    crop.id.includes("wheat") || crop.id.includes("barley") || crop.id.includes("grain");
+  const showCertifiedSeed = type === "planting" && isWheatOrBarley;
 
   const result = useMemo(() => {
-    if (!selectedCrop) return null;
-    const q = parseFloat(quantity) || 0;
-    if (q <= 0) return null;
+    const q = parseFloat(quantity.replace(",", "."));
+    if (!q || q <= 0) return null;
 
-    // For grain crops: uncertified seed = no subsidy
+    // Sertifikatlı toxum tələbi pozulduqda subsidiya 0 olur
     if (showCertifiedSeed && !certifiedSeed) {
-      return { base: 0, bonus: 0, total: 0 };
+      return { baseSubsidy: 0, liberatedBonus: 0, total: 0, zeroedByRule: true };
     }
 
-    const base = selectedCrop.rate * q;
-    const bonus = liberatedBonus && selectedCrop.liberatedEligible ? base * 0.5 : 0;
-    const total = base + bonus;
-    return { base, bonus, total };
-  }, [selectedCrop, quantity, liberatedBonus, certifiedSeed, showCertifiedSeed]);
+    const baseSubsidy = crop.rate * q;
+    const liberatedBonus = liberated && crop.liberatedEligible ? baseSubsidy * LIBERATED_BONUS : 0;
+    const total = baseSubsidy + liberatedBonus;
+
+    return { baseSubsidy, liberatedBonus, total, zeroedByRule: false };
+  }, [quantity, crop, liberated, certifiedSeed, showCertifiedSeed]);
+
+  const unitLabel = crop.unit === "ha" ? pt.ha : pt.ton;
+  const quickValues = crop.unit === "ha" ? [1, 5, 10, 50, 100] : [1, 10, 50, 100, 500];
+
+  const typeOptions = [
+    { id: "planting" as const, label: pt.typePlanting, icon: "🌾" },
+    { id: "product" as const, label: pt.typeProduct, icon: "📦" },
+    { id: "fallow" as const, label: pt.typeFallow, icon: "🏞️" },
+  ];
 
   return (
-    <View style={styles.container}>
-      {/* Subsidy type selector */}
-      <View style={styles.typeRow}>
-        {TYPE_OPTIONS.map((opt) => {
-          const active = subsidyType === opt.value;
+    <View>
+      {/* Subsidiya növü */}
+      <Text style={[styles.label, { color: colors.n700 }]}>{pt.subsidyType}</Text>
+      <View style={{ gap: 8, marginBottom: 18 }}>
+        {typeOptions.map((opt) => {
+          const active = type === opt.id;
           return (
             <Pressable
-              key={opt.value}
-              onPress={() => handleTypeChange(opt.value)}
+              key={opt.id}
+              onPress={() => handleTypeChange(opt.id)}
               style={[
                 styles.typeBtn,
-                { borderColor: colors.n280, backgroundColor: colors.n240 },
-                active && { backgroundColor: colors.accent, borderColor: colors.accent },
+                active
+                  ? { backgroundColor: GREEN, borderColor: GREEN }
+                  : { backgroundColor: colors.n200, borderColor: colors.n280 },
               ]}
             >
-              <Text
-                style={[
-                  styles.typeBtnText,
-                  { color: colors.n660 },
-                  active && { color: colors.onAccent },
-                ]}
-              >
-                {opt.label}
+              <Text style={{ fontSize: 16 }}>{opt.icon}</Text>
+              <Text style={[styles.typeText, { color: active ? "#ffffff" : colors.n760 }]}>{opt.label}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      {/* Bitki seçimi */}
+      <View style={styles.rowBetween}>
+        <Text style={[styles.label, { color: colors.n700, marginBottom: 0 }]}>{pt.cropType}</Text>
+        <View style={[styles.pill, { backgroundColor: colors.accent + "22" }]}>
+          <Text style={[styles.pillText, { color: colors.accent }]}>
+            {cropList.length} {pt.cropCount}
+          </Text>
+        </View>
+      </View>
+      <View style={{ height: 6 }} />
+      <Select
+        value={crop.id}
+        options={cropList.map((c) => ({ value: c.id, label: c.name, group: c.group }))}
+        onSelect={setCropId}
+        placeholder={pt.selectCrop}
+        searchable
+      />
+      <View style={styles.badges}>
+        <View style={[styles.badge, { backgroundColor: GREEN + "1a", borderColor: GREEN + "55" }]}>
+          <Text style={[styles.badgeText, { color: GREEN }]}>
+            {pt.rate}: {formatMoney(crop.rate)}/{unitLabel}
+          </Text>
+        </View>
+        {crop.liberatedEligible && (
+          <View style={[styles.badge, { backgroundColor: AMBER + "1a", borderColor: AMBER + "55" }]}>
+            <Text style={[styles.badgeText, { color: AMBER }]}>✓ Böyük Qayıdış uyğun</Text>
+          </View>
+        )}
+      </View>
+
+      {/* Miqdar */}
+      <InputField
+        label={crop.unit === "ha" ? pt.area : pt.production}
+        value={quantity}
+        onChangeText={setQuantity}
+        placeholder={crop.unit === "ha" ? "10" : "100"}
+        keyboardType="decimal-pad"
+        suffix={unitLabel}
+      />
+      <View style={styles.quickRow}>
+        <Text style={[styles.quickLabel, { color: colors.n580 }]}>{pt.quickAreas}:</Text>
+        {quickValues.map((qv) => {
+          const active = quantity === String(qv);
+          return (
+            <Pressable
+              key={qv}
+              onPress={() => setQuantity(String(qv))}
+              style={[
+                styles.quickBtn,
+                active
+                  ? { borderColor: colors.accent, backgroundColor: colors.accent + "22" }
+                  : { borderColor: colors.n280, backgroundColor: colors.n200 },
+              ]}
+            >
+              <Text style={[styles.quickText, { color: active ? colors.accent : colors.n580 }]}>
+                {qv} {unitLabel}
               </Text>
             </Pressable>
           );
         })}
       </View>
 
-      {/* Crop picker */}
-      <Text style={[styles.sectionLabel, { color: colors.n700 }]}>Ǝkin növü seçin</Text>
-      <ScrollView
-        style={[styles.cropList, { backgroundColor: colors.n195, borderColor: colors.n280 }]}
-        nestedScrollEnabled
-      >
-        {grouped.map((g) => (
-          <View key={g.group}>
-            <Text style={[styles.groupHeader, { color: colors.n580, backgroundColor: colors.n240 }]}>
-              {g.group}
-            </Text>
-            {g.items.map((crop) => {
-              const active = selectedCropId === crop.id;
-              return (
-                <Pressable
-                  key={crop.id}
-                  onPress={() => {
-                    setSelectedCropId(crop.id);
-                    setLiberatedBonus(false);
-                    setCertifiedSeed(true);
-                  }}
-                  style={[
-                    styles.cropItem,
-                    { borderBottomColor: colors.n250 },
-                    active && { backgroundColor: colors.accent + "15" },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.cropName,
-                      { color: colors.n840 },
-                      active && { color: colors.accent, fontWeight: "700" },
-                    ]}
-                    numberOfLines={2}
-                  >
-                    {crop.name}
-                  </Text>
-                  <View style={[styles.rateBadge, { backgroundColor: colors.n240 }]}>
-                    <Text style={[styles.rateText, { color: colors.accent }]}>
-                      {crop.rate} ₼/{crop.unit}
-                    </Text>
-                  </View>
-                </Pressable>
-              );
-            })}
-          </View>
-        ))}
-      </ScrollView>
+      {/* Əlavə şərtlər */}
+      <Text style={[styles.label, { color: colors.n700 }]}>{pt.options}</Text>
+      <View style={{ gap: 8, marginBottom: 20 }}>
+        <CheckCard
+          checked={liberated && !!crop.liberatedEligible}
+          disabled={!crop.liberatedEligible}
+          onToggle={() => setLiberated(!liberated)}
+          title={pt.liberated}
+        >
+          <Text style={[styles.checkDesc, { color: colors.n580 }]}>
+            {crop.liberatedEligible ? pt.liberatedDesc : pt.liberatedNotEligible}
+          </Text>
+        </CheckCard>
 
-      {selectedCrop && (
-        <>
-          {/* Quantity input */}
-          <InputField
-            label="Miqdar"
-            value={quantity}
-            onChangeText={setQuantity}
-            placeholder="10"
-            keyboardType="decimal-pad"
-            suffix={selectedCrop.unit === "ha" ? "hektar" : "ton"}
-          />
-
-          {/* Quick select */}
-          <View style={styles.quickRow}>
-            {QUICK_AMOUNTS.map((amt) => (
-              <Pressable
-                key={amt}
-                onPress={() => setQuantity(String(amt))}
-                style={[
-                  styles.quickBtn,
-                  { borderColor: colors.n280 },
-                  quantity === String(amt) && { backgroundColor: colors.accent, borderColor: colors.accent },
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.quickBtnText,
-                    { color: colors.n660 },
-                    quantity === String(amt) && { color: colors.onAccent },
-                  ]}
-                >
-                  {amt}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-
-          {/* Liberated territory bonus */}
-          <View style={[styles.switchRow, { borderColor: colors.n280 }]}>
-            <View style={styles.switchInfo}>
-              <Text style={[styles.switchLabel, { color: colors.n840 }]}>
-                Böyük Qayıdış bonusu (+50%)
+        {showCertifiedSeed && (
+          <CheckCard checked={certifiedSeed} onToggle={() => setCertifiedSeed(!certifiedSeed)} title={pt.certifiedSeed}>
+            <Text style={[styles.checkDesc, { color: colors.n580 }]}>{pt.certifiedSeedDesc}</Text>
+            {!certifiedSeed && (
+              <Text style={[styles.checkDesc, { color: RED, fontWeight: "600", marginTop: 4 }]}>
+                {pt.certifiedSeedWarning}
               </Text>
-              {!selectedCrop.liberatedEligible && (
-                <Text style={[styles.switchNote, { color: colors.n500c }]}>
-                  Bu əkin növü üçün uyğun deyil
-                </Text>
-              )}
-            </View>
-            <Switch
-              value={liberatedBonus}
-              onValueChange={setLiberatedBonus}
-              disabled={!selectedCrop.liberatedEligible}
-              trackColor={{ false: colors.n280, true: colors.accent }}
-            />
+            )}
+          </CheckCard>
+        )}
+      </View>
+
+      {/* Nəticə */}
+      {result ? (
+        <View style={{ gap: 16 }}>
+          <View style={[styles.hero, { backgroundColor: GREEN }]}>
+            <Text style={styles.heroLabel}>{pt.total}</Text>
+            <Text style={styles.heroValue}>{formatMoney(result.total)}</Text>
+            {!result.zeroedByRule && (
+              <Text style={styles.heroSub}>
+                {formatMoney(crop.rate)} × {quantity} {unitLabel}
+              </Text>
+            )}
           </View>
 
-          {/* Certified seed */}
-          {showCertifiedSeed && (
-            <View style={[styles.switchRow, { borderColor: colors.n280 }]}>
-              <View style={styles.switchInfo}>
-                <Text style={[styles.switchLabel, { color: colors.n840 }]}>
-                  Sertifikatlaşdırılmış toxum
-                </Text>
-                {!certifiedSeed && (
-                  <Text style={[styles.switchNote, { color: "#ef4444" }]}>
-                    Sertifikatsız toxumla subsidiya verilmir
-                  </Text>
+          <View style={[styles.details, { backgroundColor: colors.n200, borderColor: colors.n280 }]}>
+            <View style={[styles.detailsHead, { backgroundColor: colors.n240, borderBottomColor: colors.n280 }]}>
+              <Text style={[styles.detailsTitle, { color: colors.n940 }]}>📊 {pt.details}</Text>
+            </View>
+            <DetailRow label={pt.cropName} value={crop.name} />
+            <DetailRow label={pt.rate} value={`${formatMoney(crop.rate)} / ${unitLabel}`} />
+            <DetailRow label={pt.quantity} value={`${quantity} ${unitLabel}`} />
+            {!result.zeroedByRule && (
+              <>
+                <DetailRow label={pt.baseSubsidy} value={formatMoney(result.baseSubsidy)} />
+                {result.liberatedBonus > 0 && (
+                  <DetailRow label={pt.liberatedBonus} value={`+${formatMoney(result.liberatedBonus)}`} tint={AMBER} />
                 )}
-              </View>
-              <Switch
-                value={certifiedSeed}
-                onValueChange={setCertifiedSeed}
-                trackColor={{ false: colors.n280, true: colors.accent }}
-              />
-            </View>
-          )}
-
-          {/* Rate info */}
-          <View style={[styles.rateInfoBox, { backgroundColor: colors.n240 }]}>
-            <Text style={[styles.rateInfoText, { color: colors.n660 }]}>
-              Dərəcə: {selectedCrop.rate} ₼/{selectedCrop.unit}
-              {selectedCrop.liberatedEligible ? "  ·  Böyük Qayıdış uyğun" : ""}
-            </Text>
+              </>
+            )}
+            {result.zeroedByRule && <DetailRow label={pt.certifiedSeedWarning} value="0 AZN" tint={RED} bold />}
+            <DetailRow label={pt.total} value={formatMoney(result.total)} tint={GREEN} bold />
           </View>
 
-          {/* Result */}
-          {result && result.total > 0 && (
-            <ResultSection title="Nəticə">
-              <ResultRow label="Ümumi subsidiya" value={fmt(result.total)} highlight bold />
-              <ResultRow
-                label={`Ǝkin subsidiya (${selectedCrop.rate} ₼/${selectedCrop.unit})`}
-                value={fmt(result.base)}
-              />
-              {result.bonus > 0 && (
-                <ResultRow label="Böyük Qayıdış bonusu (+50%)" value={fmt(result.bonus)} />
-              )}
-            </ResultSection>
-          )}
-
-          {result && result.total === 0 && showCertifiedSeed && !certifiedSeed && (
-            <View style={[styles.warningBox, { backgroundColor: "#fef2f2", borderColor: "#fecaca" }]}>
-              <Text style={[styles.warningText, { color: "#dc2626" }]}>
-                Sertifikatlaşdırılmış toxum istifadə edilmədikdə subsidiya verilmir.
-              </Text>
-            </View>
-          )}
-        </>
+          <View style={[styles.note, { backgroundColor: colors.n200, borderColor: colors.n280 }]}>
+            <Text style={[styles.noteText, { color: colors.n580 }]}>{pt.note}</Text>
+          </View>
+        </View>
+      ) : (
+        <View style={styles.empty}>
+          <Text style={{ fontSize: 36, marginBottom: 10 }}>🌾</Text>
+          <Text style={[styles.emptyText, { color: colors.n580 }]}>{pt.emptyState}</Text>
+        </View>
       )}
+
+      <FormulaSection title={pt.formulaTitle} content={pt.formulaContent} />
+      <RelatedCalculators ids={["vat", "salary", "freelancer-tax", "currency"]} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  typeRow: { flexDirection: "row", gap: 8, marginBottom: 16 },
+  label: { fontSize: 13, fontWeight: "600", marginBottom: 8 },
   typeBtn: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 10,
-    borderWidth: 1,
+    flexDirection: "row",
     alignItems: "center",
-  },
-  typeBtnText: { fontSize: 14, fontWeight: "600" },
-  sectionLabel: { fontSize: 13, fontWeight: "600", marginBottom: 6 },
-  cropList: {
-    maxHeight: 240,
+    justifyContent: "center",
+    gap: 8,
     borderRadius: 12,
     borderWidth: 1,
-    marginBottom: 16,
-  },
-  groupHeader: {
-    fontSize: 12,
-    fontWeight: "700",
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    textTransform: "uppercase",
-    letterSpacing: 0.3,
-  },
-  cropItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-  },
-  cropName: { fontSize: 14, flex: 1, marginRight: 8 },
-  rateBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-  },
-  rateText: { fontSize: 12, fontWeight: "600" },
-  quickRow: { flexDirection: "row", gap: 8, marginBottom: 16, flexWrap: "wrap" },
-  quickBtn: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-  },
-  quickBtnText: { fontSize: 13, fontWeight: "600" },
-  switchRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
     paddingVertical: 12,
+    paddingHorizontal: 12,
+  },
+  typeText: { fontSize: 14, fontWeight: "600" },
+  rowBetween: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  pill: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 },
+  pillText: { fontSize: 11, fontWeight: "700" },
+  badges: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: -6, marginBottom: 16 },
+  badge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, borderWidth: 1 },
+  badgeText: { fontSize: 12, fontWeight: "600" },
+  quickRow: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8, marginTop: -6, marginBottom: 18 },
+  quickLabel: { fontSize: 12, marginRight: 2 },
+  quickBtn: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 8, borderWidth: 1 },
+  quickText: { fontSize: 13, fontWeight: "600" },
+  checkCard: { flexDirection: "row", alignItems: "flex-start", gap: 10, padding: 14, borderRadius: 12, borderWidth: 1 },
+  checkTitle: { fontSize: 14, fontWeight: "600" },
+  checkDesc: { fontSize: 12, lineHeight: 17, marginTop: 2 },
+  hero: { borderRadius: 16, padding: 20, alignItems: "center" },
+  heroLabel: { color: "#ffffff", fontSize: 13, opacity: 0.85 },
+  heroValue: { color: "#ffffff", fontSize: 30, fontWeight: "800", marginTop: 4 },
+  heroSub: { color: "#ffffff", fontSize: 12, opacity: 0.85, marginTop: 6 },
+  details: { borderRadius: 12, borderWidth: 1, overflow: "hidden" },
+  detailsHead: { paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 1 },
+  detailsTitle: { fontSize: 14, fontWeight: "700" },
+  detailRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 12,
     paddingHorizontal: 14,
-    borderBottomWidth: 1,
-    marginBottom: 8,
+    paddingVertical: 11,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  switchInfo: { flex: 1, marginRight: 12 },
-  switchLabel: { fontSize: 14, fontWeight: "500" },
-  switchNote: { fontSize: 11, marginTop: 2 },
-  rateInfoBox: {
-    borderRadius: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    marginBottom: 8,
-  },
-  rateInfoText: { fontSize: 12 },
-  warningBox: {
-    borderRadius: 10,
-    borderWidth: 1,
-    padding: 14,
-    marginTop: 12,
-  },
-  warningText: { fontSize: 13, textAlign: "center" },
+  detailLabel: { fontSize: 13, flexShrink: 1 },
+  detailValue: { fontSize: 13, fontWeight: "600", textAlign: "right", maxWidth: "60%" },
+  note: { borderRadius: 12, borderWidth: 1, padding: 12 },
+  noteText: { fontSize: 12, textAlign: "center", lineHeight: 17 },
+  empty: { alignItems: "center", paddingVertical: 28 },
+  emptyText: { fontSize: 14, textAlign: "center" },
 });

@@ -60,7 +60,7 @@ import { RentalTaxCalculator } from "@/calculators/rental-tax";
 import { BusinessTripCalculator } from "@/calculators/business-trip";
 import { CryptoCalculator } from "@/calculators/crypto";
 import { CustomsFeeCalculator } from "@/calculators/customs-fee";
-import { BsaCalculator } from "@/calculators/bsa";
+import { KsqBsqCalculator } from "@/calculators/ksq-bsq";
 import { MilitaryCalculator } from "@/calculators/military";
 import { DivorcePropertyCalculator } from "@/calculators/divorce-property";
 import { YoutubeCalculator } from "@/calculators/youtube";
@@ -79,8 +79,8 @@ import { RamazanCalculator } from "@/calculators/ramazan";
 import { NameMeaningCalculator } from "@/calculators/name-meaning";
 import { TimezoneCalculator } from "@/calculators/timezone";
 import { HarmfulHabitsCalculator } from "@/calculators/harmful-habits";
-import { FeeCalculator } from "@/calculators/fee-calculator";
-import { SavingsCalculator } from "@/calculators/savings";
+import { VehicleFeesCalculator } from "@/calculators/vehicle-fees";
+import { XalqHayatYigimCalculator } from "@/calculators/xalq-hayat-yigim";
 import { UomgCalculator } from "@/calculators/uomg";
 import { StudyAbroadCalculator } from "@/calculators/study-abroad";
 import { SecondDegreeCalculator } from "@/calculators/second-degree";
@@ -143,30 +143,23 @@ const calculatorComponents: Record<string, React.ComponentType> = {
   "azn-sozle": AznWordsCalculator,
   "emlak-vergisi": PropertyTaxCalculator,
   "kiraye-vergisi": RentalTaxCalculator,
-  "ezamiyyet": BusinessTripCalculator,
   kripto: CryptoCalculator,
   "gomruk-rusumu": CustomsFeeCalculator,
-  "beden-sathi": BsaCalculator,
   "herbi-xidmet": MilitaryCalculator,
   "bosanma-emlak": DivorcePropertyCalculator,
-  youtube: YoutubeCalculator,
   cerime: FineCalculator,
   "ataliq-mezuniyyeti": PaternityLeaveCalculator,
-  "itirilmis-vesiqe": LostDocFeeCalculator,
   "tehsil-krediti": EducationLoanCalculator,
-  issizlik: UnemploymentCalculator,
-  elillik: DisabilityCalculator,
   sat: SatCalculator,
   "mekteb-qiymet": SchoolGradeCalculator,
-  miras: InheritanceCalculator,
   "muellim-mezuniyyet": TeacherVacationCalculator,
   "tehsil-mezuniyyeti": EducationLeaveCalculator,
   ramazan: RamazanCalculator,
   "ad-menasi": NameMeaningCalculator,
   "saat-qursagi": TimezoneCalculator,
   "zererli-verdis": HarmfulHabitsCalculator,
-  rusum: FeeCalculator,
-  "xalq-hayat-yigim": SavingsCalculator,
+  rusum: VehicleFeesCalculator,
+  "xalq-hayat-yigim": XalqHayatYigimCalculator,
   uomg: UomgCalculator,
   "xaricde-tehsil": StudyAbroadCalculator,
   "ikinci-ali-tehsil": SecondDegreeCalculator,
@@ -188,7 +181,7 @@ const calculatorComponents: Record<string, React.ComponentType> = {
   "issizlik-muavineti": UnemploymentCalculator,
   "itirilmis-sened-rusumu": LostDocFeeCalculator,
   "ezamiyye": BusinessTripCalculator,
-  "ksq-bsq": BsaCalculator,
+  "ksq-bsq": KsqBsqCalculator,
   "vərəsəlik": InheritanceCalculator,
   "youtube-qazanc": YoutubeCalculator,
 };
@@ -243,6 +236,9 @@ export default function CalculatorScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
+        <Text style={[styles.description, { color: colors.n580 }]}>
+          {calculator.description}
+        </Text>
         {CalculatorComponent ? (
           <View
             style={[styles.calcWrap, { backgroundColor: colors.n195 }]}
@@ -286,6 +282,12 @@ const styles = StyleSheet.create({
   },
   navTitle: { fontSize: 17, fontWeight: "700", flex: 1, textAlign: "center", marginHorizontal: 12 },
   content: { paddingBottom: 40 },
+  description: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginHorizontal: 20,
+    marginBottom: 14,
+  },
   calcWrap: {
     marginHorizontal: 16,
     borderRadius: 16,

@@ -45,7 +45,10 @@ export default function SearchScreen() {
         azLower(c.name).includes(q) ||
         azLower(c.description).includes(q) ||
         normalize(c.name).includes(qn) ||
-        normalize(c.description).includes(qn)
+        normalize(c.description).includes(qn) ||
+        (c.keywords ?? []).some(
+          (k) => azLower(k).includes(q) || normalize(k).includes(qn)
+        )
     );
   }, [query]);
 

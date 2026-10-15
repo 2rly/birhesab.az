@@ -1,14 +1,12 @@
-import { useState, useMemo, useCallback } from "react";
-import { View, Text, FlatList, Pressable, StyleSheet } from "react-native";
+import { useState, useMemo } from "react";
+import { View, Text, TextInput, StyleSheet } from "react-native";
 import { useTheme } from "@/constants/theme";
-import { InputField } from "@/components/InputField";
-import { adlar, type NameEntry, type Gender } from "@/data/adlar";
+import { Select } from "@/components/Select";
+import { FormulaSection, RelatedCalculators } from "@/components/Content";
+import { adlar } from "@/data/adlar";
+import type { Gender, Origin, NameEntry } from "@/data/adlar";
 
-const MAX_RESULTS = 50;
-
-type GenderFilter = "all" | Gender;
-
-function normalize(s: string): string {
+function normalizeText(s: string): string {
   return s
     .toLowerCase()
     .normalize("NFD")
@@ -17,301 +15,237 @@ function normalize(s: string): string {
     .replace(/ə/g, "e");
 }
 
-const GENDER_COLORS: Record<Gender, string> = {
-  "kişi": "#3b82f6",
-  "qadın": "#ec4899",
-  uniseks: "#8b5cf6",
+const pt = {
+  formulaTitle: "Adlar haqqında",
+  formulaContent: `Bu lüğətdə Azərbaycanda işlədilən məşhur kişi və qadın adlarının mənası, mənşəyi və tarixi məlumatı var.
+
+Adların əksəriyyəti aşağıdakı dillərdən gəlir:
+• Ərəb dili — dini və klassik adlar (Məhəmməd, Əli, Fatma)
+• Fars dili — klassik və poetik adlar (Lalə, Şirin, Pərvanə)
+• Türk dilləri — milli adlar (Aslan, Aynur, Tural)
+• Yəhudi dili — peyğəmbər adları (İbrahim, Yusif)
+• Yunan/Latın — qədim adlar (İskəndər, Roza)
+
+Mənbə: Azərbaycan dili lüğəti, ad lüğətləri, etimoloji araşdırmalar.
+
+Qeyd: bəzi adların mənası tam dəqiq olmaya bilər — eyni ad fərqli mənbələrdə fərqli izahlanır. Əgər adınız siyahıda yoxdursa və ya mənası dəqiq deyilsə, bizimlə əlaqə saxlayın.`,
+  searchPlaceholder: "Adınızı yazın... (məs: Aysel, Murad, Leyla)",
+  filterGender: "Cinsi",
+  filterOrigin: "Mənşəyi",
+  all: "Hamısı",
+  male: "Kişi",
+  female: "Qadın",
+  unisex: "Uniseks",
+  meaning: "Mənası",
+  origin: "Mənşəyi",
+  gender: "Cinsi",
+  totalNames: "ad",
+  noResults: "Bu ad lüğətdə tapılmadı.",
+  emptyState: "Adınızı yazın və ya filtrlərdən istifadə edin.",
+  popularNames: "Məşhur adlar",
+  nameNotFound: "Bu ad lüğətdə yoxdur",
+  nameNotFoundDesc: "Lüğətimiz inkişaf etməkdədir. Sizə daha doğru məlumat verməyə çalışırıq.",
 };
 
-const GENDER_LABELS: Record<Gender, string> = {
-  "kişi": "Kişi",
-  "qadın": "Qadın",
-  uniseks: "Uniseks",
+const genderEmoji: Record<Gender, string> = {
+  kişi: "👨",
+  qadın: "👩",
+  uniseks: "🧑",
 };
 
-const allOrigins = Array.from(new Set(adlar.map((a) => a.origin))).sort();
+const genderColor: Record<Gender, string> = {
+  kişi: "#3b82f6",
+  qadın: "#ec4899",
+  uniseks: "#a855f7",
+};
 
-const totalMale = adlar.filter((a) => a.gender === "kişi").length;
-const totalFemale = adlar.filter((a) => a.gender === "qadın").length;
-const totalUnisex = adlar.filter((a) => a.gender === "uniseks").length;
+const originColor: Record<string, string> = {
+  ərəb: "#d97706",
+  fars: "#e11d48",
+  türk: "#059669",
+  yəhudi: "#4f46e5",
+  yunan: "#0284c7",
+  latın: "#7c3aed",
+};
+
+function originBadge(origin: Origin | string): string {
+  return originColor[origin] ?? "#6b7280";
+}
+
+function Badge({ text, color }: { text: string; color: string }) {
+  return (
+    <View style={[styles.badge, { backgroundColor: color + "1a", borderColor: color + "55" }]}>
+      <Text style={[styles.badgeText, { color }]}>{text}</Text>
+    </View>
+  );
+}
+
+function NameCard({ entry, highlight }: { entry: NameEntry; highlight?: boolean }) {
+  const { colors } = useTheme();
+  return (
+    <View
+      style={[
+        styles.card,
+        { backgroundColor: colors.n200, borderColor: highlight ? colors.accent : colors.n280 },
+        highlight && { borderWidth: 2 },
+      ]}
+    >
+      <Text style={[styles.name, { color: colors.n960 }]}>{entry.name}</Text>
+      <View style={styles.badges}>
+        <Badge
+          text={`${genderEmoji[entry.gender]} ${
+            entry.gender === "kişi" ? pt.male : entry.gender === "qadın" ? pt.female : pt.unisex
+          }`}
+          color={genderColor[entry.gender]}
+        />
+        <Badge text={entry.origin} color={originBadge(entry.origin)} />
+      </View>
+      <Text style={[styles.meaning, { color: colors.n940 }]}>
+        <Text style={{ fontWeight: "700", color: colors.n580 }}>{pt.meaning}: </Text>
+        {entry.meaning}
+      </Text>
+      {entry.note && <Text style={[styles.note, { color: colors.n580 }]}>{entry.note}</Text>}
+    </View>
+  );
+}
+
+const MALE_COUNT = adlar.filter((a) => a.gender === "kişi").length;
+const FEMALE_COUNT = adlar.filter((a) => a.gender === "qadın").length;
+const ALL_ORIGINS: Origin[] = Array.from(new Set(adlar.map((a) => a.origin))).sort();
 
 export function NameMeaningCalculator() {
   const { colors } = useTheme();
   const [search, setSearch] = useState("");
-  const [genderFilter, setGenderFilter] = useState<GenderFilter>("all");
-  const [originFilter, setOriginFilter] = useState<string | null>(null);
+  const [genderFilter, setGenderFilter] = useState<"" | Gender>("");
+  const [originFilter, setOriginFilter] = useState<"" | Origin>("");
 
-  const { exactMatch, results } = useMemo(() => {
-    const q = search.trim();
-    const nq = q ? normalize(q) : "";
-
-    let filtered = adlar;
-
-    if (genderFilter !== "all") {
-      filtered = filtered.filter((a) => a.gender === genderFilter);
+  const filtered = useMemo(() => {
+    let result = adlar;
+    if (genderFilter) result = result.filter((a) => a.gender === genderFilter);
+    if (originFilter) result = result.filter((a) => a.origin === originFilter);
+    if (search.trim()) {
+      const q = normalizeText(search.trim());
+      result = result.filter((a) => normalizeText(a.name).includes(q));
     }
-    if (originFilter) {
-      filtered = filtered.filter((a) => a.origin === originFilter);
-    }
-
-    let exact: NameEntry | null = null;
-
-    if (nq) {
-      exact = filtered.find((a) => normalize(a.name) === nq) ?? null;
-      filtered = filtered.filter((a) => normalize(a.name).includes(nq));
-    }
-
-    return { exactMatch: exact, results: filtered.slice(0, MAX_RESULTS) };
+    return [...result].sort((a, b) => a.name.localeCompare(b.name, "az"));
   }, [search, genderFilter, originFilter]);
 
-  const totalFiltered = useMemo(() => {
-    let filtered = adlar;
-    const q = search.trim();
-    const nq = q ? normalize(q) : "";
-    if (genderFilter !== "all") filtered = filtered.filter((a) => a.gender === genderFilter);
-    if (originFilter) filtered = filtered.filter((a) => a.origin === originFilter);
-    if (nq) filtered = filtered.filter((a) => normalize(a.name).includes(nq));
-    return filtered.length;
-  }, [search, genderFilter, originFilter]);
+  // Tam uyğunluq — istifadəçi adı dəqiq yazıbsa onu öndə göstər
+  const exactMatch = useMemo(() => {
+    if (!search.trim()) return null;
+    const q = normalizeText(search.trim());
+    return adlar.find((a) => normalizeText(a.name) === q) ?? null;
+  }, [search]);
 
-  const renderItem = useCallback(
-    ({ item }: { item: NameEntry }) => {
-      const gc = GENDER_COLORS[item.gender];
-      return (
-        <View style={[styles.card, { backgroundColor: colors.n195, borderColor: colors.n280 }]}>
-          <View style={styles.cardHeader}>
-            <Text style={[styles.nameText, { color: colors.n940 }]}>{item.name}</Text>
-            <View style={styles.badgeRow}>
-              <View style={[styles.badge, { backgroundColor: gc + "20" }]}>
-                <Text style={[styles.badgeText, { color: gc }]}>{GENDER_LABELS[item.gender]}</Text>
-              </View>
-              <View style={[styles.badge, { backgroundColor: colors.n240 }]}>
-                <Text style={[styles.badgeText, { color: colors.n660 }]}>{item.origin}</Text>
-              </View>
-            </View>
-          </View>
-          <Text style={[styles.meaningText, { color: colors.n760 }]}>{item.meaning}</Text>
-          {item.note && (
-            <Text style={[styles.noteText, { color: colors.n580 }]}>{item.note}</Text>
-          )}
-        </View>
-      );
-    },
-    [colors]
-  );
+  const hasSearched = search.trim().length > 0;
+  const showNotFound = hasSearched && !exactMatch && filtered.length === 0;
 
-  const keyExtractor = useCallback(
-    (item: NameEntry, index: number) => item.name + index,
-    []
-  );
-
-  const genderOptions: { value: GenderFilter; label: string }[] = [
-    { value: "all", label: "Hamısı" },
-    { value: "kişi", label: "Kişi" },
-    { value: "qadın", label: "Qadın" },
-    { value: "uniseks", label: "Uniseks" },
+  const stats = [
+    { value: MALE_COUNT, label: `👨 ${pt.male}`, color: "#3b82f6" },
+    { value: FEMALE_COUNT, label: `👩 ${pt.female}`, color: "#ec4899" },
+    { value: adlar.length, label: `📚 ${pt.totalNames}`, color: "#10b981" },
   ];
 
   return (
-    <View style={styles.container}>
-      {/* Stats */}
-      <View style={styles.statsRow}>
-        <View style={[styles.statBox, { backgroundColor: colors.n240 }]}>
-          <Text style={[styles.statNum, { color: colors.accent }]}>{adlar.length}</Text>
-          <Text style={[styles.statLabel, { color: colors.n580 }]}>Toplam</Text>
-        </View>
-        <View style={[styles.statBox, { backgroundColor: "#3b82f6" + "15" }]}>
-          <Text style={[styles.statNum, { color: "#3b82f6" }]}>{totalMale}</Text>
-          <Text style={[styles.statLabel, { color: colors.n580 }]}>Kişi</Text>
-        </View>
-        <View style={[styles.statBox, { backgroundColor: "#ec4899" + "15" }]}>
-          <Text style={[styles.statNum, { color: "#ec4899" }]}>{totalFemale}</Text>
-          <Text style={[styles.statLabel, { color: colors.n580 }]}>Qadın</Text>
-        </View>
-        <View style={[styles.statBox, { backgroundColor: "#8b5cf6" + "15" }]}>
-          <Text style={[styles.statNum, { color: "#8b5cf6" }]}>{totalUnisex}</Text>
-          <Text style={[styles.statLabel, { color: colors.n580 }]}>Uniseks</Text>
-        </View>
+    <View>
+      {/* Statistika */}
+      <View style={styles.stats}>
+        {stats.map((s) => (
+          <View key={s.label} style={[styles.stat, { backgroundColor: s.color + "14", borderColor: s.color + "55" }]}>
+            <Text style={[styles.statValue, { color: s.color }]}>{s.value}</Text>
+            <Text style={[styles.statLabel, { color: s.color }]}>{s.label}</Text>
+          </View>
+        ))}
       </View>
 
-      {/* Search */}
-      <InputField
-        label="Ad axtarışı"
+      {/* Axtarış */}
+      <TextInput
         value={search}
         onChangeText={setSearch}
-        placeholder="Məsələn: Aysel"
+        placeholder={pt.searchPlaceholder}
+        placeholderTextColor={colors.n400c}
+        autoCorrect={false}
+        autoCapitalize="words"
+        style={[styles.search, { backgroundColor: colors.n240, borderColor: colors.n280, color: colors.n940 }]}
       />
 
-      {/* Gender filter */}
-      <View style={styles.filterSection}>
-        <Text style={[styles.filterLabel, { color: colors.n700 }]}>Cins</Text>
-        <View style={styles.chipRow}>
-          {genderOptions.map((opt) => {
-            const active = genderFilter === opt.value;
-            return (
-              <Pressable
-                key={opt.value}
-                onPress={() => setGenderFilter(opt.value)}
-                style={[
-                  styles.chip,
-                  { borderColor: colors.n280 },
-                  active && { backgroundColor: colors.accent, borderColor: colors.accent },
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.chipText,
-                    { color: colors.n660 },
-                    active && { color: colors.onAccent },
-                  ]}
-                >
-                  {opt.label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      </View>
+      {/* Filtrlər */}
+      <Select
+        label={pt.filterGender}
+        value={genderFilter}
+        options={[
+          { value: "", label: pt.all },
+          { value: "kişi", label: `👨 ${pt.male}` },
+          { value: "qadın", label: `👩 ${pt.female}` },
+          { value: "uniseks", label: `🧑 ${pt.unisex}` },
+        ]}
+        onSelect={(v) => setGenderFilter(v as Gender | "")}
+      />
+      <Select
+        label={pt.filterOrigin}
+        value={originFilter}
+        options={[{ value: "", label: pt.all }, ...ALL_ORIGINS.map((o) => ({ value: o, label: o }))]}
+        onSelect={(v) => setOriginFilter(v)}
+      />
 
-      {/* Origin filter */}
-      <View style={styles.filterSection}>
-        <Text style={[styles.filterLabel, { color: colors.n700 }]}>Mənşə</Text>
-        <FlatList
-          data={[null, ...allOrigins]}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item) => item ?? "all"}
-          renderItem={({ item }) => {
-            const active = originFilter === item;
-            return (
-              <Pressable
-                onPress={() => setOriginFilter(item)}
-                style={[
-                  styles.chip,
-                  { borderColor: colors.n280 },
-                  active && { backgroundColor: colors.accent, borderColor: colors.accent },
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.chipText,
-                    { color: colors.n660 },
-                    active && { color: colors.onAccent },
-                  ]}
-                >
-                  {item ?? "Hamısı"}
-                </Text>
-              </Pressable>
-            );
-          }}
-          style={styles.originList}
-        />
-      </View>
-
-      {/* Count */}
-      <Text style={[styles.countText, { color: colors.n580 }]}>
-        {totalFiltered} nəticə{totalFiltered > MAX_RESULTS ? ` (ilk ${MAX_RESULTS} göstərilir)` : ""}
-      </Text>
-
-      {/* Exact match highlight */}
+      {/* Tam uyğunluq */}
       {exactMatch && (
-        <View style={[styles.exactCard, { backgroundColor: colors.accent + "15", borderColor: colors.accent }]}>
-          <Text style={[styles.exactLabel, { color: colors.accent }]}>Tam uyğunluq</Text>
-          <Text style={[styles.exactName, { color: colors.n940 }]}>{exactMatch.name}</Text>
-          <View style={styles.badgeRow}>
-            <View style={[styles.badge, { backgroundColor: GENDER_COLORS[exactMatch.gender] + "20" }]}>
-              <Text style={[styles.badgeText, { color: GENDER_COLORS[exactMatch.gender] }]}>
-                {GENDER_LABELS[exactMatch.gender]}
-              </Text>
-            </View>
-            <View style={[styles.badge, { backgroundColor: colors.n240 }]}>
-              <Text style={[styles.badgeText, { color: colors.n660 }]}>{exactMatch.origin}</Text>
-            </View>
-          </View>
-          <Text style={[styles.exactMeaning, { color: colors.n760 }]}>{exactMatch.meaning}</Text>
-          {exactMatch.note && (
-            <Text style={[styles.noteText, { color: colors.n580 }]}>{exactMatch.note}</Text>
-          )}
+        <View style={{ marginBottom: 14 }}>
+          <NameCard entry={exactMatch} highlight />
         </View>
       )}
 
-      {/* Results */}
-      {results.length === 0 && search.trim().length > 0 ? (
-        <View style={[styles.emptyBox, { backgroundColor: colors.n240 }]}>
-          <Text style={[styles.emptyText, { color: colors.n580 }]}>
-            Bu ad lügətdə tapılmadı
-          </Text>
+      {/* Tapılmadı */}
+      {showNotFound && (
+        <View style={[styles.notFound, { backgroundColor: "#f59e0b1a", borderColor: "#f59e0b66" }]}>
+          <Text style={{ fontSize: 36, marginBottom: 6 }}>🔍</Text>
+          <Text style={[styles.nfTitle, { color: colors.n940 }]}>{pt.nameNotFound}</Text>
+          <Text style={[styles.nfDesc, { color: colors.n760 }]}>{pt.nameNotFoundDesc}</Text>
         </View>
-      ) : (
-        <FlatList
-          data={results}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          scrollEnabled={false}
-        />
       )}
+
+      {/* Nəticələr */}
+      {filtered.length > 0 && !exactMatch && (
+        <Text style={[styles.count, { color: colors.n580 }]}>
+          <Text style={{ fontWeight: "700", color: colors.n940 }}>{filtered.length}</Text> {pt.totalNames}
+        </Text>
+      )}
+
+      <View style={{ gap: 10 }}>
+        {filtered
+          .filter((e) => !exactMatch || e.name !== exactMatch.name)
+          .slice(0, hasSearched ? 30 : 50)
+          .map((entry) => (
+            <NameCard key={entry.name} entry={entry} />
+          ))}
+      </View>
+
+      {!hasSearched && filtered.length > 50 && (
+        <Text style={[styles.hint, { color: colors.n580 }]}>↑ Yuxarıdakı axtarış xanasından adı yazın</Text>
+      )}
+
+      <FormulaSection title={pt.formulaTitle} content={pt.formulaContent} />
+      <RelatedCalculators ids={["bmi", "yas", "hamilelik"]} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  statsRow: { flexDirection: "row", gap: 8, marginBottom: 16 },
-  statBox: {
-    flex: 1,
-    borderRadius: 10,
-    paddingVertical: 10,
-    alignItems: "center",
-  },
-  statNum: { fontSize: 18, fontWeight: "700" },
+  stats: { flexDirection: "row", gap: 8, marginBottom: 16 },
+  stat: { flex: 1, borderRadius: 12, borderWidth: 1, padding: 10, alignItems: "center" },
+  statValue: { fontSize: 20, fontWeight: "800" },
   statLabel: { fontSize: 11, marginTop: 2 },
-  filterSection: { marginBottom: 12 },
-  filterLabel: { fontSize: 13, fontWeight: "600", marginBottom: 6 },
-  chipRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 20,
-    borderWidth: 1,
-  },
-  chipText: { fontSize: 13, fontWeight: "500" },
-  originList: { marginTop: 2 },
-  countText: { fontSize: 12, marginBottom: 10 },
-  card: {
-    borderRadius: 12,
-    borderWidth: 1,
-    padding: 14,
-    marginBottom: 10,
-  },
-  cardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 6,
-  },
-  nameText: { fontSize: 18, fontWeight: "700" },
-  badgeRow: { flexDirection: "row", gap: 6 },
-  badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 12,
-  },
-  badgeText: { fontSize: 11, fontWeight: "600" },
-  meaningText: { fontSize: 14, lineHeight: 20 },
-  noteText: { fontSize: 12, fontStyle: "italic", marginTop: 4, lineHeight: 17 },
-  exactCard: {
-    borderRadius: 12,
-    borderWidth: 1.5,
-    padding: 16,
-    marginBottom: 14,
-  },
-  exactLabel: { fontSize: 11, fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 },
-  exactName: { fontSize: 24, fontWeight: "700", marginBottom: 6 },
-  exactMeaning: { fontSize: 15, lineHeight: 22, marginTop: 6 },
-  emptyBox: {
-    borderRadius: 12,
-    padding: 24,
-    alignItems: "center",
-  },
-  emptyText: { fontSize: 14, textAlign: "center" },
+  search: { borderRadius: 12, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 12, fontSize: 16, marginBottom: 14 },
+  card: { borderRadius: 16, borderWidth: 1, padding: 16 },
+  name: { fontSize: 22, fontWeight: "800" },
+  badges: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 6, marginBottom: 8 },
+  badge: { borderRadius: 6, borderWidth: 1, paddingHorizontal: 8, paddingVertical: 2 },
+  badgeText: { fontSize: 11, fontWeight: "700" },
+  meaning: { fontSize: 14, lineHeight: 21 },
+  note: { fontSize: 12, fontStyle: "italic", marginTop: 6, lineHeight: 17 },
+  notFound: { borderRadius: 16, borderWidth: 1, padding: 20, alignItems: "center", marginBottom: 14 },
+  nfTitle: { fontSize: 15, fontWeight: "700", marginBottom: 4 },
+  nfDesc: { fontSize: 13, textAlign: "center", lineHeight: 19 },
+  count: { fontSize: 13, marginBottom: 10 },
+  hint: { fontSize: 13, textAlign: "center", marginTop: 14 },
 });
